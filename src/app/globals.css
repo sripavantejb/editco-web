@@ -1,0 +1,152 @@
+@import "tailwindcss";
+
+@theme {
+  --color-gaude-orange: #ff4e00;
+  --color-gaude-black: #0a0a0a;
+  --color-gaude-purple: #c3a4f6;
+  --color-gaude-green: #2fdf92;
+  --color-gaude-pink: #fca5cc;
+
+  --font-syne: "Syne", sans-serif;
+  --font-archivo: "Archivo Black", sans-serif;
+  --font-inter: "Inter", sans-serif;
+  /* Set on <html> by next/font Space_Grotesk; used for hero display + stack labels */
+  --font-hero-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+html {
+  /* Floating pill nav: top padding + pill + buffer for anchor targets */
+  scroll-padding-top: 6.5rem;
+}
+
+body {
+  background-color: var(--color-gaude-black);
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    scroll-behavior: auto;
+  }
+}
+
+@layer utilities {
+  .animate-marquee {
+    animation: marquee 60s linear infinite;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes float1 {
+  0%,
+  100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-20px) scale(1.02);
+  }
+}
+
+@keyframes float2 {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+@keyframes float3 {
+  0%,
+  100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-25px) scale(0.98);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes gradient-x {
+  0% {
+    background-position: 200% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-gaude-black);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-gaude-purple);
+  border: 3px solid var(--color-gaude-black);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gaude-orange);
+}
+
+@layer utilities {
+  .bg-premium-orange {
+    background: linear-gradient(135deg, #ff4b00 0%, #ff6a00 50%, #ff3c00 100%);
+  }
+  .grid-texture {
+    background-image: radial-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+}
+
+@keyframes float-subtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float-subtle {
+  animation: float-subtle 6s ease-in-out infinite;
+}
