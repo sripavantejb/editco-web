@@ -76,22 +76,36 @@ export function ProcessSection() {
           />
         </div>
 
-        <div className="relative space-y-32 md:space-y-64">
+        <div className="relative space-y-32 md:space-y-48">
           {process.steps.map((step, i) => {
             const Icon = STEP_ICONS[i % STEP_ICONS.length];
             const isEven = i % 2 === 0;
 
             return (
-              <div key={step.title} className="group relative flex flex-col items-center md:flex-row">
+              <div key={step.title} className="relative flex w-full flex-col items-center">
                 
-                {/* Content Card Side */}
-                <div className={`flex w-full flex-col md:w-1/2 ${isEven ? 'md:pr-32 md:items-end' : 'md:pl-32 md:order-last md:items-start'}`}>
+                {/* Desktop Central Node */}
+                <div className="absolute left-1/2 top-1/2 z-40 -translate-x-1/2 -translate-y-1/2 hidden md:block">
+                  <motion.div 
+                    initial={{ scale: 0 }}
+                    whileInView={{ scale: 1 }}
+                    viewport={{ once: true }}
+                    className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/20 bg-gaude-black p-1 transition-all group-hover:border-gaude-orange"
+                  >
+                    <div className="flex h-full w-full items-center justify-center rounded-full border border-white/5 bg-white/5 font-archivo text-xs font-black text-white group-hover:bg-gaude-orange group-hover:text-black">
+                      {i + 1}
+                    </div>
+                  </motion.div>
+                </div>
+
+                {/* Content Container (Alternates Left/Right) */}
+                <div className={`flex w-full items-center ${isEven ? 'justify-start' : 'justify-end'}`}>
                   <motion.div
                     initial={{ opacity: 0, x: isEven ? -50 : 50 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true, margin: "-100px" }}
                     transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className="relative w-full max-w-md"
+                    className="relative w-full px-4 md:w-[45%] md:px-0"
                   >
                     {/* Ghost Numbering */}
                     <span className={`absolute -top-16 font-archivo text-[140px] font-black leading-none opacity-[0.03] md:-top-24 ${isEven ? '-right-10' : '-left-10'}`}>
@@ -99,7 +113,7 @@ export function ProcessSection() {
                     </span>
 
                     {/* Technical Card */}
-                    <div className="relative z-10 rounded-[2px] border border-white/10 bg-white/[0.02] p-8 backdrop-blur-md transition-all hover:border-gaude-orange/30 hover:bg-white/[0.04]">
+                    <div className="group relative z-10 rounded-[2px] border border-white/10 bg-white/[0.02] p-8 backdrop-blur-md transition-all hover:border-gaude-orange/30 hover:bg-white/[0.04]">
                       {/* Technical Accent Line */}
                       <div className={`absolute top-0 h-1 w-12 bg-gaude-orange transition-all duration-500 group-hover:w-24 ${isEven ? 'right-0' : 'left-0'}`} />
                       
@@ -129,24 +143,8 @@ export function ProcessSection() {
                       whileInView={{ scaleX: 1 }}
                       viewport={{ once: true }}
                       transition={{ delay: 0.5, duration: 0.6 }}
-                      className={`absolute top-1/2 z-0 hidden h-[1px] w-32 bg-gradient-to-r from-gaude-orange/40 to-transparent md:block ${isEven ? '-right-32 origin-left' : '-left-32 origin-right rotate-180'}`}
+                      className={`absolute top-1/2 z-0 hidden h-[1px] w-20 bg-gradient-to-r from-gaude-orange/40 to-transparent md:block ${isEven ? '-right-20 origin-left' : '-left-20 origin-right rotate-180'}`}
                     />
-                  </motion.div>
-                </div>
-
-                {/* Central Node Node */}
-                <div className="absolute left-1/2 top-1/2 z-40 -translate-x-1/2 -translate-y-1/2 hidden md:block">
-                  <motion.div 
-                    initial={{ scale: 0 }}
-                    whileInView={{ scale: 1 }}
-                    viewport={{ once: true }}
-                    className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/20 bg-gaude-black p-1 transition-all group-hover:border-gaude-orange"
-                  >
-                    <div className="flex h-full w-full items-center justify-center rounded-full border border-white/5 bg-white/5 font-archivo text-xs font-black text-white group-hover:bg-gaude-orange group-hover:text-black">
-                      {i + 1}
-                    </div>
-                    {/* Outer Glow Ring */}
-                    <div className="absolute inset-[-8px] animate-pulse rounded-full border border-gaude-orange/10" />
                   </motion.div>
                 </div>
 
