@@ -50,7 +50,7 @@ export function MagneticNav() {
     stiffness: 260,
     damping: 32,
     mass: 1
-  };
+  } as const;
 
   return (
     <>
