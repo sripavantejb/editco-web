@@ -1,3 +1,4 @@
+"use client";
 import { tech } from "@/content/landing";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { sectionFlow } from "@/lib/stickyStack";
