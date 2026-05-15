@@ -10,7 +10,6 @@ const CREW = [
     name: "Sri Pavan Tej B",
     role: "Creative Director & Co-founder",
     description: "Leading our creative vision with 8+ years in digital design and branding.",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop",
     accent: "bg-gaude-orange",
     rotate: "rotate-[-1deg]",
   },
@@ -18,7 +17,6 @@ const CREW = [
     name: "Deepika M",
     role: "UX Designer & Backend Developer",
     description: "Crafting user experiences that delight and convert with data-driven design.",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974&auto=format&fit=crop",
     accent: "bg-gaude-purple",
     rotate: "rotate-[1deg]",
   },
@@ -26,7 +24,6 @@ const CREW = [
     name: "Harsha P",
     role: "Developer & Operations Manager",
     description: "Building scalable solutions with modern technologies and clean code.",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1974&auto=format&fit=crop",
     accent: "bg-gaude-green",
     rotate: "rotate-[-0.5deg]",
   }
@@ -64,15 +61,11 @@ export function WhySection() {
               transition={{ delay: i * 0.1 }}
               className={`group relative flex flex-col border-4 border-gaude-black bg-white p-4 shadow-[12px_12px_0_0_#000] transition-all hover:shadow-[16px_16px_0_0_#000] hover:-translate-y-2 ${member.rotate}`}
             >
-              {/* Image Container */}
+              {/* Initial-based Placeholder Container */}
               <div className="relative aspect-[4/5] overflow-hidden border-4 border-gaude-black">
-                <img 
-                  src={member.image} 
-                  alt={member.name}
-                  className="h-full w-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0 group-hover:scale-105"
-                />
-                {/* Accent Overlay */}
-                <div className={`absolute inset-0 opacity-20 mix-blend-multiply ${member.accent}`} />
+                <div className={`flex h-full w-full items-center justify-center font-archivo text-6xl font-black text-gaude-black/20 ${member.accent} transition-all duration-500 group-hover:scale-105`}>
+                  {member.name.split(' ').map(n => n[0]).join('')}
+                </div>
                 
                 {/* Social Floating Badge */}
                 <div className="absolute bottom-4 right-4 flex gap-2 translate-y-12 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
