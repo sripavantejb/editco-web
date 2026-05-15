@@ -15,15 +15,15 @@ const CREW = [
   },
   {
     name: "Deepika M",
-    role: "UX Designer & Backend Developer",
+    role: "UI/UX Designer & Co-founder",
     description: "Crafting user experiences that delight and convert with data-driven design.",
     accent: "bg-gaude-purple",
     rotate: "rotate-[1deg]",
   },
   {
     name: "Harsha P",
-    role: "Developer & Operations Manager",
-    description: "Building scalable solutions with modern technologies and clean code.",
+    role: "Customer & Relations Manager & Co-founder",
+    description: "Ensuring client success and maintaining strong partnerships for long-term growth.",
     accent: "bg-gaude-green",
     rotate: "rotate-[-0.5deg]",
   }
