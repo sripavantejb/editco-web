@@ -42,8 +42,8 @@ export function HeroSection() {
               </span>
             </div>
 
-            <h1 className="select-none font-archivo text-[18vw] font-black uppercase leading-[0.8] tracking-[-0.06em] text-white md:text-[20vw] lg:text-[18vw] pr-[0.05em]">
-              <span className="bg-gradient-to-b from-white to-white/40 bg-clip-text text-transparent">
+            <h1 className="select-none font-archivo text-[18vw] font-black uppercase leading-[0.8] tracking-[-0.06em] text-white md:text-[20vw] lg:text-[18vw] pr-[0.1em] overflow-visible">
+              <span className="inline-block bg-gradient-to-b from-white to-white/40 bg-clip-text text-transparent">
                 EDITCO
               </span>
             </h1>
