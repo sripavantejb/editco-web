@@ -16,6 +16,7 @@ export function TestimonialsSection() {
               What People Say About <span className="text-gaude-black">Working With Us</span>
             </>
           } 
+          light
         />
 
         <div className="mt-8 grid gap-6 md:grid-cols-2">
@@ -40,7 +41,7 @@ export function TestimonialsSection() {
           ))}
         </div>
 
-        <p className="mt-10 text-center font-syne text-base font-bold text-gaude-black md:text-lg">
+        <p className="mt-10 text-center font-syne text-base font-bold text-white md:text-lg">
           {testimonials.fallback}
         </p>
       </div>
