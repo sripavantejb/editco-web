@@ -16,15 +16,16 @@ export function IndustriesSection() {
   return (
     <section
       id={industries.id}
-      className={`border-b-4 border-gaude-black bg-gaude-pink px-4 py-16 md:px-8 md:py-24 ${sectionFlow}`}
+      className={`border-b-4 border-gaude-black bg-gaude-orange px-4 py-16 md:px-8 md:py-24 ${sectionFlow}`}
     >
       <div className="mx-auto max-w-7xl">
         <SectionHeading 
           title={
             <>
-              Built for Businesses That Want to <span className="text-gaude-purple">Grow Smarter</span>
+              Built for Businesses That Want to <span className="text-gaude-black">Grow Smarter</span>
             </>
           } 
+          light
         />
 
         <div className="mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-3">

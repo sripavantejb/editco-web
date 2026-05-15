@@ -8,11 +8,11 @@ export function CaseStudySection() {
   return (
     <section
       id={caseStudy.id}
-      className={`relative min-h-screen bg-white py-24 ${sectionFlow}`}
+      className={`relative min-h-screen bg-gaude-black py-24 ${sectionFlow}`}
     >
       <div className="mx-auto max-w-[1400px] px-4 md:px-8">
         <div className="mb-16">
-          <h2 className="font-archivo text-3xl uppercase leading-[0.95] tracking-tighter text-gaude-black md:text-5xl lg:text-6xl">
+          <h2 className="font-archivo text-3xl uppercase leading-[0.95] tracking-tighter text-white md:text-5xl lg:text-6xl">
             SELECTED <br /> WORKS
           </h2>
         </div>
@@ -24,7 +24,7 @@ export function CaseStudySection() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className={`group relative overflow-hidden rounded-[32px] bg-gaude-black ${
+              className={`group relative overflow-hidden rounded-[32px] border border-white/10 bg-gaude-black ${
                 work.fullWidth ? "md:col-span-2 aspect-[16/9] md:aspect-[21/9]" : "aspect-[4/3] md:aspect-[1/1]"
               }`}
             >
@@ -40,6 +40,16 @@ export function CaseStudySection() {
                   <source src={work.video} type="video/mp4" />
                 </video>
                 <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/20" />
+                
+                {/* Gloss Effect sweep */}
+                <div className="pointer-events-none absolute inset-0 z-1 overflow-hidden opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+                  <motion.div 
+                    initial={{ left: "-150%", top: "-150%" }}
+                    whileHover={{ left: "150%", top: "150%" }}
+                    transition={{ duration: 1.2, ease: "easeInOut" }}
+                    className="absolute h-[300%] w-[50%] -rotate-45 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                  />
+                </div>
               </div>
 
               {/* Content Overlays */}
