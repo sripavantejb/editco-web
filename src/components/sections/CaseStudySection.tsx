@@ -24,8 +24,8 @@ export function CaseStudySection() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className={`group relative overflow-hidden rounded-[32px] border border-white/10 bg-gaude-black ${
-                work.fullWidth ? "md:col-span-2 aspect-[16/9] md:aspect-[21/9]" : "aspect-[4/3] md:aspect-[1/1]"
+              className={`group relative overflow-hidden rounded-[24px] border border-white/10 bg-gaude-black md:rounded-[32px] ${
+                work.fullWidth ? "md:col-span-2 aspect-[16/10] md:aspect-[21/9]" : "aspect-[1/1] md:aspect-[1/1]"
               }`}
             >
               {/* Video Background */}
@@ -39,7 +39,7 @@ export function CaseStudySection() {
                 >
                   <source src={work.video} type="video/mp4" />
                 </video>
-                <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/20" />
+                <div className="absolute inset-0 bg-black/20 transition-colors group-hover:bg-black/30" />
                 
                 {/* Gloss Effect sweep */}
                 <div className="pointer-events-none absolute inset-0 z-1 overflow-hidden opacity-0 transition-opacity duration-500 group-hover:opacity-100">
@@ -53,26 +53,26 @@ export function CaseStudySection() {
               </div>
 
               {/* Content Overlays */}
-              <div className="relative z-10 flex h-full flex-col justify-between p-8 md:p-12">
+              <div className="relative z-10 flex h-full flex-col justify-between p-6 md:p-12">
                 {/* Top Info */}
                 <div className="flex flex-col gap-1">
-                  <h3 className="font-archivo text-3xl font-medium tracking-tight text-white md:text-5xl">
+                  <h3 className="font-archivo text-2xl font-medium tracking-tight text-white md:text-5xl">
                     {work.title}
                   </h3>
-                  <p className="font-archivo text-xl font-light text-white/70 md:text-2xl">
+                  <p className="font-archivo text-base font-light text-white/70 md:text-2xl">
                     {work.location}
                   </p>
                 </div>
 
                 {/* Bottom Info */}
                 <div className="flex items-end justify-between">
-                  <p className="font-archivo text-base font-medium tracking-tight text-white/90 md:text-xl">
+                  <p className="font-archivo text-[10px] font-medium tracking-tight text-white/90 md:text-xl">
                     {work.category}
                   </p>
                   
                   {/* Plus Trigger Button (matches ref) */}
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-gaude-black transition-transform group-hover:rotate-90 md:h-16 md:w-16">
-                    <Plus className="h-6 w-6 md:h-8 md:w-8" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-gaude-black transition-transform group-hover:rotate-90 md:h-16 md:w-16">
+                    <Plus className="h-5 w-5 md:h-8 md:w-8" />
                   </div>
                 </div>
               </div>

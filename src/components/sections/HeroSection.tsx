@@ -32,18 +32,18 @@ export function HeroSection() {
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col items-center text-center"
           >
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-gaude-orange/20 bg-gaude-orange/5 px-4 py-1.5 backdrop-blur-sm">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gaude-orange/20 bg-gaude-orange/5 px-4 py-1.5 backdrop-blur-sm">
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gaude-orange opacity-75"></span>
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-gaude-orange"></span>
               </span>
-              <span className="font-archivo text-[10px] font-bold uppercase tracking-[0.2em] text-gaude-orange/80">
+              <span className="font-archivo text-[8px] md:text-[10px] font-bold uppercase tracking-[0.2em] text-gaude-orange/80 whitespace-nowrap">
                 AI AUTOMATION + GROWTH SYSTEMS AGENCY
               </span>
             </div>
 
-            <h1 className="select-none font-archivo text-[18vw] font-black uppercase leading-[0.8] tracking-[-0.06em] text-white md:text-[20vw] lg:text-[18vw] pr-[0.1em] overflow-visible">
-              <span className="inline-block bg-gradient-to-b from-white to-white/40 bg-clip-text text-transparent">
+            <h1 className="select-none font-archivo text-[16vw] font-black uppercase leading-[0.8] tracking-[-0.06em] text-white md:text-[20vw] lg:text-[18vw]">
+              <span className="bg-gradient-to-b from-white to-white/40 bg-clip-text text-transparent">
                 EDITCO
               </span>
             </h1>
@@ -52,7 +52,7 @@ export function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="mt-8 font-space-grotesk text-[4.5vw] font-medium tracking-tight text-white/90 md:text-[3vw] lg:text-[2.2vw]"
+              className="mt-6 px-4 font-space-grotesk text-[5vw] font-medium tracking-tight text-white/90 md:mt-8 md:text-[3vw] lg:text-[2.2vw] max-w-[90vw] md:max-w-none"
             >
               Smart Websites, AI Automations & Growth Systems for <span className="text-gaude-orange">Exponential Growth.</span>
             </motion.p>
@@ -63,12 +63,12 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
-          className="mt-16 flex flex-col items-center gap-6"
+          className="mt-12 flex flex-col items-center gap-8 w-full md:mt-16"
         >
-          <div className="flex flex-col items-center gap-6 sm:flex-row">
+          <div className="flex w-full flex-col items-center gap-4 px-4 sm:flex-row sm:justify-center sm:gap-6">
             <a
               href="#services"
-              className="group relative flex h-16 items-center overflow-hidden rounded-full border border-gaude-orange bg-gaude-orange px-10 font-archivo text-[11px] font-bold uppercase tracking-widest text-white transition-all hover:shadow-[0_0_30px_rgba(255,78,0,0.4)]"
+              className="group relative flex h-14 w-full items-center justify-center overflow-hidden rounded-full border border-gaude-orange bg-gaude-orange px-8 font-archivo text-[10px] font-bold uppercase tracking-widest text-white transition-all hover:shadow-[0_0_30px_rgba(255,78,0,0.4)] sm:h-16 sm:w-auto sm:px-10 md:text-[11px]"
             >
               <span className="relative z-10 flex items-center gap-2">
                 VIEW OUR WORK <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -78,22 +78,22 @@ export function HeroSection() {
               data-cal-link="editco-media/15min"
               data-cal-namespace="15min"
               data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'
-              className="group relative flex h-16 items-center overflow-hidden rounded-full border border-white/10 bg-white/5 px-10 font-archivo text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur-md transition-all hover:bg-white hover:text-gaude-black cursor-pointer"
+              className="group relative flex h-14 w-full items-center justify-center overflow-hidden rounded-full border border-white/10 bg-white/5 px-8 font-archivo text-[10px] font-bold uppercase tracking-widest text-white backdrop-blur-md transition-all hover:bg-white hover:text-gaude-black cursor-pointer sm:h-16 sm:w-auto sm:px-10 md:text-[11px]"
             >
               BOOK STRATEGY CALL
             </button>
           </div>
           
-          <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 px-4">
+          <div className="flex flex-wrap justify-center gap-x-4 gap-y-2.5 px-6">
             {[
               "Websites",
               "AI Calling Agents",
               "CRM Systems",
               "Workflow Automations"
             ].map((text, i, arr) => (
-              <span key={text} className="flex items-center gap-2 font-archivo text-[9px] font-bold uppercase tracking-[0.2em] text-white/30">
+              <span key={text} className="flex items-center gap-1.5 font-archivo text-[8px] font-bold uppercase tracking-[0.15em] text-white/30 md:text-[9px] md:tracking-[0.2em]">
                 {text}
-                {i < arr.length - 1 && <span className="h-1 w-1 rounded-full bg-gaude-orange/40" />}
+                {i < arr.length - 1 && <span className="h-0.5 w-0.5 rounded-full bg-gaude-orange/40" />}
               </span>
             ))}
           </div>

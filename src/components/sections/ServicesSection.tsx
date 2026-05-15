@@ -25,37 +25,37 @@ export function ServicesSection() {
             {services.label}
           </span>
           <h2 className="mt-2 font-archivo text-3xl uppercase leading-[0.95] tracking-tighter text-white md:text-5xl lg:text-6xl">
-            GROWTH <br /> SYSTEMS FOR <br /> LEADS & <span className="text-gaude-orange">REVENUE</span>
+            GROWTH <br className="hidden md:block" /> SYSTEMS FOR <br className="hidden md:block" /> LEADS & <span className="text-gaude-orange">REVENUE</span>
           </h2>
-          <p className="mt-6 max-w-[720px] font-inter text-lg font-medium leading-relaxed text-white/70 md:text-xl">
+          <p className="mt-6 max-w-[720px] font-inter text-base font-medium leading-relaxed text-white/70 md:text-xl">
             {services.subtitle}
           </p>
         </motion.div>
       </div>
 
       {/* SECTION 2: Before vs After */}
-      <div className="mx-auto max-w-[1200px] px-6 pb-[90px]">
+      <div className="mx-auto max-w-[1200px] px-6 pb-[60px] md:pb-[90px]">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="rounded-[32px] border-4 border-white/10 bg-white/5 p-8 md:p-12"
+          className="rounded-[24px] border-4 border-white/10 bg-white/5 p-6 md:rounded-[32px] md:p-12"
         >
-          <h3 className="mb-10 text-center font-space-grotesk text-3xl font-black uppercase tracking-tighter text-white">
+          <h3 className="mb-8 text-center font-space-grotesk text-2xl font-black uppercase tracking-tighter text-white md:mb-10 md:text-3xl">
             {services.comparison.title}
           </h3>
 
-          <div className="grid gap-8 lg:grid-cols-2 lg:gap-0 lg:divide-x-4 lg:divide-white/10">
+          <div className="grid gap-12 lg:grid-cols-2 lg:gap-0 lg:divide-x-4 lg:divide-white/10">
             {/* Before */}
             <div className="lg:pr-12">
-              <h4 className="mb-6 font-archivo text-xl uppercase tracking-widest text-white/40">
+              <h4 className="mb-6 font-archivo text-lg uppercase tracking-widest text-white/40 md:text-xl">
                 {services.comparison.before.title}
               </h4>
               <ul className="space-y-4">
                 {services.comparison.before.items.map((item) => (
-                  <li key={item} className="flex items-center gap-3 font-inter text-base font-semibold text-white/60 md:text-lg">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/10">
-                      <X className="size-3" strokeWidth={3} />
+                  <li key={item} className="flex items-center gap-3 font-inter text-sm font-semibold text-white/60 md:text-lg">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/10 md:h-6 md:w-6">
+                      <X className="size-2.5 md:size-3" strokeWidth={3} />
                     </span>
                     {item}
                   </li>
@@ -65,19 +65,19 @@ export function ServicesSection() {
 
             {/* After */}
             <div className="lg:pl-12">
-              <div className="mb-6 flex items-center justify-between">
-                <h4 className="font-archivo text-xl uppercase tracking-widest text-gaude-orange">
+              <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-center md:justify-between md:gap-0">
+                <h4 className="font-archivo text-lg uppercase tracking-widest text-gaude-orange md:text-xl">
                   {services.comparison.after.title}
                 </h4>
-                <span className="rounded-full bg-gaude-orange/20 px-3 py-1 font-inter text-[10px] font-black uppercase text-gaude-orange">
+                <span className="w-fit rounded-full bg-gaude-orange/20 px-3 py-1 font-inter text-[9px] font-black uppercase text-gaude-orange md:text-[10px]">
                   Outcome Focused
                 </span>
               </div>
               <ul className="space-y-4">
                 {services.comparison.after.items.map((item) => (
-                  <li key={item} className="flex items-center gap-3 font-inter text-base font-black text-white md:text-lg">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gaude-orange">
-                      <Check className="size-3 text-white" strokeWidth={4} />
+                  <li key={item} className="flex items-center gap-3 font-inter text-sm font-black text-white md:text-lg">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gaude-orange md:h-6 md:w-6">
+                      <Check className="size-2.5 text-white md:size-3" strokeWidth={4} />
                     </span>
                     {item}
                   </li>
@@ -89,8 +89,8 @@ export function ServicesSection() {
       </div>
 
       {/* SECTION 3: Sticky Growth Systems Layout */}
-      <div className="mx-auto max-w-[1200px] px-6 pb-[130px]">
-        <div className="grid items-start gap-16 lg:grid-cols-[0.38fr_0.62fr]">
+      <div className="mx-auto max-w-[1200px] px-6 pb-[80px] md:pb-[130px]">
+        <div className="grid items-start gap-12 lg:grid-cols-[0.38fr_0.62fr] lg:gap-16">
           
           {/* Left Sticky Panel */}
           <div className="lg:sticky lg:top-[60px]">
@@ -98,19 +98,19 @@ export function ServicesSection() {
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              className="rounded-[24px] border-4 border-gaude-black bg-white p-8 shadow-[12px_12px_0_0_#ff4e00] md:p-10"
+              className="rounded-[20px] border-4 border-gaude-black bg-white p-6 shadow-[8px_8px_0_0_#ff4e00] md:rounded-[24px] md:p-10 md:shadow-[12px_12px_0_0_#ff4e00]"
             >
-              <span className="font-inter text-xs font-black uppercase tracking-widest text-gaude-orange">
+              <span className="font-inter text-[10px] font-black uppercase tracking-widest text-gaude-orange md:text-xs">
                 {services.stickyPanel.label}
               </span>
-              <h3 className="mt-4 font-space-grotesk text-3xl font-black leading-tight tracking-tight text-gaude-black">
+              <h3 className="mt-3 font-space-grotesk text-2xl font-black leading-tight tracking-tight text-gaude-black md:mt-4 md:text-3xl">
                 {services.stickyPanel.heading}
               </h3>
-              <p className="mt-6 font-inter text-base font-medium leading-relaxed text-gaude-black/70">
+              <p className="mt-4 font-inter text-sm font-medium leading-relaxed text-gaude-black/70 md:mt-6 md:text-base">
                 {services.stickyPanel.paragraph}
               </p>
               
-              <div className="mt-8">
+              <div className="mt-6 md:mt-8">
                 <BrutalistLink 
                   href={site.primaryCtaHref} 
                   variant="primary" 
@@ -120,11 +120,11 @@ export function ServicesSection() {
                 </BrutalistLink>
               </div>
 
-              <div className="mt-8 border-t-2 border-gaude-black/10 pt-6">
-                <p className="font-inter text-[10px] font-black uppercase tracking-widest text-gaude-black/40">
+              <div className="mt-6 border-t-2 border-gaude-black/10 pt-4 md:mt-8 md:pt-6">
+                <p className="font-inter text-[9px] font-black uppercase tracking-widest text-gaude-black/40 md:text-[10px]">
                   Includes:
                 </p>
-                <p className="mt-2 font-syne text-xs font-black uppercase tracking-tight text-gaude-black">
+                <p className="mt-1 font-syne text-[10px] font-black uppercase tracking-tight text-gaude-black md:mt-2 md:text-xs">
                   {services.stickyPanel.proof}
                 </p>
               </div>
@@ -132,7 +132,7 @@ export function ServicesSection() {
           </div>
 
           {/* Right Side Stacked Cards */}
-          <div className="flex flex-col gap-9">
+          <div className="flex flex-col gap-6 md:gap-9">
             {services.cards.map((card, index) => (
               <motion.div
                 key={card.title}
@@ -141,25 +141,25 @@ export function ServicesSection() {
                 viewport={{ once: true, margin: "-100px" }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 whileHover={{ y: -6 }}
-                className={`group relative min-h-[320px] rounded-[24px] border-4 border-gaude-black p-8 shadow-[8px_8px_0_0_#0a0a0a] transition-all md:p-12 ${card.bgColor} text-gaude-black`}
+                className={`group relative min-h-[280px] rounded-[20px] border-4 border-gaude-black p-6 shadow-[6px_6px_0_0_#0a0a0a] transition-all md:min-h-[320px] md:rounded-[24px] md:p-12 md:shadow-[8px_8px_0_0_#0a0a0a] ${card.bgColor} text-gaude-black`}
               >
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-5 md:gap-6">
                   {/* Card Header */}
                   <div className="flex items-center justify-between">
-                    <span className="font-archivo text-4xl font-black opacity-20">
+                    <span className="font-archivo text-3xl font-black opacity-20 md:text-4xl">
                       {card.number}
                     </span>
-                    <span className="rounded-full border-2 border-gaude-black px-3 py-1 font-inter text-[10px] font-black uppercase tracking-widest">
+                    <span className="rounded-full border-2 border-gaude-black px-3 py-1 font-inter text-[9px] font-black uppercase tracking-widest md:text-[10px]">
                       {card.systemName}
                     </span>
                   </div>
 
                   {/* Card Title & Desc */}
                   <div>
-                    <h4 className="font-space-grotesk text-3xl font-black uppercase leading-none tracking-tighter md:text-5xl">
+                    <h4 className="font-space-grotesk text-2xl font-black uppercase leading-none tracking-tighter md:text-5xl">
                       {card.title}
                     </h4>
-                    <p className="mt-6 max-w-xl font-inter text-base font-semibold leading-relaxed opacity-80 md:text-lg">
+                    <p className="mt-4 max-w-xl font-inter text-sm font-semibold leading-relaxed opacity-80 md:mt-6 md:text-lg">
                       {card.description}
                     </p>
                   </div>
