@@ -1,49 +1,110 @@
-import { whyEditco } from "@/content/landing";
-import { SlamBlock } from "@/components/motion/SlamBlock";
+"use client";
+
+import { motion } from "framer-motion";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { sectionFlow } from "@/lib/stickyStack";
+import { Instagram, Linkedin, Twitter, ArrowUpRight } from "lucide-react";
+
+const CREW = [
+  {
+    name: "Sri Pavan Tej B",
+    role: "Creative Director & Co-founder",
+    description: "Leading our creative vision with 8+ years in digital design and branding.",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop",
+    accent: "bg-gaude-orange",
+    rotate: "rotate-[-1deg]",
+  },
+  {
+    name: "Deepika M",
+    role: "UX Designer & Backend Developer",
+    description: "Crafting user experiences that delight and convert with data-driven design.",
+    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974&auto=format&fit=crop",
+    accent: "bg-gaude-purple",
+    rotate: "rotate-[1deg]",
+  },
+  {
+    name: "Harsha P",
+    role: "Developer & Operations Manager",
+    description: "Building scalable solutions with modern technologies and clean code.",
+    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1974&auto=format&fit=crop",
+    accent: "bg-gaude-green",
+    rotate: "rotate-[-0.5deg]",
+  }
+];
 
 export function WhySection() {
   return (
     <section
-      id={whyEditco.id}
-      className={`border-b-4 border-gaude-black bg-white px-4 py-16 md:px-8 md:py-24 ${sectionFlow}`}
+      id="crew"
+      className={`relative overflow-hidden bg-white px-4 py-16 md:px-8 md:py-24 ${sectionFlow}`}
     >
-      <div className="pointer-events-none absolute left-[8%] top-[12%] h-[280px] w-[280px] rounded-full bg-gaude-purple/20 blur-[100px] md:h-[420px] md:w-[420px] animate-[pulse-glow_8s_ease-in-out_infinite]" />
-      <div className="pointer-events-none absolute bottom-[10%] right-[8%] h-[200px] w-[200px] rounded-full bg-gaude-orange/15 blur-[100px] md:h-[360px] md:w-[360px] animate-[pulse-glow_6s_ease-in-out_infinite]" />
+      {/* Neo-Brutalist Background Elements */}
+      <div className="absolute top-20 right-[5%] h-64 w-64 rounded-full border-4 border-gaude-black bg-gaude-orange/10 blur-3xl" />
+      <div className="absolute bottom-20 left-[5%] h-80 w-80 rounded-full border-4 border-gaude-black bg-gaude-purple/10 blur-3xl" />
 
       <div className="relative z-10 mx-auto max-w-6xl">
-        <div className="mb-6 h-1 w-24 bg-[linear-gradient(to_right,var(--color-gaude-orange),var(--color-gaude-purple),var(--color-gaude-orange))] bg-[length:200%_auto] animate-[gradient-x_3s_linear_infinite]" />
-        <SectionHeading 
-          title={
-            <>
-              Why Businesses Choose <span className="text-gaude-orange">Editco Media</span>
-            </>
-          } 
-        />
+        <div className="mb-16">
+          <SectionHeading 
+            title={
+              <>
+                THE <span className="text-gaude-orange">CREW</span> BEHIND THE GROWTH
+              </>
+            } 
+            description="A collective of designers, developers, and strategists obsessed with building high-performance digital systems."
+          />
+        </div>
 
-        <div className="flex flex-col gap-6">
-          {whyEditco.points.map((pt, i) => (
-            <SlamBlock
-              key={pt.title}
-              id={`slam-why-${i}`}
-              hoverClasses="opacity-100"
-              initRotate="rotate-[0deg]"
-              style={{ transitionDelay: `${i * 100}ms` }}
-              className={`flex flex-col gap-3 border-l-8 border-gaude-black py-6 pl-6 pr-4 md:flex-row md:items-start md:gap-10 md:pl-8 md:pr-8 ${i % 2 === 0 ? "bg-gaude-purple/15" : "bg-gaude-green/20"}`}
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-12">
+          {CREW.map((member, i) => (
+            <motion.div
+              key={member.name}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className={`group relative flex flex-col border-4 border-gaude-black bg-white p-4 shadow-[12px_12px_0_0_#000] transition-all hover:shadow-[16px_16px_0_0_#000] hover:-translate-y-2 ${member.rotate}`}
             >
-              <span className="font-archivo text-4xl font-black leading-none text-gaude-orange md:text-5xl">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <div>
-                <h3 className="font-syne text-xl font-black uppercase tracking-tight text-gaude-black md:text-2xl">
-                  {pt.title}
-                </h3>
-                <p className="mt-2 max-w-3xl font-inter text-sm font-medium leading-relaxed text-gaude-black/85 md:text-base">
-                  {pt.body}
-                </p>
+              {/* Image Container */}
+              <div className="relative aspect-[4/5] overflow-hidden border-4 border-gaude-black">
+                <img 
+                  src={member.image} 
+                  alt={member.name}
+                  className="h-full w-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0 group-hover:scale-105"
+                />
+                {/* Accent Overlay */}
+                <div className={`absolute inset-0 opacity-20 mix-blend-multiply ${member.accent}`} />
+                
+                {/* Social Floating Badge */}
+                <div className="absolute bottom-4 right-4 flex gap-2 translate-y-12 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                  <div className="flex h-10 w-10 items-center justify-center border-2 border-gaude-black bg-white shadow-[4px_4px_0_0_#000] hover:bg-gaude-orange hover:text-white transition-colors cursor-pointer">
+                    <Linkedin size={18} />
+                  </div>
+                  <div className="flex h-10 w-10 items-center justify-center border-2 border-gaude-black bg-white shadow-[4px_4px_0_0_#000] hover:bg-gaude-orange hover:text-white transition-colors cursor-pointer">
+                    <Instagram size={18} />
+                  </div>
+                </div>
               </div>
-            </SlamBlock>
+
+              {/* Text Content */}
+              <div className="mt-6 flex flex-col items-center text-center px-2">
+                <h3 className="font-archivo text-2xl font-black uppercase tracking-tighter text-gaude-black">
+                  {member.name}
+                </h3>
+                <p className={`mt-2 inline-block px-3 py-1 font-space-grotesk text-xs font-black uppercase tracking-widest text-gaude-black ${member.accent} border-2 border-gaude-black`}>
+                  {member.role}
+                </p>
+                <p className="mt-4 font-inter text-sm font-medium leading-relaxed text-gaude-black/70">
+                  {member.description}
+                </p>
+                
+                <div className="mt-6 flex w-full items-center justify-center gap-2 border-t-2 border-gaude-black/10 pt-4 cursor-pointer group/link">
+                  <span className="font-archivo text-[10px] font-black uppercase tracking-[0.2em] text-gaude-black/40 group-hover/link:text-gaude-black transition-colors">
+                    Click for details
+                  </span>
+                  <ArrowUpRight size={14} className="text-gaude-black/40 group-hover/link:text-gaude-black transition-colors" />
+                </div>
+              </div>
+            </motion.div>
           ))}
         </div>
       </div>
