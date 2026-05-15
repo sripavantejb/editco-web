@@ -49,7 +49,7 @@ export function PositioningSection() {
         >
           <BrutalistLink 
             href="#contact" 
-            variant="orange" 
+            variant="primary" 
             className="px-10 py-5 text-xl font-black md:text-2xl"
           >
             BOOK YOUR STRATEGY CALL
