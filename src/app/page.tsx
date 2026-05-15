@@ -6,7 +6,7 @@ import { FinalCtaSection } from "@/components/sections/FinalCtaSection";
 import { FooterSection } from "@/components/sections/FooterSection";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { IndustriesSection } from "@/components/sections/IndustriesSection";
-import { PackagesSection } from "@/components/sections/PackagesSection";
+
 import { PositioningSection } from "@/components/sections/PositioningSection";
 import { ProblemSection } from "@/components/sections/ProblemSection";
 import { ProcessSection } from "@/components/sections/ProcessSection";
@@ -28,7 +28,7 @@ export default function Home() {
         <CaseStudySection />
         <WhySection />
         <ProcessSection />
-        <PackagesSection />
+
         <ComparisonSection />
         <TestimonialsSection />
         <TechSection />
