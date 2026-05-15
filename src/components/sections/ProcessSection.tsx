@@ -37,12 +37,16 @@ export function ProcessSection() {
       ref={containerRef}
       className={`relative overflow-hidden bg-gaude-black px-4 py-24 md:px-8 md:py-32 ${sectionFlow}`}
     >
-      {/* Technical Background Grid */}
-      <div className="absolute inset-0 opacity-[0.1]" 
-           style={{ 
-             backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0)`,
-             backgroundSize: '40px 40px' 
-           }} 
+      {/* Technical Background Grid Lines */}
+      <div 
+        className="absolute inset-0 opacity-[0.05]" 
+        style={{ 
+          backgroundImage: `
+            linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px)
+          `,
+          backgroundSize: '40px 40px' 
+        }} 
       />
       
       {/* Glowing Central Path - Starts from Phase 01 */}
