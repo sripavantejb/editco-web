@@ -97,9 +97,9 @@ export function MagneticNav() {
                 layoutId="plus-trigger"
                 onClick={toggleMenu}
                 transition={smoothSpring}
-                className="group flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition-all hover:border-gaude-orange/50 hover:bg-gaude-orange/10"
+                className="group flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition-all hover:border-gaude-orange/50 hover:bg-gaude-orange/10"
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="transition-transform group-hover:rotate-90">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="transition-transform group-hover:rotate-90">
                   <line x1="12" y1="5" x2="12" y2="19" />
                   <line x1="5" y1="12" x2="19" y2="12" />
                 </svg>
@@ -121,13 +121,34 @@ export function MagneticNav() {
               exit={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
               onClick={toggleMenu}
               transition={smoothSpring}
-              className="pointer-events-auto group flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white shadow-2xl backdrop-blur-xl transition-all hover:border-gaude-orange/50 hover:bg-gaude-orange/10"
+              className="pointer-events-auto group flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white shadow-2xl backdrop-blur-xl transition-all hover:border-gaude-orange/50 hover:bg-gaude-orange/10"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="transition-transform group-hover:rotate-90">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="transition-transform group-hover:rotate-90">
                 <line x1="12" y1="5" x2="12" y2="19" />
                 <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
             </motion.button>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* 3. Floating Logo - Appears at top left on scroll to balance the plus button */}
+      <div className="fixed top-8 left-8 z-[200] pointer-events-none">
+        <AnimatePresence mode="wait">
+          {isScrolled && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, x: -20, filter: "blur(10px)" }}
+              animate={{ opacity: 1, scale: 1, x: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, scale: 0.8, x: -20, filter: "blur(10px)" }}
+              transition={smoothSpring}
+              className="pointer-events-auto flex h-16 w-16 items-center justify-center"
+            >
+              <img 
+                src="https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png" 
+                alt="Editco Logo" 
+                className="h-12 w-12 object-contain"
+              />
+            </motion.div>
           )}
         </AnimatePresence>
       </div>

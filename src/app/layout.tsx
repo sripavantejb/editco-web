@@ -3,6 +3,7 @@ import { Syne, Archivo_Black, Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { LandingLoadOverlay } from "@/components/motion/LandingLoadOverlay";
 import { MagneticNav } from "@/components/motion/MagneticNav";
+import { FloatingBottomNav } from "@/components/motion/FloatingBottomNav";
 import Script from "next/script";
 
 const syne = Syne({
@@ -31,6 +32,41 @@ export const metadata: Metadata = {
   title: "Editco Media — Websites, AI Automations & Growth Systems",
   description:
     "Editco Media builds smart websites, AI calling agents, CRM workflows, and marketing systems for clinics, startups, agencies, and service businesses.",
+  metadataBase: new URL("https://editcomedia.com"),
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "Editco Media — Websites, AI Automations & Growth Systems",
+    description: "Scale your business with technical excellence. We build smart websites, AI calling agents, and CRM workflows.",
+    url: "https://editcomedia.com",
+    siteName: "Editco Media",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Editco Media — Technical Growth Systems",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Editco Media — Websites, AI Automations & Growth Systems",
+    description: "Scale your business with technical excellence. We build smart websites, AI calling agents, and CRM workflows.",
+    images: ["/og-image.png"],
+  },
+  icons: {
+    icon: [
+      { url: "https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png", sizes: "32x32" },
+      { url: "https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png", sizes: "16x16" },
+    ],
+    apple: [
+      { url: "https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png" },
+    ],
+  },
 };
 
 export default function RootLayout({
@@ -56,6 +92,7 @@ export default function RootLayout({
         </a>
         <LandingLoadOverlay />
         <MagneticNav />
+        <FloatingBottomNav />
         {children}
         <Script id="cal-init" strategy="afterInteractive">
           {`
