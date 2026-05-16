@@ -25,7 +25,7 @@ export function SectionHeading({
         </p>
       ) : null}
       <h2
-        className={`font-archivo text-3xl uppercase leading-[0.95] tracking-tighter md:text-5xl lg:text-6xl ${titleColor}`}
+        className={`font-archivo text-4xl uppercase leading-[1.1] tracking-tighter md:text-5xl lg:text-6xl md:leading-[0.95] ${titleColor}`}
       >
         {title}
       </h2>

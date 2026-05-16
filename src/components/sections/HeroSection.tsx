@@ -42,7 +42,7 @@ export function HeroSection() {
               </span>
             </div>
 
-            <h1 className="select-none font-archivo text-[16vw] font-black uppercase leading-[0.8] tracking-[-0.06em] text-white md:text-[20vw] lg:text-[18vw]">
+            <h1 className="select-none font-archivo text-[14vw] font-black uppercase leading-[1] tracking-[-0.04em] text-white md:text-[20vw] lg:text-[18vw] md:leading-[0.8] md:tracking-[-0.06em]">
               <span className="bg-gradient-to-b from-white to-white/40 bg-clip-text text-transparent">
                 EDITCO
               </span>
@@ -52,7 +52,7 @@ export function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="mt-6 px-4 font-space-grotesk text-[5vw] font-medium tracking-tight text-white/90 md:mt-8 md:text-[3vw] lg:text-[2.2vw] max-w-[90vw] md:max-w-none"
+              className="mt-6 px-4 font-space-grotesk text-[4.5vw] font-medium tracking-tight text-white/90 md:mt-8 md:text-[3vw] lg:text-[2.2vw] max-w-[90vw] md:max-w-none"
             >
               Smart Websites, AI Automations & Growth Systems for <span className="text-gaude-orange">Exponential Growth.</span>
             </motion.p>
