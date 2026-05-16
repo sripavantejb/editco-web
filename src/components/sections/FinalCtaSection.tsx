@@ -1,38 +1,59 @@
+"use client";
+
+import { useEffect } from "react";
 import { finalCta } from "@/content/landing";
-import { site } from "@/content/site";
-import { BrutalistLink } from "@/components/ui/BrutalistLink";
 import { sectionFlow } from "@/lib/stickyStack";
 
 export function FinalCtaSection() {
+  useEffect(() => {
+    // Initialize Cal.com inline embed
+    (window as any).Cal?.ns["15min"]("inline", {
+      elementOrSelector: "#cal-inline-embed",
+      calLink: "editco-media/15min",
+      config: { 
+        layout: "month_view",
+        theme: "dark"
+      }
+    });
+  }, []);
+
   return (
     <section
       id={finalCta.id}
-      className={`relative flex min-h-[85svh] flex-col justify-center overflow-hidden border-b-4 border-gaude-black bg-gaude-orange px-4 py-16 md:min-h-[90svh] md:px-8 md:py-24 ${sectionFlow}`}
+      className={`relative flex min-h-screen flex-col justify-center overflow-hidden bg-[#050505] px-4 py-16 md:px-8 md:py-24 ${sectionFlow}`}
     >
-      <div className="pointer-events-none absolute -bottom-[10%] -right-[5%] rotate-12 text-[14rem] leading-none opacity-20 animate-[float3_9s_ease-in-out_infinite] md:text-[22rem]">
-        ✌️
+      {/* Premium Background Visuals */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute top-[20%] left-[-10%] h-[500px] w-[500px] rounded-full bg-gaude-orange/10 blur-[120px]" />
+        <div className="absolute bottom-[10%] right-[-10%] h-[600px] w-[600px] rounded-full bg-gaude-purple/5 blur-[150px]" />
+        
+        {/* Subtle Grid Texture */}
+        <div className="absolute inset-0 opacity-[0.02] [background-image:radial-gradient(#ffffff_1px,transparent_1px)] [background-size:32px_32px]" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-5xl text-center">
-        <h2 className="font-archivo text-4xl uppercase leading-[0.9] tracking-tighter text-gaude-black transition-transform duration-500 hover:scale-[1.01] md:text-7xl">
-          {finalCta.heading}
-        </h2>
-        <p className="mt-6 font-inter text-base font-medium leading-relaxed text-gaude-black/85 md:text-lg">
-          {finalCta.description}
-        </p>
-        <p className="mt-4 font-syne text-sm font-bold uppercase tracking-tight text-gaude-black md:text-base">
-          {finalCta.secondary}
-        </p>
-        <div className="mt-10 flex justify-center">
-          <BrutalistLink 
-            href={site.primaryCtaHref} 
-            variant="secondary"
-            data-cal-link="editco-media/15min"
-            data-cal-namespace="15min"
-            data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'
-          >
-            {finalCta.primaryCta}
-          </BrutalistLink>
+      <div className="relative z-10 mx-auto w-full max-w-6xl">
+        <div className="mb-12 text-center">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gaude-orange/30 bg-gaude-orange/5 px-4 py-1.5 backdrop-blur-sm">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gaude-orange opacity-75"></span>
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-gaude-orange"></span>
+            </span>
+            <span className="font-archivo text-[10px] font-bold uppercase tracking-[0.2em] text-gaude-orange/90">
+              BOOK YOUR STRATEGY CALL
+            </span>
+          </div>
+
+          <h2 className="font-archivo text-4xl uppercase leading-[0.85] tracking-[-0.04em] text-white md:text-7xl">
+            READY TO <span className="text-gaude-orange">SCALE?</span>
+          </h2>
+        </div>
+
+        {/* Cal.com Inline Embed Container */}
+        <div className="relative mx-auto h-[700px] w-full overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md shadow-2xl">
+          <div 
+            id="cal-inline-embed" 
+            className="h-full w-full"
+          />
         </div>
       </div>
     </section>

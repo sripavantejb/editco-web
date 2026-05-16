@@ -1,6 +1,5 @@
 import { SlamVisibilityProvider } from "@/components/motion/SlamVisibilityProvider";
 import { CaseStudySection } from "@/components/sections/CaseStudySection";
-import { ComparisonSection } from "@/components/sections/ComparisonSection";
 import { FaqSection } from "@/components/sections/FaqSection";
 import { FinalCtaSection } from "@/components/sections/FinalCtaSection";
 import { FooterSection } from "@/components/sections/FooterSection";
@@ -29,7 +28,6 @@ export default function Home() {
         <WhySection />
         <ProcessSection />
 
-        <ComparisonSection />
         <TestimonialsSection />
         <TechSection />
         <FaqSection />

@@ -33,60 +33,6 @@ export function ServicesSection() {
         </motion.div>
       </div>
 
-      {/* SECTION 2: Before vs After */}
-      <div className="mx-auto max-w-[1200px] px-6 pb-[60px] md:pb-[90px]">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="rounded-[24px] border-4 border-white/10 bg-white/5 p-6 md:rounded-[32px] md:p-12"
-        >
-          <h3 className="mb-8 text-center font-space-grotesk text-2xl font-black uppercase tracking-tighter text-white md:mb-10 md:text-3xl">
-            {services.comparison.title}
-          </h3>
-
-          <div className="grid gap-12 lg:grid-cols-2 lg:gap-0 lg:divide-x-4 lg:divide-white/10">
-            {/* Before */}
-            <div className="lg:pr-12">
-              <h4 className="mb-6 font-archivo text-lg uppercase tracking-widest text-white/40 md:text-xl">
-                {services.comparison.before.title}
-              </h4>
-              <ul className="space-y-4">
-                {services.comparison.before.items.map((item) => (
-                  <li key={item} className="flex items-center gap-3 font-inter text-sm font-semibold text-white/60 md:text-lg">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/10 md:h-6 md:w-6">
-                      <X className="size-2.5 md:size-3" strokeWidth={3} />
-                    </span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* After */}
-            <div className="lg:pl-12">
-              <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-center md:justify-between md:gap-0">
-                <h4 className="font-archivo text-lg uppercase tracking-widest text-gaude-orange md:text-xl">
-                  {services.comparison.after.title}
-                </h4>
-                <span className="w-fit rounded-full bg-gaude-orange/20 px-3 py-1 font-inter text-[9px] font-black uppercase text-gaude-orange md:text-[10px]">
-                  Outcome Focused
-                </span>
-              </div>
-              <ul className="space-y-4">
-                {services.comparison.after.items.map((item) => (
-                  <li key={item} className="flex items-center gap-3 font-inter text-sm font-black text-white md:text-lg">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gaude-orange md:h-6 md:w-6">
-                      <Check className="size-2.5 text-white md:size-3" strokeWidth={4} />
-                    </span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </motion.div>
-      </div>
 
       {/* SECTION 3: Sticky Growth Systems Layout */}
       <div className="mx-auto max-w-[1200px] px-6 pb-[80px] md:pb-[130px]">
