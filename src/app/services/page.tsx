@@ -25,33 +25,21 @@ import {
 import { FooterSection } from "@/components/sections/FooterSection";
 
 export default function ServicesPage() {
+  const [selectedService, setSelectedService] = useState("");
+  const [formData, setFormData] = useState({
+    fullName: "",
+    businessName: "",
+    phoneNumber: "",
+    email: "",
+    businessCategory: "",
+    currentProblem: "",
+    leadVolume: "",
+    contactMethod: "WhatsApp"
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
   const leadFormRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // Initialize Cal.com inline embed
-    const initCal = () => {
-      (window as any).Cal?.ns["15min"]("inline", {
-        elementOrSelector: "#cal-inline-embed-services",
-        calLink: "editco-media/15min",
-        config: { 
-          layout: "month_view",
-          theme: "dark"
-        }
-      });
-    };
-
-    if ((window as any).Cal) {
-      initCal();
-    } else {
-      const timer = setInterval(() => {
-        if ((window as any).Cal) {
-          initCal();
-          clearInterval(timer);
-        }
-      }, 500);
-      return () => clearInterval(timer);
-    }
-  }, []);
 
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>, id: string) => {
     e.preventDefault();
@@ -62,10 +50,30 @@ export default function ServicesPage() {
   };
 
   const handleServiceSelect = (serviceTitle: string) => {
+    setSelectedService(serviceTitle);
     const el = document.getElementById("lead-form");
     if (el) {
       el.scrollIntoView({ behavior: "smooth" });
     }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    // Simulate API call
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setSubmitted(true);
+    }, 1500);
   };
 
   const servicesData = [
@@ -789,7 +797,7 @@ export default function ServicesPage() {
       </section>
 
       {/* 7. LEAD FORM SECTION */}
-      <section id="lead-form" ref={leadFormRef} className="relative z-10 mx-auto max-w-5xl px-6 py-16 md:py-28">
+      <section id="lead-form" ref={leadFormRef} className="relative z-10 mx-auto max-w-3xl px-6 py-16 md:py-28">
         <div className="rounded-3xl border border-white/10 bg-white/5 p-8 md:p-12 backdrop-blur-md shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 h-[200px] w-[200px] rounded-full bg-gaude-orange/5 blur-[60px] pointer-events-none" />
 
@@ -801,16 +809,220 @@ export default function ServicesPage() {
               Let’s Build Your <span className="text-gaude-orange">Growth System</span>
             </h2>
             <p className="mt-4 font-inter text-xs text-white/60 font-medium">
-              Book a session below to map out your transition.
+              Take 2 minutes to fill this form and let's map out your transition.
             </p>
           </div>
 
-          <div className="relative mx-auto min-h-[600px] md:h-[700px] w-full overflow-hidden rounded-2xl border border-white/10 bg-gaude-black/40">
-            <div 
-              id="cal-inline-embed-services" 
-              className="h-full w-full"
-            />
-          </div>
+          <AnimatePresence mode="wait">
+            {!submitted ? (
+              <motion.form
+                key="form"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onSubmit={handleSubmit}
+                className="space-y-6"
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {/* Full Name */}
+                  <div className="flex flex-col">
+                    <label className="font-archivo text-[9px] font-bold uppercase tracking-wider text-white/50 mb-2">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      name="fullName"
+                      required
+                      value={formData.fullName}
+                      onChange={handleInputChange}
+                      className="h-12 w-full rounded-xl border border-white/10 bg-gaude-black/40 px-4 font-inter text-sm text-white placeholder-white/30 focus:border-gaude-orange focus:outline-none transition-all"
+                      placeholder="Jane Doe"
+                    />
+                  </div>
+
+                  {/* Business Name */}
+                  <div className="flex flex-col">
+                    <label className="font-archivo text-[9px] font-bold uppercase tracking-wider text-white/50 mb-2">
+                      Business Name *
+                    </label>
+                    <input
+                      type="text"
+                      name="businessName"
+                      required
+                      value={formData.businessName}
+                      onChange={handleInputChange}
+                      className="h-12 w-full rounded-xl border border-white/10 bg-gaude-black/40 px-4 font-inter text-sm text-white placeholder-white/30 focus:border-gaude-orange focus:outline-none transition-all"
+                      placeholder="Acme Corp"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {/* Phone Number */}
+                  <div className="flex flex-col">
+                    <label className="font-archivo text-[9px] font-bold uppercase tracking-wider text-white/50 mb-2">
+                      Phone Number *
+                    </label>
+                    <input
+                      type="tel"
+                      name="phoneNumber"
+                      required
+                      value={formData.phoneNumber}
+                      onChange={handleInputChange}
+                      className="h-12 w-full rounded-xl border border-white/10 bg-gaude-black/40 px-4 font-inter text-sm text-white placeholder-white/30 focus:border-gaude-orange focus:outline-none transition-all"
+                      placeholder="+91 99999 99999"
+                    />
+                  </div>
+
+                  {/* Email Address */}
+                  <div className="flex flex-col">
+                    <label className="font-archivo text-[9px] font-bold uppercase tracking-wider text-white/50 mb-2">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      required
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="h-12 w-full rounded-xl border border-white/10 bg-gaude-black/40 px-4 font-inter text-sm text-white placeholder-white/30 focus:border-gaude-orange focus:outline-none transition-all"
+                      placeholder="jane@company.com"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {/* Business Category */}
+                  <div className="flex flex-col">
+                    <label className="font-archivo text-[9px] font-bold uppercase tracking-wider text-white/50 mb-2">
+                      Business Category *
+                    </label>
+                    <input
+                      type="text"
+                      name="businessCategory"
+                      required
+                      value={formData.businessCategory}
+                      onChange={handleInputChange}
+                      className="h-12 w-full rounded-xl border border-white/10 bg-gaude-black/40 px-4 font-inter text-sm text-white placeholder-white/30 focus:border-gaude-orange focus:outline-none transition-all"
+                      placeholder="Healthcare / Education / Real Estate / Agency"
+                    />
+                  </div>
+
+                  {/* Service Interested In */}
+                  <div className="flex flex-col">
+                    <label className="font-archivo text-[9px] font-bold uppercase tracking-wider text-white/50 mb-2">
+                      Service Interested In
+                    </label>
+                    <select
+                      name="serviceInterestedIn"
+                      value={selectedService}
+                      onChange={(e) => setSelectedService(e.target.value)}
+                      className="h-12 w-full rounded-xl border border-white/10 bg-gaude-black px-4 font-inter text-sm text-white focus:border-gaude-orange focus:outline-none transition-all"
+                    >
+                      <option value="" disabled>Select a service</option>
+                      {serviceOptions.map((opt, oIdx) => (
+                        <option key={oIdx} value={opt} className="bg-gaude-black">
+                          {opt}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Current problem you want to solve */}
+                <div className="flex flex-col">
+                  <label className="font-archivo text-[9px] font-bold uppercase tracking-wider text-white/50 mb-2">
+                    Current problem you want to solve
+                  </label>
+                  <textarea
+                    name="currentProblem"
+                    value={formData.currentProblem}
+                    onChange={handleInputChange}
+                    rows={4}
+                    className="w-full rounded-xl border border-white/10 bg-gaude-black/40 p-4 font-inter text-sm text-white placeholder-white/30 focus:border-gaude-orange focus:outline-none transition-all resize-none"
+                    placeholder="We're missing incoming patient calls, or leads are getting lost because team doesn't follow up..."
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {/* Monthly lead volume */}
+                  <div className="flex flex-col">
+                    <label className="font-archivo text-[9px] font-bold uppercase tracking-wider text-white/50 mb-2">
+                      Monthly Lead Volume
+                    </label>
+                    <select
+                      name="leadVolume"
+                      value={formData.leadVolume}
+                      onChange={handleInputChange}
+                      className="h-12 w-full rounded-xl border border-white/10 bg-gaude-black px-4 font-inter text-sm text-white focus:border-gaude-orange focus:outline-none transition-all"
+                    >
+                      <option value="">Select volume range</option>
+                      <option value="< 10" className="bg-gaude-black">&lt; 10</option>
+                      <option value="10 - 50" className="bg-gaude-black">10 - 50</option>
+                      <option value="50 - 200" className="bg-gaude-black">50 - 200</option>
+                      <option value="200+" className="bg-gaude-black">200+</option>
+                      <option value="Not sure" className="bg-gaude-black">Not sure</option>
+                    </select>
+                  </div>
+
+                  {/* Preferred contact method */}
+                  <div className="flex flex-col">
+                    <label className="font-archivo text-[9px] font-bold uppercase tracking-wider text-white/50 mb-2">
+                      Preferred Contact Method
+                    </label>
+                    <div className="flex gap-3 h-12">
+                      {["WhatsApp", "Call", "Email"].map((method) => (
+                        <button
+                          key={method}
+                          type="button"
+                          onClick={() => setFormData(prev => ({ ...prev, contactMethod: method }))}
+                          className={`flex-1 rounded-xl border font-archivo text-[9px] font-bold uppercase tracking-wider transition-all ${
+                            formData.contactMethod === method
+                              ? "border-gaude-orange bg-gaude-orange/10 text-gaude-orange"
+                              : "border-white/10 bg-gaude-black/20 text-white/60 hover:border-white/20"
+                          }`}
+                        >
+                          {method}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Submit button */}
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full flex h-14 cursor-pointer items-center justify-center rounded-full bg-gaude-orange px-8 font-archivo text-xs font-bold uppercase tracking-widest text-white shadow-lg transition-transform hover:scale-102 active:scale-98 disabled:opacity-50"
+                >
+                  {isSubmitting ? "Processing..." : "Start My Transformation"}
+                </button>
+              </motion.form>
+            ) : (
+              <motion.div
+                key="success"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-center py-12 flex flex-col items-center"
+              >
+                <div className="h-16 w-16 rounded-full bg-gaude-green/10 border border-gaude-green/30 flex items-center justify-center mb-6 text-gaude-green">
+                  <Check size={32} />
+                </div>
+                <h3 className="font-archivo text-2xl uppercase tracking-tighter text-white mb-4">
+                  Request Received!
+                </h3>
+                <p className="max-w-md mx-auto font-inter text-sm leading-relaxed text-white/70">
+                  Thank you! Our team will contact you soon with a custom growth plan for your business.
+                </p>
+                <button
+                  onClick={() => setSubmitted(false)}
+                  className="mt-8 flex h-10 items-center justify-center rounded-full border border-white/20 px-6 font-archivo text-[9px] font-bold uppercase tracking-widest text-white/60 hover:text-white hover:border-white/40 transition-all"
+                >
+                  Fill Form Again
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </section>
 
