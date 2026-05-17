@@ -1,17 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { navLinks } from "@/content/nav";
 import { site } from "@/content/site";
 import { motion, AnimatePresence } from "framer-motion";
 
-function scrollToSection(e: React.MouseEvent<HTMLAnchorElement>, id: string) {
-  e.preventDefault();
-  const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: "smooth" });
-}
-
 export function MagneticNav() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -38,12 +34,26 @@ export function MagneticNav() {
   }, [isOpen]);
 
   const slushNavLinks = [
-    { label: "SERVICES", href: "#services" },
-    { label: "PROCESS", href: "#process" },
-    { label: "CASE STUDY", href: "#case-study" },
-    { label: "FAQ", href: "#faq" },
-    { label: "CONTACT", href: "#contact" },
+    { label: "SERVICES", href: "/services" },
+    { label: "PROCESS", href: "/#process" },
+    { label: "CASE STUDY", href: "/#case-study" },
+    { label: "FAQ", href: "/#faq" },
+    { label: "CONTACT", href: "/#contact" },
   ];
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.includes("#")) {
+      const id = href.split("#")[1];
+      if (pathname === "/") {
+        e.preventDefault();
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }
+      closeMenu();
+    } else {
+      closeMenu();
+    }
+  };
 
   const smoothSpring = {
     type: "spring",
@@ -68,13 +78,13 @@ export function MagneticNav() {
               className="pointer-events-auto flex items-center gap-1 rounded-full border border-white/10 bg-white/5 p-1.5 shadow-2xl backdrop-blur-xl"
             >
               {/* Logo Image */}
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 shadow-inner overflow-hidden">
+              <a href="/" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 shadow-inner overflow-hidden hover:opacity-80 transition-opacity">
                 <img 
                   src="https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png" 
                   alt="Editco Logo" 
                   className="h-7 w-7 object-contain"
                 />
-              </div>
+              </a>
 
               {/* Desktop Nav Links */}
               <div className="hidden items-center gap-1 md:flex">
@@ -82,7 +92,7 @@ export function MagneticNav() {
                   <a
                     key={link.label}
                     href={link.href}
-                    onClick={(e) => scrollToSection(e, link.href.replace("#", ""))}
+                    onClick={(e) => handleNavClick(e, link.href)}
                     className="rounded-full px-4 py-2 font-archivo text-[10px] font-bold uppercase tracking-widest text-white/70 transition-all hover:bg-white/10 hover:text-white"
                   >
                     {link.label}
@@ -143,11 +153,13 @@ export function MagneticNav() {
               transition={smoothSpring}
               className="pointer-events-auto flex h-12 w-12 md:h-16 md:w-16 items-center justify-center"
             >
-              <img 
-                src="https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png" 
-                alt="Editco Logo" 
-                className="h-8 w-8 md:h-12 md:w-12 object-contain"
-              />
+              <a href="/" className="hover:opacity-80 transition-opacity flex items-center justify-center">
+                <img 
+                  src="https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png" 
+                  alt="Editco Logo" 
+                  className="h-8 w-8 md:h-12 md:w-12 object-contain"
+                />
+              </a>
             </motion.div>
           )}
         </AnimatePresence>
@@ -172,7 +184,7 @@ export function MagneticNav() {
             <div className="grid h-full grid-cols-1 md:grid-cols-12 gap-8">
               {/* Column 1: Logo (Left) */}
               <div className="md:col-span-3 lg:col-span-4">
-                <div className="flex items-center gap-3">
+                <a href="/" onClick={closeMenu} className="flex items-center gap-3 w-fit hover:opacity-70 transition-opacity">
                   <img 
                     src="https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png" 
                     alt="Editco Logo" 
@@ -181,7 +193,7 @@ export function MagneticNav() {
                   <span className="font-inter text-2xl font-semibold tracking-tighter uppercase text-black">
                     {site.name}
                   </span>
-                </div>
+                </a>
               </div>
 
               {/* Column 2: Main Links (Center-Right) */}
@@ -194,19 +206,11 @@ export function MagneticNav() {
                       initial={{ opacity: 0, y: 15 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.4 + i * 0.05, duration: 0.4 }}
-                      onClick={(e) => {
-                        scrollToSection(e, link.href.replace("#", ""));
-                        closeMenu();
-                      }}
+                      onClick={(e) => handleNavClick(e, link.href)}
                       className="group relative flex w-fit items-center font-inter text-[clamp(1.8rem,4.5vw,3rem)] font-medium leading-[1.0] tracking-tight text-black transition-opacity hover:opacity-50"
                     >
                       <span className="flex items-center">
                         {link.label}
-                        {link.label === "Solution" && (
-                          <span className="ml-3 rounded-[4px] bg-[#D4FF3F] px-1.5 py-0.5 font-inter text-[9px] font-black uppercase tracking-widest text-black">
-                            New
-                          </span>
-                        )}
                       </span>
                     </motion.a>
                   ))}
