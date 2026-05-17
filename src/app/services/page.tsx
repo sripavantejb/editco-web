@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useRef } from "react";
+import { motion } from "framer-motion";
 import { 
   Globe, 
   PhoneCall, 
@@ -23,22 +23,8 @@ import {
   Award
 } from "lucide-react";
 import { FooterSection } from "@/components/sections/FooterSection";
-
+import { CalInlineEmbed } from "@/components/cal/CalInlineEmbed";
 export default function ServicesPage() {
-  const [selectedService, setSelectedService] = useState("");
-  const [formData, setFormData] = useState({
-    fullName: "",
-    businessName: "",
-    phoneNumber: "",
-    email: "",
-    businessCategory: "",
-    currentProblem: "",
-    leadVolume: "",
-    contactMethod: "WhatsApp"
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-
   const leadFormRef = useRef<HTMLDivElement>(null);
 
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>, id: string) => {
@@ -49,31 +35,11 @@ export default function ServicesPage() {
     }
   };
 
-  const handleServiceSelect = (serviceTitle: string) => {
-    setSelectedService(serviceTitle);
+  const scrollToLeadForm = () => {
     const el = document.getElementById("lead-form");
     if (el) {
       el.scrollIntoView({ behavior: "smooth" });
     }
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitted(true);
-    }, 1500);
   };
 
   const servicesData = [
@@ -284,16 +250,6 @@ export default function ServicesPage() {
     { title: "Local High-Revenue Businesses", icon: Building, text: "Create a strong digital presence and convert more local customers." }
   ];
 
-  const serviceOptions = [
-    "Website Design",
-    "AI Calling Agent",
-    "WhatsApp Automation",
-    "CRM System",
-    "SEO / AEO / GEO",
-    "Complete Growth System",
-    "Not Sure, Need Guidance"
-  ];
-
   return (
     <div className="relative w-full overflow-x-clip bg-gaude-black text-white pt-24">
       {/* Background Gradients */}
@@ -306,9 +262,8 @@ export default function ServicesPage() {
 
       {/* 1. HERO SECTION */}
       <section className="relative z-10 mx-auto max-w-[1200px] px-6 py-12 md:py-24">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Left Hero */}
-          <div className="lg:col-span-7 flex flex-col items-start text-left">
+        <div className="max-w-3xl">
+          <div className="flex flex-col items-start text-left">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -350,76 +305,6 @@ export default function ServicesPage() {
                 Built for clinics, schools, agencies, consultants, local businesses, and high-growth service brands.
               </p>
             </motion.div>
-          </div>
-
-          {/* Right Hero (Interactive Visual Stack) */}
-          <div className="lg:col-span-5 relative h-[380px] md:h-[450px] w-full flex items-center justify-center">
-            {/* Website Floating Card */}
-            <motion.div
-              animate={{ y: [0, -12, 0] }}
-              transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-              className="absolute top-4 left-6 md:left-12 z-10 w-[140px] md:w-[170px] rounded-2xl border border-gaude-orange/30 bg-gaude-orange/10 p-4 backdrop-blur-md shadow-2xl"
-            >
-              <div className="h-8 w-8 rounded-lg bg-gaude-orange/20 flex items-center justify-center mb-3">
-                <Globe size={18} className="text-gaude-orange" />
-              </div>
-              <p className="font-archivo text-[10px] uppercase font-bold tracking-wider text-white/95">Website</p>
-              <div className="mt-2 flex gap-1">
-                <div className="h-1 w-8 bg-gaude-orange/50 rounded-full" />
-                <div className="h-1 w-3 bg-white/20 rounded-full" />
-              </div>
-            </motion.div>
-
-            {/* AI Calls Floating Card */}
-            <motion.div
-              animate={{ y: [0, 10, 0] }}
-              transition={{ repeat: Infinity, duration: 5.5, ease: "easeInOut", delay: 0.5 }}
-              className="absolute top-[35%] right-6 md:right-12 z-20 w-[140px] md:w-[170px] rounded-2xl border border-gaude-purple/30 bg-gaude-purple/10 p-4 backdrop-blur-md shadow-2xl"
-            >
-              <div className="h-8 w-8 rounded-lg bg-gaude-purple/20 flex items-center justify-center mb-3">
-                <PhoneCall size={18} className="text-gaude-purple" />
-              </div>
-              <p className="font-archivo text-[10px] uppercase font-bold tracking-wider text-white/95">AI Calls</p>
-              <div className="mt-2 flex gap-1">
-                <div className="h-1 w-6 bg-gaude-purple/50 rounded-full" />
-                <div className="h-1 w-6 bg-white/20 rounded-full" />
-              </div>
-            </motion.div>
-
-            {/* WhatsApp Floating Card */}
-            <motion.div
-              animate={{ y: [0, -15, 0] }}
-              transition={{ repeat: Infinity, duration: 6.5, ease: "easeInOut", delay: 1 }}
-              className="absolute bottom-4 left-10 md:left-20 z-10 w-[140px] md:w-[170px] rounded-2xl border border-gaude-green/30 bg-gaude-green/10 p-4 backdrop-blur-md shadow-2xl"
-            >
-              <div className="h-8 w-8 rounded-lg bg-gaude-green/20 flex items-center justify-center mb-3">
-                <MessageSquare size={18} className="text-gaude-green" />
-              </div>
-              <p className="font-archivo text-[10px] uppercase font-bold tracking-wider text-white/95">WhatsApp</p>
-              <div className="mt-2 flex gap-1">
-                <div className="h-1 w-4 bg-gaude-green/50 rounded-full" />
-                <div className="h-1 w-8 bg-white/20 rounded-full" />
-              </div>
-            </motion.div>
-
-            {/* CRM Floating Card */}
-            <motion.div
-              animate={{ x: [0, 8, 0], y: [0, 8, 0] }}
-              transition={{ repeat: Infinity, duration: 7, ease: "easeInOut", delay: 1.5 }}
-              className="absolute bottom-[35%] left-[30%] md:left-[35%] z-30 w-[140px] md:w-[170px] rounded-2xl border border-gaude-pink/30 bg-gaude-pink/10 p-4 backdrop-blur-md shadow-2xl"
-            >
-              <div className="h-8 w-8 rounded-lg bg-gaude-pink/20 flex items-center justify-center mb-3">
-                <Database size={18} className="text-gaude-pink" />
-              </div>
-              <p className="font-archivo text-[10px] uppercase font-bold tracking-wider text-white/95">CRM Dashboard</p>
-              <div className="mt-2 flex gap-1">
-                <div className="h-1 w-10 bg-gaude-pink/50 rounded-full" />
-                <div className="h-1 w-4 bg-white/20 rounded-full" />
-              </div>
-            </motion.div>
-
-            {/* Central Glow Orb */}
-            <div className="absolute inset-0 m-auto h-[160px] w-[160px] rounded-full bg-gaude-orange/30 blur-[60px] pointer-events-none" />
           </div>
         </div>
       </section>
@@ -477,7 +362,7 @@ export default function ServicesPage() {
 
               <div className="mt-8 pt-6 border-t border-white/10">
                 <button
-                  onClick={() => handleServiceSelect(service.title)}
+                  onClick={scrollToLeadForm}
                   className="group/btn flex items-center gap-2 font-archivo text-[10px] font-bold uppercase tracking-widest text-gaude-orange group-hover:text-white transition-colors"
                 >
                   <span>{service.ctaText}</span>
@@ -659,7 +544,7 @@ export default function ServicesPage() {
                     </div>
 
                     <button
-                      onClick={() => handleServiceSelect(service.title)}
+                      onClick={scrollToLeadForm}
                       className="flex h-12 cursor-pointer items-center justify-center rounded-full bg-gaude-orange px-8 font-archivo text-[10px] font-bold uppercase tracking-widest text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
                     >
                       {service.ctaText}
@@ -796,233 +681,24 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* 7. LEAD FORM SECTION */}
-      <section id="lead-form" ref={leadFormRef} className="relative z-10 mx-auto max-w-3xl px-6 py-16 md:py-28">
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-8 md:p-12 backdrop-blur-md shadow-2xl relative overflow-hidden">
+      {/* 7. BOOK A CALL — Cal.com embed */}
+      <section id="lead-form" ref={leadFormRef} className="relative z-10 mx-auto max-w-5xl px-6 py-16 md:py-28">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-6 md:p-10 backdrop-blur-md shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 h-[200px] w-[200px] rounded-full bg-gaude-orange/5 blur-[60px] pointer-events-none" />
 
-          <div className="mb-10 text-center">
+          <div className="mb-8 text-center md:mb-10">
             <span className="font-archivo text-[10px] font-bold uppercase tracking-[0.2em] text-gaude-orange/90">
               GROWTH ACCELERATION
             </span>
             <h2 className="mt-3 font-archivo text-2xl uppercase leading-[0.95] tracking-tighter text-white md:text-4xl">
               Let’s Build Your <span className="text-gaude-orange">Growth System</span>
             </h2>
-            <p className="mt-4 font-inter text-xs text-white/60 font-medium">
-              Take 2 minutes to fill this form and let's map out your transition.
+            <p className="mt-4 font-inter text-sm text-white/60 font-medium md:text-base">
+              Book a free 15-minute strategy call — pick a time that works for you.
             </p>
           </div>
 
-          <AnimatePresence mode="wait">
-            {!submitted ? (
-              <motion.form
-                key="form"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onSubmit={handleSubmit}
-                className="space-y-6"
-              >
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {/* Full Name */}
-                  <div className="flex flex-col">
-                    <label className="font-archivo text-[9px] font-bold uppercase tracking-wider text-white/50 mb-2">
-                      Full Name *
-                    </label>
-                    <input
-                      type="text"
-                      name="fullName"
-                      required
-                      value={formData.fullName}
-                      onChange={handleInputChange}
-                      className="h-12 w-full rounded-xl border border-white/10 bg-gaude-black/40 px-4 font-inter text-sm text-white placeholder-white/30 focus:border-gaude-orange focus:outline-none transition-all"
-                      placeholder="Jane Doe"
-                    />
-                  </div>
-
-                  {/* Business Name */}
-                  <div className="flex flex-col">
-                    <label className="font-archivo text-[9px] font-bold uppercase tracking-wider text-white/50 mb-2">
-                      Business Name *
-                    </label>
-                    <input
-                      type="text"
-                      name="businessName"
-                      required
-                      value={formData.businessName}
-                      onChange={handleInputChange}
-                      className="h-12 w-full rounded-xl border border-white/10 bg-gaude-black/40 px-4 font-inter text-sm text-white placeholder-white/30 focus:border-gaude-orange focus:outline-none transition-all"
-                      placeholder="Acme Corp"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {/* Phone Number */}
-                  <div className="flex flex-col">
-                    <label className="font-archivo text-[9px] font-bold uppercase tracking-wider text-white/50 mb-2">
-                      Phone Number *
-                    </label>
-                    <input
-                      type="tel"
-                      name="phoneNumber"
-                      required
-                      value={formData.phoneNumber}
-                      onChange={handleInputChange}
-                      className="h-12 w-full rounded-xl border border-white/10 bg-gaude-black/40 px-4 font-inter text-sm text-white placeholder-white/30 focus:border-gaude-orange focus:outline-none transition-all"
-                      placeholder="+91 99999 99999"
-                    />
-                  </div>
-
-                  {/* Email Address */}
-                  <div className="flex flex-col">
-                    <label className="font-archivo text-[9px] font-bold uppercase tracking-wider text-white/50 mb-2">
-                      Email Address *
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      required
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      className="h-12 w-full rounded-xl border border-white/10 bg-gaude-black/40 px-4 font-inter text-sm text-white placeholder-white/30 focus:border-gaude-orange focus:outline-none transition-all"
-                      placeholder="jane@company.com"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {/* Business Category */}
-                  <div className="flex flex-col">
-                    <label className="font-archivo text-[9px] font-bold uppercase tracking-wider text-white/50 mb-2">
-                      Business Category *
-                    </label>
-                    <input
-                      type="text"
-                      name="businessCategory"
-                      required
-                      value={formData.businessCategory}
-                      onChange={handleInputChange}
-                      className="h-12 w-full rounded-xl border border-white/10 bg-gaude-black/40 px-4 font-inter text-sm text-white placeholder-white/30 focus:border-gaude-orange focus:outline-none transition-all"
-                      placeholder="Healthcare / Education / Real Estate / Agency"
-                    />
-                  </div>
-
-                  {/* Service Interested In */}
-                  <div className="flex flex-col">
-                    <label className="font-archivo text-[9px] font-bold uppercase tracking-wider text-white/50 mb-2">
-                      Service Interested In
-                    </label>
-                    <select
-                      name="serviceInterestedIn"
-                      value={selectedService}
-                      onChange={(e) => setSelectedService(e.target.value)}
-                      className="h-12 w-full rounded-xl border border-white/10 bg-gaude-black px-4 font-inter text-sm text-white focus:border-gaude-orange focus:outline-none transition-all"
-                    >
-                      <option value="" disabled>Select a service</option>
-                      {serviceOptions.map((opt, oIdx) => (
-                        <option key={oIdx} value={opt} className="bg-gaude-black">
-                          {opt}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {/* Current problem you want to solve */}
-                <div className="flex flex-col">
-                  <label className="font-archivo text-[9px] font-bold uppercase tracking-wider text-white/50 mb-2">
-                    Current problem you want to solve
-                  </label>
-                  <textarea
-                    name="currentProblem"
-                    value={formData.currentProblem}
-                    onChange={handleInputChange}
-                    rows={4}
-                    className="w-full rounded-xl border border-white/10 bg-gaude-black/40 p-4 font-inter text-sm text-white placeholder-white/30 focus:border-gaude-orange focus:outline-none transition-all resize-none"
-                    placeholder="We're missing incoming patient calls, or leads are getting lost because team doesn't follow up..."
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {/* Monthly lead volume */}
-                  <div className="flex flex-col">
-                    <label className="font-archivo text-[9px] font-bold uppercase tracking-wider text-white/50 mb-2">
-                      Monthly Lead Volume
-                    </label>
-                    <select
-                      name="leadVolume"
-                      value={formData.leadVolume}
-                      onChange={handleInputChange}
-                      className="h-12 w-full rounded-xl border border-white/10 bg-gaude-black px-4 font-inter text-sm text-white focus:border-gaude-orange focus:outline-none transition-all"
-                    >
-                      <option value="">Select volume range</option>
-                      <option value="< 10" className="bg-gaude-black">&lt; 10</option>
-                      <option value="10 - 50" className="bg-gaude-black">10 - 50</option>
-                      <option value="50 - 200" className="bg-gaude-black">50 - 200</option>
-                      <option value="200+" className="bg-gaude-black">200+</option>
-                      <option value="Not sure" className="bg-gaude-black">Not sure</option>
-                    </select>
-                  </div>
-
-                  {/* Preferred contact method */}
-                  <div className="flex flex-col">
-                    <label className="font-archivo text-[9px] font-bold uppercase tracking-wider text-white/50 mb-2">
-                      Preferred Contact Method
-                    </label>
-                    <div className="flex gap-3 h-12">
-                      {["WhatsApp", "Call", "Email"].map((method) => (
-                        <button
-                          key={method}
-                          type="button"
-                          onClick={() => setFormData(prev => ({ ...prev, contactMethod: method }))}
-                          className={`flex-1 rounded-xl border font-archivo text-[9px] font-bold uppercase tracking-wider transition-all ${
-                            formData.contactMethod === method
-                              ? "border-gaude-orange bg-gaude-orange/10 text-gaude-orange"
-                              : "border-white/10 bg-gaude-black/20 text-white/60 hover:border-white/20"
-                          }`}
-                        >
-                          {method}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Submit button */}
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full flex h-14 cursor-pointer items-center justify-center rounded-full bg-gaude-orange px-8 font-archivo text-xs font-bold uppercase tracking-widest text-white shadow-lg transition-transform hover:scale-102 active:scale-98 disabled:opacity-50"
-                >
-                  {isSubmitting ? "Processing..." : "Start My Transformation"}
-                </button>
-              </motion.form>
-            ) : (
-              <motion.div
-                key="success"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="text-center py-12 flex flex-col items-center"
-              >
-                <div className="h-16 w-16 rounded-full bg-gaude-green/10 border border-gaude-green/30 flex items-center justify-center mb-6 text-gaude-green">
-                  <Check size={32} />
-                </div>
-                <h3 className="font-archivo text-2xl uppercase tracking-tighter text-white mb-4">
-                  Request Received!
-                </h3>
-                <p className="max-w-md mx-auto font-inter text-sm leading-relaxed text-white/70">
-                  Thank you! Our team will contact you soon with a custom growth plan for your business.
-                </p>
-                <button
-                  onClick={() => setSubmitted(false)}
-                  className="mt-8 flex h-10 items-center justify-center rounded-full border border-white/20 px-6 font-archivo text-[9px] font-bold uppercase tracking-widest text-white/60 hover:text-white hover:border-white/40 transition-all"
-                >
-                  Fill Form Again
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <CalInlineEmbed embedId="cal-services-embed" />
         </div>
       </section>
 

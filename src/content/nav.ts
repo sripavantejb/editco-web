@@ -18,6 +18,7 @@ export const desktopNavLinks = [
   { href: "/services", label: "Services" },
   { href: "#process", label: "Process" },
   { href: "#case-study", label: "Case Study" },
+  { href: "/blog", label: "Blog" },
   { href: "#faq", label: "FAQ" },
   { href: "#contact", label: "Contact" },
 ] as const;

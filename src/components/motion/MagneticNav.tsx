@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { navLinks } from "@/content/nav";
 import { site } from "@/content/site";
@@ -85,13 +86,17 @@ export function MagneticNav() {
               className="pointer-events-auto flex items-center gap-1 rounded-full border border-white/10 bg-white/5 p-1.5 shadow-2xl backdrop-blur-xl"
             >
               {/* Logo Image */}
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 shadow-inner overflow-hidden">
+              <Link
+                href="/"
+                aria-label="Editco Media home"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 shadow-inner overflow-hidden transition-colors hover:border-white/25 hover:bg-white/10"
+              >
                 <img 
                   src="https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png" 
                   alt="Editco Logo" 
                   className="h-7 w-7 object-contain"
                 />
-              </div>
+              </Link>
 
               {/* Desktop Nav Links */}
               <div className="hidden items-center gap-1 md:flex">
@@ -158,13 +163,19 @@ export function MagneticNav() {
               animate={{ opacity: 1, scale: 1, x: 0, filter: "blur(0px)" }}
               exit={{ opacity: 0, scale: 0.8, x: -20, filter: "blur(10px)" }}
               transition={smoothSpring}
-              className="pointer-events-auto flex h-12 w-12 md:h-16 md:w-16 items-center justify-center"
+              className="pointer-events-auto"
             >
-              <img 
-                src="https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png" 
-                alt="Editco Logo" 
-                className="h-8 w-8 md:h-12 md:w-12 object-contain"
-              />
+              <Link
+                href="/"
+                aria-label="Editco Media home"
+                className="flex h-12 w-12 md:h-16 md:w-16 items-center justify-center transition-opacity hover:opacity-80"
+              >
+                <img 
+                  src="https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png" 
+                  alt="Editco Logo" 
+                  className="h-8 w-8 md:h-12 md:w-12 object-contain"
+                />
+              </Link>
             </motion.div>
           )}
         </AnimatePresence>
@@ -189,7 +200,12 @@ export function MagneticNav() {
             <div className="grid h-full grid-cols-1 md:grid-cols-12 gap-8">
               {/* Column 1: Logo (Left) */}
               <div className="md:col-span-3 lg:col-span-4">
-                <div className="flex items-center gap-3">
+                <Link
+                  href="/"
+                  onClick={closeMenu}
+                  className="flex w-fit items-center gap-3 transition-opacity hover:opacity-70"
+                  aria-label="Editco Media home"
+                >
                   <img 
                     src="https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png" 
                     alt="Editco Logo" 
@@ -198,7 +214,7 @@ export function MagneticNav() {
                   <span className="font-inter text-2xl font-semibold tracking-tighter uppercase text-black">
                     {site.name}
                   </span>
-                </div>
+                </Link>
               </div>
 
               {/* Column 2: Main Links (Center-Right) */}

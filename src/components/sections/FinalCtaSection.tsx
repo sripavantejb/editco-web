@@ -1,36 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
 import { finalCta } from "@/content/landing";
+import { CalInlineEmbed } from "@/components/cal/CalInlineEmbed";
 import { sectionFlow } from "@/lib/stickyStack";
 
 export function FinalCtaSection() {
-  useEffect(() => {
-    // Initialize Cal.com inline embed
-    const initCal = () => {
-      (window as any).Cal?.ns["15min"]("inline", {
-        elementOrSelector: "#cal-inline-embed",
-        calLink: "editco-media/15min",
-        config: { 
-          layout: "month_view",
-          theme: "dark"
-        }
-      });
-    };
-
-    if ((window as any).Cal) {
-      initCal();
-    } else {
-      const timer = setInterval(() => {
-        if ((window as any).Cal) {
-          initCal();
-          clearInterval(timer);
-        }
-      }, 500);
-      return () => clearInterval(timer);
-    }
-  }, []);
-
   return (
     <section
       id={finalCta.id}
@@ -63,11 +37,8 @@ export function FinalCtaSection() {
         </div>
 
         {/* Cal.com Inline Embed Container */}
-        <div className="relative mx-auto min-h-[600px] md:h-[700px] w-full overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md shadow-2xl">
-          <div 
-            id="cal-inline-embed" 
-            className="h-full w-full"
-          />
+        <div className="relative mx-auto w-full overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md shadow-2xl">
+          <CalInlineEmbed embedId="cal-inline-embed" />
         </div>
       </div>
     </section>
