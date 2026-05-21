@@ -4,8 +4,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { blogPosts, categoryColors } from "@/content/blog";
-import { MagneticNav } from "@/components/motion/MagneticNav";
-import { FloatingBottomNav } from "@/components/motion/FloatingBottomNav";
 
 const CATEGORIES = ["All", "AI Agents", "Automation", "Websites", "RAG", "SaaS", "Content", "Branding", "SEO/AEO"];
 
@@ -19,9 +17,6 @@ const accentBg: Record<string, string> = {
 export default function BlogPage() {
   return (
     <div className="min-h-screen bg-gaude-black text-white">
-      <MagneticNav />
-      <FloatingBottomNav />
-
       {/* HERO */}
       <section className="relative overflow-hidden border-b-4 border-white/10 px-6 pb-16 pt-32 md:px-12 md:pt-40">
         {/* Background grid */}

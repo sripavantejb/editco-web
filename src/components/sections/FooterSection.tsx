@@ -1,7 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { EDITCO_LOGO } from "@/content/images";
 import { ArrowUpRight, Instagram, Youtube, Mail } from "lucide-react";
 import { footer } from "@/content/landing";
 import { site } from "@/content/site";
@@ -129,10 +131,13 @@ export function FooterSection() {
                   <span className="font-archivo text-4xl tracking-[-0.05em] text-black md:text-6xl">GET EDITCO</span>
                 </div>
                 <div className="mr-3 flex h-16 w-16 items-center justify-center rounded-full bg-[#7C3AED] md:h-20 md:w-20">
-                  <img 
-                    src="https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png" 
-                    alt="Logo" 
-                    className="h-8 w-8 md:h-10 md:w-10 brightness-0"
+                  <Image
+                    src={EDITCO_LOGO.src.footerMarquee}
+                    alt={EDITCO_LOGO.altPrimary}
+                    width={40}
+                    height={40}
+                    className="h-8 w-8 brightness-0 md:h-10 md:w-10"
+                    loading="lazy"
                   />
                 </div>
                 <div className="mr-3 flex items-center rounded-lg bg-[#3B82F6] px-5 py-2.5">

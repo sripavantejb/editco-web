@@ -43,7 +43,13 @@ export function HeroSection() {
             </div>
 
             <h1 className="select-none font-archivo text-[14vw] font-black uppercase leading-[1] tracking-[-0.04em] text-white md:text-[20vw] lg:text-[18vw] md:leading-[0.8] md:tracking-[-0.06em]">
-              <span className="bg-gradient-to-b from-white to-white/40 bg-clip-text text-transparent">
+              <span className="sr-only">
+                Editco Media — AI automation agency in Hyderabad
+              </span>
+              <span
+                aria-hidden="true"
+                className="bg-gradient-to-b from-white to-white/40 bg-clip-text text-transparent"
+              >
                 EDITCO
               </span>
             </h1>

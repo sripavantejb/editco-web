@@ -1,9 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { navLinks } from "@/content/nav";
+import { EDITCO_LOGO } from "@/content/images";
 import { site } from "@/content/site";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -91,10 +93,13 @@ export function MagneticNav() {
                 aria-label="Editco Media home"
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 shadow-inner overflow-hidden transition-colors hover:border-white/25 hover:bg-white/10"
               >
-                <img 
-                  src="https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png" 
-                  alt="Editco Logo" 
+                <Image
+                  src={EDITCO_LOGO.src.nav}
+                  alt={EDITCO_LOGO.altPrimary}
+                  width={28}
+                  height={28}
                   className="h-7 w-7 object-contain"
+                  loading="lazy"
                 />
               </Link>
 
@@ -170,10 +175,13 @@ export function MagneticNav() {
                 aria-label="Editco Media home"
                 className="flex h-12 w-12 md:h-16 md:w-16 items-center justify-center transition-opacity hover:opacity-80"
               >
-                <img 
-                  src="https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png" 
-                  alt="Editco Logo" 
-                  className="h-8 w-8 md:h-12 md:w-12 object-contain"
+                <Image
+                  src={EDITCO_LOGO.src.navFloating}
+                  alt={EDITCO_LOGO.altPrimary}
+                  width={48}
+                  height={48}
+                  className="h-8 w-8 object-contain md:h-12 md:w-12"
+                  loading="lazy"
                 />
               </Link>
             </motion.div>
@@ -206,10 +214,13 @@ export function MagneticNav() {
                   className="flex w-fit items-center gap-3 transition-opacity hover:opacity-70"
                   aria-label="Editco Media home"
                 >
-                  <img 
-                    src="https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png" 
-                    alt="Editco Logo" 
+                  <Image
+                    src={EDITCO_LOGO.src.menu}
+                    alt=""
+                    width={48}
+                    height={48}
                     className="h-10 w-auto brightness-0 md:h-12"
+                    aria-hidden
                   />
                   <span className="font-inter text-2xl font-semibold tracking-tighter uppercase text-black">
                     {site.name}

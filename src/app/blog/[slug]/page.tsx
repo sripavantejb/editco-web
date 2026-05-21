@@ -6,8 +6,6 @@ import { motion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { getPost } from "@/content/blog";
 import { BlogFaqPanel } from "@/components/blog/BlogFaqPanel";
-import { MagneticNav } from "@/components/motion/MagneticNav";
-import { FloatingBottomNav } from "@/components/motion/FloatingBottomNav";
 
 const accentBg: Record<string, string> = {
   "#ff4e00": "bg-gaude-orange",
@@ -29,9 +27,6 @@ export default function BlogPostPage() {
 
   return (
     <div className="min-h-screen bg-gaude-black text-white">
-      <MagneticNav />
-      <FloatingBottomNav />
-
       {/* HEADER */}
       <section className="relative overflow-hidden border-b-4 border-white/10 px-6 pb-16 pt-32 md:px-12 md:pt-40">
         <div className="pointer-events-none absolute inset-0 opacity-[0.04]"
