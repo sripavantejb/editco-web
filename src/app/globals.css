@@ -25,11 +25,6 @@
 }
 
 
-.cv-auto {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 500px;
-}
-
 html {
   /* Floating pill nav: top padding + pill + buffer for anchor targets */
   scroll-padding-top: 6.5rem;
