@@ -101,17 +101,11 @@ export function HeroSection() {
       </div>
 
       {/* Decorative Branding */}
-      <div className="absolute bottom-10 left-10 hidden md:block">
+      <div className="absolute inset-x-0 bottom-10 hidden justify-center md:flex">
         <p className="flex items-center gap-3 font-archivo text-[10px] font-medium uppercase tracking-[0.2em] text-white/30">
           <span className="h-[1px] w-8 bg-white/20" />
           Built in Hyderabad • Serving Businesses Globally
         </p>
-      </div>
-
-      <div className="absolute right-10 bottom-10 hidden md:block">
-        <div className="flex h-8 items-center font-archivo text-[9px] font-bold uppercase tracking-widest text-white/40">
-          Built for Clinics, Schools, Agencies & Service Businesses
-        </div>
       </div>
     </section>
   );
