@@ -27,8 +27,6 @@ export default function Home() {
         <CaseStudySection />
         <WhySection />
         <ProcessSection />
-
-
         <TechSection />
         <FaqSection />
         <FinalCtaSection />

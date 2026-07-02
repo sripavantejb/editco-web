@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { whyEditco } from "@/content/landing";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { sectionFlow } from "@/lib/stickyStack";
 import { Instagram, Linkedin, Twitter, ArrowUpRight } from "lucide-react";
@@ -32,7 +33,7 @@ const CREW = [
 export function WhySection() {
   return (
     <section
-      id="crew"
+      id={whyEditco.id}
       className={`relative overflow-hidden bg-white px-4 py-16 md:px-8 md:py-24 ${sectionFlow}`}
     >
       {/* Neo-Brutalist Background Elements */}

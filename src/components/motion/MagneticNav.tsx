@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { navLinks } from "@/content/nav";
+import { desktopNavLinks, navLinks } from "@/content/nav";
 import { site } from "@/content/site";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -33,14 +33,6 @@ export function MagneticNav() {
       document.body.style.overflow = "unset";
     };
   }, [isOpen]);
-
-  const slushNavLinks = [
-    { label: "SERVICES", href: "/services" },
-    { label: "PROCESS", href: "#process" },
-    { label: "CASE STUDY", href: "#case-study" },
-    { label: "FAQ", href: "#faq" },
-    { label: "CONTACT", href: "#contact" },
-  ];
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href.startsWith("#")) {
@@ -100,7 +92,7 @@ export function MagneticNav() {
 
               {/* Desktop Nav Links */}
               <div className="hidden items-center gap-1 md:flex">
-                {slushNavLinks.map((link) => (
+                {desktopNavLinks.map((link) => (
                   <a
                     key={link.label}
                     href={getActiveHref(link.href)}
@@ -230,14 +222,7 @@ export function MagneticNav() {
                       onClick={(e) => handleNavClick(e, link.href)}
                       className="group relative flex w-fit items-center font-inter text-[clamp(1.8rem,4.5vw,3rem)] font-medium leading-[1.0] tracking-tight text-black transition-opacity hover:opacity-50"
                     >
-                      <span className="flex items-center">
-                        {link.label}
-                        {link.label === "Solution" && (
-                          <span className="ml-3 rounded-[4px] bg-[#D4FF3F] px-1.5 py-0.5 font-inter text-[9px] font-black uppercase tracking-widest text-black">
-                            New
-                          </span>
-                        )}
-                      </span>
+                      {link.label}
                     </motion.a>
                   ))}
                 </nav>

@@ -1,24 +1,19 @@
-/** All in-page nav targets (mobile menu). */
+/** Full-screen menu — matches homepage section heads. */
 export const navLinks = [
-  { href: "#hero", label: "Home" },
-  { href: "#problem", label: "Problem" },
-  { href: "#solution", label: "Solution" },
-  { href: "/services", label: "Services" },
+  { href: "#services", label: "Services" },
   { href: "#industries", label: "Industries" },
-  { href: "#why-editco", label: "Why Us" },
+  { href: "#case-study", label: "Selected Works" },
+  { href: "#why-editco", label: "The Crew" },
   { href: "#process", label: "Process" },
-  { href: "#packages", label: "Packages" },
-  { href: "#case-study", label: "Case Study" },
+  { href: "#tech", label: "Technologies" },
   { href: "#faq", label: "FAQ" },
   { href: "#contact", label: "Contact" },
 ] as const;
 
-/** Desktop bar — compact subset. */
+/** Desktop pill — compact subset of main sections. */
 export const desktopNavLinks = [
-  { href: "/services", label: "Services" },
-  { href: "#process", label: "Process" },
-  { href: "#case-study", label: "Case Study" },
-  { href: "/blog", label: "Blog" },
+  { href: "#services", label: "Services" },
+  { href: "#case-study", label: "Selected Works" },
   { href: "#faq", label: "FAQ" },
   { href: "#contact", label: "Contact" },
 ] as const;

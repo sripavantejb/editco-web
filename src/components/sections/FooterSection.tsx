@@ -96,12 +96,20 @@ export function FooterSection() {
               </p>
               
               <div className="flex flex-wrap gap-1.5">
-                <button className="flex items-center gap-1 rounded-full bg-black px-4 py-2 text-[9px] font-black text-white transition-transform hover:scale-105 active:scale-95 uppercase tracking-tighter">
+                <a
+                  href={site.phoneHref}
+                  className="flex items-center gap-1 rounded-full bg-black px-4 py-2 text-[9px] font-black text-white transition-transform hover:scale-105 active:scale-95 uppercase tracking-tighter"
+                >
                   Get Support <ArrowUpRight className="h-2.5 w-2.5" />
-                </button>
-                <button className="flex items-center gap-1 rounded-full bg-black px-4 py-2 text-[9px] font-black text-white transition-transform hover:scale-105 active:scale-95 uppercase tracking-tighter">
+                </a>
+                <a
+                  href={site.whatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 rounded-full bg-black px-4 py-2 text-[9px] font-black text-white transition-transform hover:scale-105 active:scale-95 uppercase tracking-tighter"
+                >
                   WhatsApp Support <ArrowUpRight className="h-2.5 w-2.5" />
-                </button>
+                </a>
               </div>
             </div>
             

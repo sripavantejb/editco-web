@@ -239,61 +239,6 @@ export const process = {
   ],
 } as const;
 
-export const packages = {
-  id: "packages" as const,
-  heading: "Smart Solutions for Modern Businesses",
-  items: [
-    {
-      name: "Premium Website Launch",
-      bestFor: "Businesses that need a strong online presence.",
-      includes: [
-        "Premium landing page",
-        "Mobile responsive design",
-        "Contact forms",
-        "WhatsApp integration",
-        "SEO-ready structure",
-        "Basic analytics setup",
-      ],
-    },
-    {
-      name: "AI Lead Response System",
-      bestFor: "Businesses receiving calls and enquiries.",
-      includes: [
-        "AI calling agent",
-        "Query handling",
-        "Lead qualification",
-        "Call summary",
-        "Human handoff",
-        "CRM update",
-      ],
-    },
-    {
-      name: "Business Automation System",
-      bestFor: "Businesses doing too much manual work.",
-      includes: [
-        "Form automation",
-        "WhatsApp/email follow-ups",
-        "CRM pipeline",
-        "Reminder system",
-        "Google Sheets or dashboard integration",
-      ],
-    },
-    {
-      name: "Complete Growth System",
-      bestFor: "Serious businesses that want website + automation + lead tracking.",
-      includes: [
-        "Premium website",
-        "AI calling agent",
-        "CRM setup",
-        "WhatsApp automation",
-        "Booking flow",
-        "SEO/AEO support",
-        "Analytics tracking",
-      ],
-    },
-  ],
-} as const;
-
 export const works = [
   {
     id: "dentin-oral-experts",
@@ -453,11 +398,11 @@ export const positioning = {
 export const footer = {
   id: "contact" as const,
   quickLinks: [
-    { label: "Home", href: "#hero" },
     { label: "Services", href: "#services" },
     { label: "Industries", href: "#industries" },
+    { label: "Selected Works", href: "#case-study" },
+    { label: "The Crew", href: "#why-editco" },
     { label: "Process", href: "#process" },
-    { label: "Case Studies", href: "#case-study" },
     { label: "Contact", href: "#contact" },
   ],
   serviceLinks: [
