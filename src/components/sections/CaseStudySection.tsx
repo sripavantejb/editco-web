@@ -18,9 +18,21 @@ export function CaseStudySection() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {works.map((work) => (
-            <motion.div
+          {works.map((work) => {
+            const CardWrapper = "url" in work && work.url ? motion.a : motion.div;
+            const cardProps =
+              "url" in work && work.url
+                ? {
+                    href: work.url,
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                  }
+                : {};
+
+            return (
+            <CardWrapper
               key={work.id}
+              {...cardProps}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -76,8 +88,9 @@ export function CaseStudySection() {
                   </div>
                 </div>
               </div>
-            </motion.div>
-          ))}
+            </CardWrapper>
+          );
+          })}
         </div>
       </div>
     </section>
