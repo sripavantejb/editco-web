@@ -48,7 +48,7 @@ export function FooterSection() {
       id={footer.id}
       className={`relative overflow-hidden bg-black py-4 md:py-6 font-inter ${sectionFlow}`}
     >
-      <div className="mx-auto max-w-[1400px] px-1 md:px-2">
+      <div className="mx-auto max-w-[1400px] px-4 sm:px-6 md:px-2">
         {/* Top Cards Section */}
         <div className="grid grid-cols-1 gap-1.5 md:grid-cols-2">
           {/* Newsletter Card */}

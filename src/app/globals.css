@@ -28,11 +28,14 @@
 html {
   /* Floating pill nav: top padding + pill + buffer for anchor targets */
   scroll-padding-top: 6.5rem;
+  overflow-x: clip;
 }
 
 body {
   background-color: var(--color-gaude-black);
   scroll-behavior: smooth;
+  overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
 }
 
 @media (prefers-reduced-motion: reduce) {

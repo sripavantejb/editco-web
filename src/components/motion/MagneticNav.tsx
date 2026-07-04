@@ -187,11 +187,11 @@ export function MagneticNav() {
               clipPath: "polygon(100% 0, 100% 0, 100% 0, 100% 0)",
             }}
             transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-            className="fixed inset-0 z-[250] bg-white p-8 md:p-16 text-black"
+            className="fixed inset-0 z-[250] overflow-y-auto bg-white p-6 text-black sm:p-8 md:p-16"
           >
-            <div className="grid h-full grid-cols-1 md:grid-cols-12 gap-8">
+            <div className="grid min-h-full grid-cols-1 gap-8 md:grid-cols-12 md:gap-8">
               {/* Column 1: Logo (Left) */}
-              <div className="md:col-span-3 lg:col-span-4">
+              <div className="flex items-start justify-between md:col-span-3 md:block lg:col-span-4">
                 <Link
                   href="/"
                   onClick={closeMenu}
@@ -203,15 +203,25 @@ export function MagneticNav() {
                     alt="Editco Logo" 
                     className="h-10 w-auto brightness-0 md:h-12"
                   />
-                  <span className="font-inter text-2xl font-semibold tracking-tighter uppercase text-black">
+                  <span className="font-inter text-xl font-semibold tracking-tighter uppercase text-black sm:text-2xl">
                     {site.name}
                   </span>
                 </Link>
+                <button 
+                  onClick={closeMenu}
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-black text-white transition-transform hover:scale-110 active:scale-95 md:hidden"
+                  aria-label="Close menu"
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
               </div>
 
               {/* Column 2: Main Links (Center-Right) */}
-              <div className="md:col-span-6 lg:col-span-5 flex justify-end">
-                <nav className="flex flex-col gap-0">
+              <div className="md:col-span-6 md:flex md:justify-end lg:col-span-5">
+                <nav className="flex flex-col gap-1 sm:gap-0">
                   {navLinks.map((link, i) => (
                     <motion.a
                       key={link.href}
@@ -220,7 +230,7 @@ export function MagneticNav() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.4 + i * 0.05, duration: 0.4 }}
                       onClick={(e) => handleNavClick(e, link.href)}
-                      className="group relative flex w-fit items-center font-inter text-[clamp(1.8rem,4.5vw,3rem)] font-medium leading-[1.0] tracking-tight text-black transition-opacity hover:opacity-50"
+                      className="group relative flex w-fit items-center font-inter text-[clamp(1.5rem,8vw,3rem)] font-medium leading-[1.1] tracking-tight text-black transition-opacity hover:opacity-50 sm:text-[clamp(1.8rem,4.5vw,3rem)] sm:leading-[1.0]"
                     >
                       {link.label}
                     </motion.a>
@@ -229,10 +239,11 @@ export function MagneticNav() {
               </div>
 
               {/* Column 3: Close + Socials (Far Right) */}
-              <div className="md:col-span-3 lg:col-span-3 flex flex-col items-end gap-12">
+              <div className="flex flex-col items-start gap-8 sm:items-end sm:gap-12 md:col-span-3 lg:col-span-3">
                 <button 
                   onClick={closeMenu}
-                  className="flex h-12 w-12 items-center justify-center rounded-full bg-black text-white transition-transform hover:scale-110 active:scale-95"
+                  className="hidden h-12 w-12 items-center justify-center rounded-full bg-black text-white transition-transform hover:scale-110 active:scale-95 md:flex"
+                  aria-label="Close menu"
                 >
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
                     <line x1="18" y1="6" x2="6" y2="18" />
@@ -240,7 +251,7 @@ export function MagneticNav() {
                   </svg>
                 </button>
 
-                <div className="flex flex-col items-end gap-2 text-right">
+                <div className="flex flex-col items-start gap-2 sm:items-end sm:text-right">
                   <a href={site.instagram} target="_blank" rel="noopener noreferrer" className="font-inter text-lg font-medium text-black hover:opacity-50 transition-opacity">Instagram</a>
                   <a href={site.linkedin} target="_blank" rel="noopener noreferrer" className="font-inter text-lg font-medium text-black hover:opacity-50 transition-opacity">LinkedIn</a>
                   <a href={`mailto:${site.email}`} className="font-inter text-lg font-medium text-black hover:opacity-50 transition-opacity">Email</a>

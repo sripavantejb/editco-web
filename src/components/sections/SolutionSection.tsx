@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { 
   Zap, 
@@ -43,10 +43,19 @@ const textColors = [
 
 export function SolutionSection() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isDesktop, setIsDesktop] = useState(false);
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"]
   });
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const update = () => setIsDesktop(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   return (
     <section 
@@ -67,7 +76,7 @@ export function SolutionSection() {
           />
         </div>
 
-        <div className="relative flex flex-col gap-[5vh]">
+        <div className="relative flex flex-col gap-6 md:gap-[5vh]">
           {solution.cards.map((card, i) => (
             <Card 
               key={card.title} 
@@ -75,6 +84,7 @@ export function SolutionSection() {
               index={i} 
               total={solution.cards.length}
               scrollYProgress={scrollYProgress}
+              isDesktop={isDesktop}
             />
           ))}
         </div>
@@ -83,26 +93,25 @@ export function SolutionSection() {
   );
 }
 
-function Card({ card, index, total, scrollYProgress }: any) {
+function Card({ card, index, total, scrollYProgress, isDesktop }: any) {
   const Icon = SOLUTION_ICONS[index % SOLUTION_ICONS.length];
   const bgColor = cardColors[index % cardColors.length];
 
-  // Logic for stacking and scaling
+  // Logic for stacking and scaling (desktop only)
   const targetScale = 1 - ((total - index) * 0.05);
   const scale = useTransform(scrollYProgress, [index / total, 1], [1, targetScale]);
   
-  // Subtle top offset to keep them visible as they stack - Lifted higher (60px instead of 100px)
   const topOffset = 60 + (index * 20);
 
   return (
-    <div className="sticky top-0 flex h-[80vh] items-center justify-center">
+    <div className="relative flex items-stretch py-2 md:sticky md:top-0 md:h-[80vh] md:items-center md:py-0">
       <motion.div
         style={{ 
-          scale,
-          top: topOffset,
+          scale: isDesktop ? scale : 1,
+          top: isDesktop ? topOffset : undefined,
           backgroundColor: bgColor
         }}
-        className={`relative h-[500px] w-full overflow-hidden rounded-[32px] border-4 border-black p-8 md:p-12 shadow-[8px_8px_0_0_#000] transition-shadow hover:shadow-[12px_12px_0_0_#000]`}
+        className="relative min-h-[380px] w-full overflow-hidden rounded-[24px] border-4 border-black p-6 shadow-[8px_8px_0_0_#000] transition-shadow hover:shadow-[12px_12px_0_0_#000] sm:min-h-[420px] sm:rounded-[28px] sm:p-8 md:h-[500px] md:rounded-[32px] md:p-12"
       >
         {/* Technical Background Details */}
         <div className="absolute inset-0 pointer-events-none opacity-[0.05]" 
@@ -125,7 +134,7 @@ function Card({ card, index, total, scrollYProgress }: any) {
             </div>
 
             <div className="space-y-4">
-              <h3 className="font-archivo text-4xl font-black uppercase leading-[0.9] tracking-tighter text-black md:text-6xl lg:text-7xl">
+              <h3 className="font-archivo text-2xl font-black uppercase leading-[0.95] tracking-tighter text-black sm:text-3xl md:text-6xl lg:text-7xl">
                 {card.title}
               </h3>
               <p className="max-w-md font-inter text-sm font-medium leading-relaxed text-black/70 md:text-lg">

@@ -1,0 +1,11 @@
+{
+  "name": "editco-frontend",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix .. run dev",
+    "dev:turbo": "npm --prefix .. run dev:turbo",
+    "build": "npm --prefix .. run build",
+    "start": "npm --prefix .. run start",
+    "lint": "npm --prefix .. run lint"
+  }
+}

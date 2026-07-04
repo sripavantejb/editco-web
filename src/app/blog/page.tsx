@@ -32,7 +32,7 @@ export default function BlogPage() {
             <span className="inline-block border-2 border-gaude-orange bg-gaude-orange px-4 py-1 font-inter text-xs font-black uppercase tracking-widest text-white">
               Editco Media — The Blog
             </span>
-            <h1 className="mt-6 font-archivo text-5xl font-black uppercase leading-[0.9] tracking-tighter text-white md:text-8xl">
+            <h1 className="mt-6 font-archivo text-4xl font-black uppercase leading-[0.9] tracking-tighter text-white sm:text-5xl md:text-8xl">
               INSIGHTS ON<br />
               <span className="text-gaude-orange">AI · AUTOMATION</span><br />
               & GROWTH

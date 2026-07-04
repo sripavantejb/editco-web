@@ -52,7 +52,7 @@ export default function BlogPostPage() {
               <span className="font-inter text-xs font-bold text-white/40">{post.readTime} read</span>
             </div>
 
-            <h1 className="font-archivo text-4xl font-black uppercase leading-[0.95] tracking-tighter text-white md:text-6xl lg:text-7xl">
+            <h1 className="font-archivo text-3xl font-black uppercase leading-[0.95] tracking-tighter text-white sm:text-4xl md:text-6xl lg:text-7xl">
               {post.title}
             </h1>
             
@@ -70,7 +70,7 @@ export default function BlogPostPage() {
         <div className="mx-auto max-w-3xl">
           <motion.div 
             initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-            className="prose prose-invert prose-lg max-w-none font-inter"
+            className="prose prose-invert prose-base sm:prose-lg max-w-none break-words font-inter [&_img]:max-w-full [&_pre]:overflow-x-auto [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto"
           >
             {post.content ? (
               <div dangerouslySetInnerHTML={{ __html: post.content }} />

@@ -42,7 +42,7 @@ export function CalInlineEmbed({ embedId, className = "" }: CalInlineEmbedProps)
   return (
     <div
       id={embedId}
-      className={`min-h-[620px] w-full md:min-h-[700px] ${className}`}
+      className={`min-h-[480px] w-full sm:min-h-[560px] md:min-h-[700px] ${className}`}
     />
   );
 }

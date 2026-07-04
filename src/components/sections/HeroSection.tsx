@@ -37,7 +37,7 @@ export function HeroSection() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gaude-orange opacity-75"></span>
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-gaude-orange"></span>
               </span>
-              <span className="font-archivo text-[8px] md:text-[10px] font-bold uppercase tracking-[0.2em] text-gaude-orange/80 whitespace-nowrap">
+              <span className="max-w-[min(100%,280px)] text-center font-archivo text-[8px] font-bold uppercase leading-snug tracking-[0.15em] text-gaude-orange/80 sm:max-w-none sm:text-[10px] sm:tracking-[0.2em]">
                 AI AUTOMATION + GROWTH SYSTEMS AGENCY
               </span>
             </div>

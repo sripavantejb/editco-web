@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 export function HeroVisual() {
   return (
-    <div className="relative flex min-h-[480px] w-full items-center justify-center md:min-h-[560px]">
+    <div className="relative flex min-h-[420px] w-full items-center justify-center overflow-hidden px-2 sm:min-h-[480px] md:min-h-[560px]">
       {/* Soft radial glow behind */}
       <div className="absolute top-1/2 left-1/2 -z-10 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gaude-black/20 blur-[100px]" />
 
@@ -127,7 +127,7 @@ export function HeroVisual() {
           <motion.div
             animate={{ y: [0, -8, 0] }}
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -right-6 bottom-12 rounded-xl border-2 border-gaude-black bg-white px-4 py-3 shadow-[8px_8px_0_0_#0a0a0a]"
+            className="absolute right-0 bottom-8 hidden rounded-xl border-2 border-gaude-black bg-white px-4 py-3 shadow-[8px_8px_0_0_#0a0a0a] sm:block sm:-right-4 md:-right-6 md:bottom-12"
           >
             <div className="flex items-center gap-3">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gaude-green/20 text-gaude-green">

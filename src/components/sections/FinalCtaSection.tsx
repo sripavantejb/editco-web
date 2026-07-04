@@ -8,7 +8,7 @@ export function FinalCtaSection() {
   return (
     <section
       id={finalCta.id}
-      className={`relative flex min-h-screen flex-col justify-center overflow-hidden bg-[#050505] px-4 py-16 md:px-8 md:py-24 ${sectionFlow}`}
+      className={`relative flex min-h-0 flex-col justify-center overflow-hidden bg-[#050505] px-4 py-16 md:min-h-screen md:px-8 md:py-24 ${sectionFlow}`}
     >
       {/* Premium Background Visuals */}
       <div className="absolute inset-0 z-0">
@@ -31,7 +31,7 @@ export function FinalCtaSection() {
             </span>
           </div>
 
-          <h2 className="font-archivo text-4xl uppercase leading-[0.85] tracking-[-0.04em] text-white md:text-7xl">
+          <h2 className="font-archivo text-3xl uppercase leading-[0.85] tracking-[-0.04em] text-white sm:text-4xl md:text-7xl">
             READY TO <span className="text-gaude-orange">SCALE?</span>
           </h2>
         </div>

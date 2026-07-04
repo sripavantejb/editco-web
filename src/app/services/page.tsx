@@ -251,7 +251,7 @@ export default function ServicesPage() {
   ];
 
   return (
-    <div className="relative w-full overflow-x-clip bg-gaude-black text-white pt-24">
+    <div className="relative w-full overflow-x-clip bg-gaude-black text-white pt-20 sm:pt-24">
       {/* Background Gradients */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute top-[5%] left-[-10%] h-[600px] w-[600px] rounded-full bg-gaude-orange/10 blur-[130px]" />
@@ -437,17 +437,17 @@ export default function ServicesPage() {
             <div className="absolute top-0 right-0 h-[250px] w-[250px] rounded-full bg-gaude-green/10 blur-[80px] pointer-events-none" />
 
             <div>
-              <div className="flex items-center justify-between border-b border-gaude-green/20 pb-6 mb-8">
+              <div className="flex flex-col gap-3 border-b border-gaude-green/20 pb-6 mb-8 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-xl bg-gaude-green/10 flex items-center justify-center">
                     <Check size={20} className="text-gaude-green" />
                   </div>
-                  <h3 className="font-archivo text-2xl uppercase tracking-tighter text-gaude-green">
+                  <h3 className="font-archivo text-xl uppercase tracking-tighter text-gaude-green sm:text-2xl">
                     With Editco
                   </h3>
                 </div>
                 
-                <span className="rounded-full bg-gaude-green/15 px-3 py-1 font-inter text-[9px] font-black uppercase tracking-widest text-gaude-green">
+                <span className="w-fit rounded-full bg-gaude-green/15 px-3 py-1 font-inter text-[9px] font-black uppercase tracking-widest text-gaude-green">
                   THE FUTURE
                 </span>
               </div>
@@ -561,7 +561,7 @@ export default function ServicesPage() {
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
-                    className="w-full max-w-[400px] h-[300px] rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md p-8 shadow-2xl relative overflow-hidden flex flex-col justify-between"
+                    className="w-full max-w-[400px] min-h-[240px] h-auto sm:h-[280px] md:h-[300px] rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md p-6 sm:p-8 shadow-2xl relative overflow-hidden flex flex-col justify-between"
                   >
                     <div className="absolute top-0 right-0 h-[150px] w-[150px] rounded-full bg-gaude-orange/5 blur-[50px] pointer-events-none" />
                     
