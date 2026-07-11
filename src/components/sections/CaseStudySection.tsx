@@ -47,6 +47,7 @@ export function CaseStudySection() {
                   loop
                   muted
                   playsInline
+                  suppressHydrationWarning
                   className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-105"
                 >
                   <source src={work.video} type="video/mp4" />
