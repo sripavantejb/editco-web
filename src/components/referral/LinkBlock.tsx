@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import QRCode from "qrcode";
 import { Button } from "@/components/referral/ui/button";
+import { openGmailCompose } from "@/lib/gmail";
 import {
   Check,
   Copy,
@@ -24,7 +25,7 @@ export function LinkBlock({
   const base = `${appUrl}/refer/${code}`;
   const [copied, setCopied] = useState<string | null>(null);
   const [qr, setQr] = useState("");
-  const [preview, setPreview] = useState<"whatsapp" | "email" | null>(null);
+  const [preview, setPreview] = useState<"whatsapp" | null>(null);
 
   const whatsappLink = useMemo(
     () =>
@@ -55,51 +56,6 @@ export function LinkBlock({
     [emailLink, fullName]
   );
 
-  const channels = [
-    {
-      id: "whatsapp" as const,
-      label: "WhatsApp",
-      hint: "Send a ready-made intro message",
-      icon: MessageCircle,
-      accent: "border-emerald-500/30 bg-emerald-500/10 text-emerald-600",
-      primaryLabel: "Open WhatsApp",
-      onPrimary: () => {
-        window.open(
-          `https://wa.me/?text=${encodeURIComponent(whatsappText)}`,
-          "_blank",
-          "noopener,noreferrer"
-        );
-      },
-      copyValue: whatsappText,
-      preview: whatsappText,
-    },
-    {
-      id: "email" as const,
-      label: "Email",
-      hint: "Open your mail app with the draft",
-      icon: Mail,
-      accent: "border-sky-500/30 bg-sky-500/10 text-sky-600",
-      primaryLabel: "Compose email",
-      onPrimary: () => {
-        window.location.href = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-      },
-      copyValue: emailBody,
-      preview: emailBody,
-    },
-    {
-      id: "direct" as const,
-      label: "Copy link",
-      hint: "Paste anywhere — chat, bio, or DM",
-      icon: Link2,
-      accent:
-        "border-[var(--dash-accent)]/30 bg-[var(--dash-accent-soft)] text-[var(--dash-accent)]",
-      primaryLabel: "Copy link",
-      onPrimary: () => copy("direct", directLink),
-      copyValue: directLink,
-      preview: null,
-    },
-  ];
-
   useEffect(() => {
     QRCode.toDataURL(directLink, {
       margin: 2,
@@ -122,8 +78,6 @@ export function LinkBlock({
     a.download = `${code}-referral-qr.png`;
     a.click();
   }
-
-  const activePreview = channels.find((c) => c.id === preview);
 
   return (
     <section className="overflow-hidden rounded-[24px] border border-[var(--dash-border)] bg-[var(--dash-surface)]">
@@ -193,96 +147,138 @@ export function LinkBlock({
             Share faster
           </p>
           <p className="mt-1 font-inter text-sm text-[var(--dash-muted)]">
-            One tap to open WhatsApp, email, or copy your link
+            WhatsApp, open Gmail with a draft, or copy your link
           </p>
         </div>
 
         <div className="grid gap-3 md:grid-cols-3">
-          {channels.map((channel) => {
-            const Icon = channel.icon;
-            const isCopied = copied === channel.id;
-            return (
-              <div
-                key={channel.id}
-                className="group flex flex-col rounded-[20px] border border-[var(--dash-border)] bg-[var(--dash-hover)] p-4 transition hover:border-[var(--dash-accent)]/35"
+          <div className="group flex flex-col rounded-[20px] border border-[var(--dash-border)] bg-[var(--dash-hover)] p-4 transition hover:border-[var(--dash-accent)]/35">
+            <div className="flex items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-600">
+                <MessageCircle className="h-4 w-4" />
+              </span>
+              <div className="min-w-0">
+                <p className="font-archivo text-sm uppercase tracking-wide text-[var(--dash-text)]">
+                  WhatsApp
+                </p>
+                <p className="mt-0.5 font-inter text-xs text-[var(--dash-muted)]">
+                  Send a ready-made intro message
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 flex flex-1 flex-col gap-2">
+              <button
+                type="button"
+                onClick={() =>
+                  window.open(
+                    `https://wa.me/?text=${encodeURIComponent(whatsappText)}`,
+                    "_blank",
+                    "noopener,noreferrer"
+                  )
+                }
+                className="dash-cta inline-flex h-10 w-full items-center justify-center gap-2 rounded-full font-archivo text-[10px] uppercase tracking-widest transition"
               >
-                <div className="flex items-start gap-3">
-                  <span
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border ${channel.accent}`}
-                  >
-                    <Icon className="h-4 w-4" />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="font-archivo text-sm uppercase tracking-wide text-[var(--dash-text)]">
-                      {channel.label}
-                    </p>
-                    <p className="mt-0.5 font-inter text-xs text-[var(--dash-muted)]">
-                      {channel.hint}
-                    </p>
-                  </div>
-                </div>
+                <ExternalLink className="h-3.5 w-3.5" />
+                Open WhatsApp
+              </button>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => copy("whatsapp", whatsappText)}
+                  className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-[var(--dash-border)] font-archivo text-[10px] uppercase tracking-widest text-[var(--dash-muted)] transition hover:border-[var(--dash-accent)]/40 hover:text-[var(--dash-text)]"
+                >
+                  {copied === "whatsapp" ? (
+                    <Check className="h-3.5 w-3.5" />
+                  ) : (
+                    <Copy className="h-3.5 w-3.5" />
+                  )}
+                  {copied === "whatsapp" ? "Copied" : "Copy"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setPreview((p) => (p === "whatsapp" ? null : "whatsapp"))
+                  }
+                  className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--dash-border)] font-archivo text-[10px] uppercase tracking-widest text-[var(--dash-muted)] transition hover:border-[var(--dash-accent)]/40 hover:text-[var(--dash-text)]"
+                >
+                  {preview === "whatsapp" ? "Hide" : "Preview"}
+                </button>
+              </div>
+            </div>
+          </div>
 
-                <div className="mt-4 flex flex-1 flex-col gap-2">
-                  <button
-                    type="button"
-                    onClick={channel.onPrimary}
-                    className="dash-cta inline-flex h-10 w-full items-center justify-center gap-2 rounded-full font-archivo text-[10px] uppercase tracking-widest transition"
-                  >
-                    {channel.id === "direct" && isCopied ? (
-                      <>
-                        <Check className="h-3.5 w-3.5" />
-                        Copied
-                      </>
-                    ) : (
-                      <>
-                        {channel.id === "direct" ? (
-                          <Copy className="h-3.5 w-3.5" />
-                        ) : (
-                          <ExternalLink className="h-3.5 w-3.5" />
-                        )}
-                        {channel.primaryLabel}
-                      </>
-                    )}
-                  </button>
+          <div className="group flex flex-col rounded-[20px] border border-[var(--dash-border)] bg-[var(--dash-hover)] p-4 transition hover:border-[var(--dash-accent)]/35">
+            <div className="flex items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-sky-500/30 bg-sky-500/10 text-sky-600">
+                <Mail className="h-4 w-4" />
+              </span>
+              <div className="min-w-0">
+                <p className="font-archivo text-sm uppercase tracking-wide text-[var(--dash-text)]">
+                  Email
+                </p>
+                <p className="mt-0.5 font-inter text-xs text-[var(--dash-muted)]">
+                  Opens Gmail with this draft ready
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 flex flex-1 flex-col gap-2">
+              <button
+                type="button"
+                onClick={() =>
+                  openGmailCompose({
+                    subject: emailSubject,
+                    body: emailBody,
+                  })
+                }
+                className="dash-cta inline-flex h-10 w-full items-center justify-center gap-2 rounded-full font-archivo text-[10px] uppercase tracking-widest transition"
+              >
+                <Mail className="h-3.5 w-3.5" />
+                Open Gmail
+              </button>
+            </div>
+          </div>
 
-                  {channel.id !== "direct" ? (
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => copy(channel.id, channel.copyValue)}
-                        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-[var(--dash-border)] font-archivo text-[10px] uppercase tracking-widest text-[var(--dash-muted)] transition hover:border-[var(--dash-accent)]/40 hover:text-[var(--dash-text)]"
-                      >
-                        {isCopied ? (
-                          <Check className="h-3.5 w-3.5" />
-                        ) : (
-                          <Copy className="h-3.5 w-3.5" />
-                        )}
-                        {isCopied ? "Copied" : "Copy"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setPreview((p) =>
-                            p === channel.id ? null : channel.id
-                          )
-                        }
-                        className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--dash-border)] font-archivo text-[10px] uppercase tracking-widest text-[var(--dash-muted)] transition hover:border-[var(--dash-accent)]/40 hover:text-[var(--dash-text)]"
-                      >
-                        {preview === channel.id ? "Hide" : "Preview"}
-                      </button>
-                    </div>
-                  ) : null}
+          <div className="group flex flex-col rounded-[20px] border border-[var(--dash-border)] bg-[var(--dash-hover)] p-4 transition hover:border-[var(--dash-accent)]/35">
+            <div className="flex items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--dash-accent)]/30 bg-[var(--dash-accent-soft)] text-[var(--dash-accent)]">
+                <Link2 className="h-4 w-4" />
+              </span>
+              <div className="min-w-0">
+                <p className="font-archivo text-sm uppercase tracking-wide text-[var(--dash-text)]">
+                  Copy link
+                </p>
+                <div className="mt-0.5 font-inter text-xs text-[var(--dash-muted)]">
+                  Paste anywhere — chat, bio, or DM
                 </div>
               </div>
-            );
-          })}
+            </div>
+            <div className="mt-4 flex flex-1 flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => copy("direct", directLink)}
+                className="dash-cta inline-flex h-10 w-full items-center justify-center gap-2 rounded-full font-archivo text-[10px] uppercase tracking-widest transition"
+              >
+                {copied === "direct" ? (
+                  <>
+                    <Check className="h-3.5 w-3.5" />
+                    Copied
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-3.5 w-3.5" />
+                    Copy link
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
 
-        {activePreview?.preview && (
+        {preview === "whatsapp" && (
           <div className="mt-4 rounded-2xl border border-[var(--dash-border)] bg-[var(--dash-hover)] p-4">
             <div className="mb-2 flex items-center justify-between gap-2">
               <p className="font-archivo text-[10px] uppercase tracking-[0.16em] text-[var(--dash-faint)]">
-                {activePreview.label} message preview
+                WhatsApp message preview
               </p>
               <button
                 type="button"
@@ -293,7 +289,7 @@ export function LinkBlock({
               </button>
             </div>
             <p className="whitespace-pre-wrap font-inter text-sm leading-relaxed text-[var(--dash-muted)]">
-              {activePreview.preview}
+              {whatsappText}
             </p>
           </div>
         )}

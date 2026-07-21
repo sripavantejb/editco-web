@@ -13,6 +13,7 @@ import { Button } from "@/components/referral/ui/button";
 import { Input } from "@/components/referral/ui/input";
 import { Textarea } from "@/components/referral/ui/textarea";
 import { Label } from "@/components/referral/ui/label";
+import { PhoneField } from "@/components/referral/PhoneField";
 
 const initial: ActionState = {};
 
@@ -146,10 +147,11 @@ function LeadFormFields({
         <Label htmlFor="leadEmail">Email</Label>
         <Input id="leadEmail" name="referredEmail" type="email" />
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="leadPhone">Phone</Label>
-        <Input id="leadPhone" name="referredPhone" />
-      </div>
+      <PhoneField
+        id="leadPhone"
+        name="referredPhone"
+        label="Phone"
+      />
       <div className="space-y-2">
         <Label htmlFor="leadNeeds">What do you need help with?</Label>
         <Textarea id="leadNeeds" name="referredNeeds" />

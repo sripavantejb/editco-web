@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import QRCode from "qrcode";
 import { site } from "@/content/site";
+import { openGmailCompose } from "@/lib/gmail";
 
 const LOGO_SRC =
   "https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png";
@@ -106,9 +107,11 @@ export function ShareReferralModal({
     },
     {
       label: "Email",
-      onClick: () => {
-        window.location.href = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-      },
+      onClick: () =>
+        openGmailCompose({
+          subject: emailSubject,
+          body: emailBody,
+        }),
     },
     {
       label: "Download QR",
@@ -237,12 +240,6 @@ export function ShareReferralModal({
                   >
                     LinkedIn
                   </a>
-                  <a
-                    href={`mailto:${site.email}`}
-                    className="font-inter text-lg font-medium text-black transition-opacity hover:opacity-50"
-                  >
-                    Email
-                  </a>
                 </div>
               </div>
             </div>
@@ -263,12 +260,6 @@ export function ShareReferralModal({
                 className="font-inter text-base font-medium text-black transition-opacity hover:opacity-50"
               >
                 LinkedIn
-              </a>
-              <a
-                href={`mailto:${site.email}`}
-                className="font-inter text-base font-medium text-black transition-opacity hover:opacity-50"
-              >
-                Email
               </a>
             </div>
 

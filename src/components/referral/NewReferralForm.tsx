@@ -11,6 +11,7 @@ import { Button } from "@/components/referral/ui/button";
 import { Input } from "@/components/referral/ui/input";
 import { Textarea } from "@/components/referral/ui/textarea";
 import { Label } from "@/components/referral/ui/label";
+import { PhoneField } from "@/components/referral/PhoneField";
 
 const initial: ActionState = {};
 
@@ -46,8 +47,11 @@ export function NewReferralForm() {
           <Input id="referredBusiness" name="referredBusiness" />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="referredPhone">Phone</Label>
-          <Input id="referredPhone" name="referredPhone" />
+          <PhoneField
+            id="referredPhone"
+            name="referredPhone"
+            label="Phone"
+          />
         </div>
         <div className="space-y-2 sm:col-span-2">
           <Label htmlFor="referredEmail">Email</Label>

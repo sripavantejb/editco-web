@@ -117,6 +117,94 @@ body {
   }
 }
 
+/* Referral nav: thin orange border beam that rotates continuously */
+@keyframes nav-referral-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.nav-referral {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 9999px;
+  padding: 1px;
+}
+
+.nav-referral::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  z-index: 0;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    transparent 55%,
+    rgba(255, 78, 0, 0.15) 70%,
+    #ff4e00 82%,
+    rgba(255, 78, 0, 0.15) 90%,
+    transparent 100%
+  );
+  animation: nav-referral-spin 3.2s linear infinite;
+}
+
+.nav-referral > span {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  background: rgba(10, 10, 10, 0.92);
+}
+
+.nav-referral-menu {
+  position: relative;
+  display: inline-flex;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 9999px;
+  padding: 2px;
+}
+
+.nav-referral-menu::before {
+  content: "";
+  position: absolute;
+  inset: -45%;
+  z-index: 0;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    transparent 55%,
+    rgba(255, 78, 0, 0.2) 70%,
+    #ff4e00 82%,
+    rgba(255, 78, 0, 0.2) 90%,
+    transparent 100%
+  );
+  animation: nav-referral-spin 3.2s linear infinite;
+}
+
+.nav-referral-menu > span {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  border-radius: 9999px;
+  background: #fff;
+  padding: 0.15em 0.55em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-referral::before,
+  .nav-referral-menu::before {
+    animation: none;
+    background: #ff4e00;
+    inset: 0;
+  }
+}
+
 ::-webkit-scrollbar {
   width: 12px;
 }

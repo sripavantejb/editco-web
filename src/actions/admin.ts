@@ -12,6 +12,7 @@ import { ReferralClick } from "@/models/ReferralClick";
 import {
   calculateRewardAmount,
   hashIp,
+  tierFromCount,
 } from "@/lib/referral-logic";
 import {
   LOST_REASON_LABELS,
@@ -27,6 +28,7 @@ import {
   sendReferralSubmittedAdmin,
 } from "@/lib/email";
 import type { ActionState } from "@/actions/auth";
+import { redirect } from "next/navigation";
 
 export async function trackReferralClick(params: {
   code: string;
@@ -383,4 +385,234 @@ export async function markRewardPaid(
   revalidatePath("/admin/rewards");
   revalidatePath("/dashboard");
   return { success: "Marked as paid" };
+}
+
+const editReferralSchema = z.object({
+  referralId: z.string().min(1),
+  referredName: z.string().min(2),
+  referredBusiness: z.string().optional(),
+  referredEmail: z.string().email().optional().or(z.literal("")),
+  referredPhone: z.string().optional(),
+  referredNeeds: z.string().optional(),
+  referrerNotes: z.string().optional(),
+  rewardAmount: z.coerce.number().optional(),
+  rewardStatus: z
+    .enum(["not_applicable", "pending", "paid"])
+    .optional(),
+  flaggedDuplicate: z.boolean().optional(),
+  utmSource: z.string().optional(),
+  utmMedium: z.string().optional(),
+  utmCampaign: z.string().optional(),
+  landingPage: z.string().optional(),
+  adminInternalNotes: z.string().optional(),
+});
+
+export async function updateReferralDetails(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const admin = await getAdminSession();
+  if (!admin) return { error: "Unauthorized" };
+
+  const parsed = editReferralSchema.safeParse({
+    referralId: formData.get("referralId"),
+    referredName: formData.get("referredName"),
+    referredBusiness: formData.get("referredBusiness") || undefined,
+    referredEmail: formData.get("referredEmail") || "",
+    referredPhone: formData.get("referredPhone") || undefined,
+    referredNeeds: formData.get("referredNeeds") || undefined,
+    referrerNotes: formData.get("referrerNotes") || undefined,
+    rewardAmount:
+      formData.get("rewardAmount") === "" || formData.get("rewardAmount") == null
+        ? undefined
+        : formData.get("rewardAmount"),
+    rewardStatus: formData.get("rewardStatus") || undefined,
+    flaggedDuplicate: formData.get("flaggedDuplicate") === "on",
+    utmSource: formData.get("utmSource") || undefined,
+    utmMedium: formData.get("utmMedium") || undefined,
+    utmCampaign: formData.get("utmCampaign") || undefined,
+    landingPage: formData.get("landingPage") || undefined,
+    adminInternalNotes: formData.get("adminInternalNotes") || undefined,
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message || "Invalid input" };
+  }
+
+  await connectDB();
+  const referral = await Referral.findById(parsed.data.referralId);
+  if (!referral) return { error: "Referral not found" };
+
+  referral.referredName = parsed.data.referredName.trim();
+  referral.referredBusiness = parsed.data.referredBusiness?.trim() || undefined;
+  referral.referredEmail =
+    parsed.data.referredEmail?.toLowerCase().trim() || undefined;
+  referral.referredPhone = parsed.data.referredPhone?.trim() || undefined;
+  referral.referredNeeds = parsed.data.referredNeeds?.trim() || undefined;
+  referral.referrerNotes = parsed.data.referrerNotes?.trim() || undefined;
+  referral.flaggedDuplicate = Boolean(parsed.data.flaggedDuplicate);
+  referral.utmSource = parsed.data.utmSource?.trim() || undefined;
+  referral.utmMedium = parsed.data.utmMedium?.trim() || undefined;
+  referral.utmCampaign = parsed.data.utmCampaign?.trim() || undefined;
+  referral.landingPage = parsed.data.landingPage?.trim() || undefined;
+
+  if (parsed.data.adminInternalNotes !== undefined) {
+    referral.adminInternalNotes =
+      parsed.data.adminInternalNotes.trim() || undefined;
+  }
+  if (parsed.data.rewardAmount != null && !Number.isNaN(parsed.data.rewardAmount)) {
+    referral.rewardAmount = parsed.data.rewardAmount;
+  }
+  if (parsed.data.rewardStatus) {
+    referral.rewardStatus = parsed.data.rewardStatus;
+  }
+
+  await referral.save();
+
+  await ReferralActivity.create({
+    referralId: referral._id,
+    eventType: "note_added",
+    note: "Referral details updated by admin",
+    createdBy: admin.email,
+    referrerVisible: false,
+  });
+
+  revalidatePath("/admin");
+  revalidatePath(`/admin/referrals/${referral._id}`);
+  revalidatePath("/dashboard");
+  return { success: "Referral updated" };
+}
+
+export async function deleteReferral(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const admin = await getAdminSession();
+  if (!admin) return { error: "Unauthorized" };
+
+  const referralId = String(formData.get("referralId") || "");
+  if (!referralId) return { error: "Missing referral" };
+
+  await connectDB();
+  const referral = await Referral.findById(referralId);
+  if (!referral) return { error: "Referral not found" };
+
+  const referrer = await Referrer.findById(referral.referrerId);
+  if (referrer && referral.stage === "won") {
+    const amount = referral.rewardAmount || 0;
+    referrer.successfulReferralCount = Math.max(
+      0,
+      (referrer.successfulReferralCount || 0) - 1
+    );
+    referrer.tier = tierFromCount(referrer.successfulReferralCount);
+    referrer.totalRewardEarned = Math.max(
+      0,
+      (referrer.totalRewardEarned || 0) - amount
+    );
+    if (referral.rewardStatus === "paid") {
+      referrer.totalRewardPaid = Math.max(
+        0,
+        (referrer.totalRewardPaid || 0) - amount
+      );
+    }
+    await referrer.save();
+  }
+
+  await ReferralActivity.deleteMany({ referralId: referral._id });
+  await referral.deleteOne();
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/rewards");
+  revalidatePath("/dashboard");
+  redirect("/admin");
+}
+
+const editReferrerSchema = z.object({
+  referrerId: z.string().min(1),
+  fullName: z.string().min(2),
+  email: z.string().email(),
+  phone: z.string().optional(),
+  referralCode: z.string().min(4),
+  tier: z.enum(["standard", "growth_partner", "elite_partner"]),
+  isPublicPartner: z.boolean().optional(),
+});
+
+export async function updateReferrerDetails(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const admin = await getAdminSession();
+  if (!admin) return { error: "Unauthorized" };
+
+  const parsed = editReferrerSchema.safeParse({
+    referrerId: formData.get("referrerId"),
+    fullName: formData.get("fullName"),
+    email: formData.get("email"),
+    phone: formData.get("phone") || undefined,
+    referralCode: formData.get("referralCode"),
+    tier: formData.get("tier"),
+    isPublicPartner: formData.get("isPublicPartner") === "on",
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message || "Invalid input" };
+  }
+
+  await connectDB();
+  const referrer = await Referrer.findById(parsed.data.referrerId);
+  if (!referrer) return { error: "Referrer not found" };
+
+  const code = parsed.data.referralCode.toUpperCase().trim();
+  const email = parsed.data.email.toLowerCase().trim();
+
+  const codeTaken = await Referrer.findOne({
+    referralCode: code,
+    _id: { $ne: referrer._id },
+  }).lean();
+  if (codeTaken) return { error: "Referral code already in use" };
+
+  const emailTaken = await Referrer.findOne({
+    email,
+    _id: { $ne: referrer._id },
+  }).lean();
+  if (emailTaken) return { error: "Email already in use" };
+
+  referrer.fullName = parsed.data.fullName.trim();
+  referrer.email = email;
+  referrer.phone = parsed.data.phone?.trim() || undefined;
+  referrer.referralCode = code;
+  referrer.tier = parsed.data.tier;
+  referrer.isPublicPartner = Boolean(parsed.data.isPublicPartner);
+  await referrer.save();
+
+  revalidatePath("/admin");
+  revalidatePath("/dashboard");
+  return { success: "Referrer updated" };
+}
+
+export async function deleteReferrer(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const admin = await getAdminSession();
+  if (!admin) return { error: "Unauthorized" };
+
+  const referrerId = String(formData.get("referrerId") || "");
+  if (!referrerId) return { error: "Missing referrer" };
+
+  await connectDB();
+  const referrer = await Referrer.findById(referrerId);
+  if (!referrer) return { error: "Referrer not found" };
+
+  const referrals = await Referral.find({ referrerId: referrer._id }).lean();
+  const referralIds = referrals.map((r) => r._id);
+  await ReferralActivity.deleteMany({ referralId: { $in: referralIds } });
+  await Referral.deleteMany({ referrerId: referrer._id });
+  await ReferralClick.deleteMany({ referralCode: referrer.referralCode });
+  await referrer.deleteOne();
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/rewards");
+  revalidatePath("/dashboard");
+  return { success: "Referrer deleted" };
 }

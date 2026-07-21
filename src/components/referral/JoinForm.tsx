@@ -6,6 +6,7 @@ import { joinAsReferrer, continueWithEmail, type ActionState } from "@/actions/a
 import { Button } from "@/components/referral/ui/button";
 import { Input } from "@/components/referral/ui/input";
 import { Label } from "@/components/referral/ui/label";
+import { PhoneField } from "@/components/referral/PhoneField";
 
 const initial: ActionState = {};
 
@@ -88,13 +89,13 @@ export function JoinForm({ compact = false }: { compact?: boolean }) {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="phone">Phone</Label>
-              <Input
+              <PhoneField
                 id="phone"
                 name="phone"
+                label="Phone"
                 required
-                placeholder="+91 98xxxxxxx"
-                className="h-11 rounded-xl border-white/10 bg-black/40"
+                inputClassName="h-11 rounded-xl border-white/10 bg-black/40"
+                selectClassName="border-white/10 bg-black/40"
               />
             </div>
             {joinState.error && (

@@ -7,46 +7,16 @@ import {
   Building2,
   Calendar,
   Link2,
-  Mail,
   MapPin,
-  Phone,
-  Tag,
-  User,
 } from "lucide-react";
 import { connectDB } from "@/lib/db";
 import { getAdminSession } from "@/lib/session";
 import { Referral } from "@/models/Referral";
 import { Referrer } from "@/models/Referrer";
 import { ReferralActivity } from "@/models/ReferralActivity";
-import { AdminStageForm } from "@/components/referral/AdminForms";
+import { AdminStageForm, AdminEditReferralForm, AdminDeleteReferralButton, AdminEditReferrerForm } from "@/components/referral/AdminForms";
 import { STAGE_LABELS, type Stage } from "@/lib/constants";
 import { formatCurrencyINR, formatDateTime } from "@/lib/utils";
-
-function DetailRow({
-  label,
-  value,
-  icon: Icon,
-}: {
-  label: string;
-  value: React.ReactNode;
-  icon?: React.ComponentType<{ className?: string }>;
-}) {
-  return (
-    <div className="grid grid-cols-[2rem_1fr] items-start gap-3 border-t border-white/[0.06] py-3.5 first:border-t-0 first:pt-0 last:pb-0">
-      <span className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/35">
-        {Icon ? <Icon className="h-3.5 w-3.5" /> : null}
-      </span>
-      <div className="min-w-0">
-        <p className="font-archivo text-[10px] uppercase tracking-[0.16em] text-white/35">
-          {label}
-        </p>
-        <div className="mt-1 min-h-[1.25rem] font-inter text-sm leading-relaxed text-white/85 break-words">
-          {value || <span className="text-white/30">—</span>}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function AttrTile({
   label,
@@ -221,42 +191,31 @@ export default async function AdminReferralDetailPage({
         </div>
       </div>
 
-      {/* Equal 2×2 card grid */}
-      <div className="grid auto-rows-fr gap-5 lg:grid-cols-2">
-        <SectionCard eyebrow="Lead" title="Contact & notes">
-          <DetailRow
-            icon={Mail}
-            label="Email"
-            value={
-              referral.referredEmail ? (
-                <a
-                  href={`mailto:${referral.referredEmail}`}
-                  className="text-white transition hover:text-gaude-orange"
-                >
-                  {referral.referredEmail}
-                </a>
-              ) : null
-            }
+      {/* Equal card grid */}
+      <div className="grid gap-5 lg:grid-cols-2">
+        <SectionCard eyebrow="Lead" title="Edit contact & details">
+          <AdminEditReferralForm
+            referral={{
+              id: String(referral._id),
+              referredName: referral.referredName,
+              referredBusiness: referral.referredBusiness,
+              referredEmail: referral.referredEmail,
+              referredPhone: referral.referredPhone,
+              referredNeeds: referral.referredNeeds,
+              referrerNotes: referral.referrerNotes,
+              rewardAmount: referral.rewardAmount,
+              rewardStatus: referral.rewardStatus || "not_applicable",
+              flaggedDuplicate: Boolean(referral.flaggedDuplicate),
+              utmSource: referral.utmSource,
+              utmMedium: referral.utmMedium,
+              utmCampaign: referral.utmCampaign,
+              landingPage: referral.landingPage,
+              adminInternalNotes: referral.adminInternalNotes,
+            }}
           />
-          <DetailRow
-            icon={Phone}
-            label="Phone"
-            value={
-              referral.referredPhone ? (
-                <a
-                  href={`tel:${referral.referredPhone}`}
-                  className="text-white transition hover:text-gaude-orange"
-                >
-                  {referral.referredPhone}
-                </a>
-              ) : null
-            }
-          />
-          <DetailRow icon={Tag} label="Needs" value={referral.referredNeeds} />
-          <DetailRow
-            icon={User}
-            label="Referrer notes"
-            value={referral.referrerNotes}
+          <AdminDeleteReferralButton
+            referralId={String(referral._id)}
+            referredName={referral.referredName}
           />
         </SectionCard>
 
@@ -267,7 +226,23 @@ export default async function AdminReferralDetailPage({
           />
         </SectionCard>
 
-        <SectionCard eyebrow="Tracking" title="Attribution">
+        {referrer && (
+          <SectionCard eyebrow="Partner" title="Edit referrer">
+            <AdminEditReferrerForm
+              referrer={{
+                id: String(referrer._id),
+                fullName: referrer.fullName,
+                email: referrer.email,
+                phone: referrer.phone,
+                referralCode: referrer.referralCode,
+                tier: referrer.tier,
+                isPublicPartner: Boolean(referrer.isPublicPartner),
+              }}
+            />
+          </SectionCard>
+        )}
+
+        <SectionCard eyebrow="Tracking" title="Attribution snapshot">
           <div className="grid h-full grid-cols-2 gap-3 content-start">
             <AttrTile label="UTM source" value={referral.utmSource} />
             <AttrTile label="UTM medium" value={referral.utmMedium} />

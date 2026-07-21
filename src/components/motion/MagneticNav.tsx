@@ -98,16 +98,31 @@ export function MagneticNav() {
 
               {/* Desktop Nav Links */}
               <div className="hidden items-center gap-1 md:flex">
-                {desktopNavLinks.map((link) => (
-                  <a
-                    key={link.label}
-                    href={getActiveHref(link.href)}
-                    onClick={(e) => handleNavClick(e, link.href)}
-                    className="rounded-full px-4 py-2 font-archivo text-[10px] font-bold uppercase tracking-widest text-white/70 transition-all hover:bg-white/10 hover:text-white"
-                  >
-                    {link.label}
-                  </a>
-                ))}
+                {desktopNavLinks.map((link) => {
+                  const isReferral = link.href === "/refer";
+                  if (isReferral) {
+                    return (
+                      <a
+                        key={link.label}
+                        href={getActiveHref(link.href)}
+                        onClick={(e) => handleNavClick(e, link.href)}
+                        className="nav-referral font-archivo text-[10px] font-bold uppercase tracking-widest text-white/70 transition-colors hover:text-white"
+                      >
+                        <span className="px-4 py-2">{link.label}</span>
+                      </a>
+                    );
+                  }
+                  return (
+                    <a
+                      key={link.label}
+                      href={getActiveHref(link.href)}
+                      onClick={(e) => handleNavClick(e, link.href)}
+                      className="rounded-full px-4 py-2 font-archivo text-[10px] font-bold uppercase tracking-widest text-white/70 transition-all hover:bg-white/10 hover:text-white"
+                    >
+                      {link.label}
+                    </a>
+                  );
+                })}
               </div>
               
               <div className="mx-2 hidden h-4 w-[1px] bg-white/10 md:block" />
@@ -228,19 +243,37 @@ export function MagneticNav() {
               {/* Column 2: Main Links (Center-Right) */}
               <div className="md:col-span-6 md:flex md:justify-end lg:col-span-5">
                 <nav className="flex flex-col gap-1 sm:gap-0">
-                  {navLinks.map((link, i) => (
-                    <motion.a
-                      key={link.href}
-                      href={getActiveHref(link.href)}
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.4 + i * 0.05, duration: 0.4 }}
-                      onClick={(e) => handleNavClick(e, link.href)}
-                      className="group relative flex w-fit items-center font-inter text-[clamp(1.5rem,8vw,3rem)] font-medium leading-[1.1] tracking-tight text-black transition-opacity hover:opacity-50 sm:text-[clamp(1.8rem,4.5vw,3rem)] sm:leading-[1.0]"
-                    >
-                      {link.label}
-                    </motion.a>
-                  ))}
+                  {navLinks.map((link, i) => {
+                    const isReferral = link.href === "/refer";
+                    if (isReferral) {
+                      return (
+                        <motion.a
+                          key={link.href}
+                          href={getActiveHref(link.href)}
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.4 + i * 0.05, duration: 0.4 }}
+                          onClick={(e) => handleNavClick(e, link.href)}
+                          className="nav-referral-menu mt-1 w-fit font-inter text-[clamp(1.5rem,8vw,3rem)] font-medium leading-[1.1] tracking-tight text-black transition-opacity hover:opacity-70 sm:text-[clamp(1.8rem,4.5vw,3rem)] sm:leading-[1.0]"
+                        >
+                          <span>{link.label}</span>
+                        </motion.a>
+                      );
+                    }
+                    return (
+                      <motion.a
+                        key={link.href}
+                        href={getActiveHref(link.href)}
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 + i * 0.05, duration: 0.4 }}
+                        onClick={(e) => handleNavClick(e, link.href)}
+                        className="group relative flex w-fit items-center font-inter text-[clamp(1.5rem,8vw,3rem)] font-medium leading-[1.1] tracking-tight text-black transition-opacity hover:opacity-50 sm:text-[clamp(1.8rem,4.5vw,3rem)] sm:leading-[1.0]"
+                      >
+                        {link.label}
+                      </motion.a>
+                    );
+                  })}
                 </nav>
               </div>
 
