@@ -10,7 +10,7 @@ import { FloatingBottomNav } from "@/components/motion/FloatingBottomNav";
 const CATEGORIES = ["All", "AI Agents", "Automation", "Websites", "RAG", "SaaS", "Content", "Branding", "SEO/AEO"];
 
 const accentBg: Record<string, string> = {
-  "#ff4e00": "bg-gaude-orange",
+  "#ff8c61": "bg-gaude-orange",
   "#c3a4f6": "bg-gaude-purple",
   "#2fdf92": "bg-gaude-green",
   "#fca5cc": "bg-gaude-pink",
@@ -64,7 +64,7 @@ export default function BlogPage() {
           <Link href={`/blog/${blogPosts[0].slug}`} className="group block">
             <motion.div
               initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              className="relative overflow-hidden border-4 border-white bg-white text-gaude-black shadow-[8px_8px_0_0_#ff4e00] transition-all hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[12px_12px_0_0_#ff4e00]"
+              className="relative overflow-hidden border-4 border-white bg-white text-gaude-black shadow-[8px_8px_0_0_#ff8c61] transition-all hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[12px_12px_0_0_#ff8c61]"
             >
               <div className="grid md:grid-cols-[1fr_auto]">
                 <div className="p-8 md:p-12">
@@ -152,7 +152,7 @@ export default function BlogPage() {
       {/* CTA */}
       <section className="border-t-4 border-white/10 bg-gaude-black px-6 py-20 md:px-12">
         <div className="mx-auto max-w-6xl">
-          <div className="border-4 border-white bg-white p-8 shadow-[8px_8px_0_0_#ff4e00] md:p-12">
+          <div className="border-4 border-white bg-white p-8 shadow-[8px_8px_0_0_#ff8c61] md:p-12">
             <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
               <div>
                 <h2 className="font-archivo text-3xl font-black uppercase tracking-tight text-gaude-black md:text-4xl">

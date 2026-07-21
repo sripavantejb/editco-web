@@ -1,40 +1,77 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { logoutReferrer } from "@/actions/auth";
-import { LayoutDashboard, Plus, LogOut, Home } from "lucide-react";
-import { motion } from "framer-motion";
+import {
+  LayoutDashboard,
+  Plus,
+  LogOut,
+  Moon,
+  Sun,
+  ChevronDown,
+} from "lucide-react";
+import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
+import { useDashboardTheme } from "@/components/referral/DashboardThemeProvider";
+
+const LOGO_SRC =
+  "https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png";
+
+const links = [
+  { href: "/dashboard", label: "Pipeline", icon: LayoutDashboard },
+  { href: "/dashboard/new", label: "Add referral", icon: Plus },
+];
 
 export function DashboardNav({ name }: { name: string }) {
   const pathname = usePathname();
   const first = name.split(" ")[0] || "Partner";
+  const { theme, toggleTheme } = useDashboardTheme();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  const links = [
-    { href: "/dashboard", label: "Pipeline", icon: LayoutDashboard },
-    { href: "/dashboard/new", label: "Add referral", icon: Plus },
-  ];
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onPointer = (e: MouseEvent) => {
+      if (!menuRef.current?.contains(e.target as Node)) setMenuOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    document.addEventListener("mousedown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onPointer);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-gaude-black/80 backdrop-blur-xl">
-      <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-10">
-        <div className="flex min-w-0 items-center gap-3 sm:gap-5">
-          <Link href="/dashboard" className="flex shrink-0 items-center gap-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png"
-              alt="Editco"
-              className="h-9 w-9 object-contain"
-            />
-            <div className="hidden sm:block">
-              <p className="font-archivo text-[11px] uppercase tracking-[0.16em] text-gaude-orange">
-                Editco Referral
-              </p>
-              <p className="font-inter text-xs text-white/45">Partner portal</p>
-            </div>
+    <header className="sticky top-0 z-50 border-b border-[var(--dash-border)] bg-[var(--dash-nav)] backdrop-blur-xl transition-colors duration-300">
+      <div className="mx-auto grid w-full max-w-[1400px] grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-3 sm:px-6 lg:px-10">
+        <div className="flex min-w-0 items-center justify-start">
+          <Link
+            href="/"
+            aria-label="Editco home"
+            className="group flex items-center"
+          >
+            <motion.span
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.96 }}
+              className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-[var(--dash-border)] bg-[var(--dash-surface)] transition-colors group-hover:border-[var(--dash-accent)]"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={LOGO_SRC}
+                alt="Editco"
+                className="h-7 w-7 object-contain"
+              />
+            </motion.span>
           </Link>
+        </div>
 
-          <nav className="ml-1 flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] p-1">
+        <LayoutGroup id="dash-nav">
+          <nav className="flex items-center gap-1 rounded-full border border-[var(--dash-border)] bg-[var(--dash-surface)] p-1">
             {links.map((link) => {
               const active =
                 link.href === "/dashboard"
@@ -45,50 +82,98 @@ export function DashboardNav({ name }: { name: string }) {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`relative flex items-center gap-2 rounded-full px-3 py-2 font-archivo text-[10px] uppercase tracking-widest transition-colors sm:px-4 ${
+                  prefetch
+                  className={`relative flex items-center gap-2 rounded-full px-3.5 py-2 font-inter text-[13px] font-medium tracking-[-0.01em] transition-colors duration-300 sm:px-5 ${
                     active
-                      ? "text-white"
-                      : "text-white/45 hover:text-white/80"
+                      ? "text-[var(--dash-on-accent)]"
+                      : "text-[var(--dash-muted)] hover:text-[var(--dash-text)]"
                   }`}
                 >
                   {active && (
                     <motion.span
                       layoutId="dash-nav-pill"
-                      className="absolute inset-0 rounded-full bg-gaude-orange shadow-[0_0_20px_rgba(255,78,0,0.35)]"
-                      transition={{ type: "spring", stiffness: 320, damping: 28 }}
+                      className="dash-pill-active absolute inset-0 rounded-full"
+                      transition={{
+                        type: "spring",
+                        stiffness: 420,
+                        damping: 34,
+                        mass: 0.8,
+                      }}
                     />
                   )}
-                  <Icon className="relative z-10 h-3.5 w-3.5" />
-                  <span className="relative z-10 hidden sm:inline">{link.label}</span>
+                  <span className="relative z-10 flex items-center gap-2">
+                    <Icon className="h-3.5 w-3.5 opacity-80" strokeWidth={1.75} />
+                    <span className="hidden sm:inline">{link.label}</span>
+                  </span>
                 </Link>
               );
             })}
           </nav>
-        </div>
+        </LayoutGroup>
 
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 md:flex">
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gaude-orange/20 font-archivo text-[10px] text-gaude-orange">
-              {first.slice(0, 1).toUpperCase()}
-            </span>
-            <span className="font-inter text-sm text-white/80">{first}</span>
-          </div>
-          <Link
-            href="/"
-            className="inline-flex h-9 items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 font-archivo text-[10px] uppercase tracking-widest text-white/70 transition hover:border-white/20 hover:text-white"
+        <div className="flex min-w-0 items-center justify-end gap-2 sm:gap-3">
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={toggleTheme}
+            aria-label={
+              theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+            }
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--dash-border)] bg-[var(--dash-surface)] text-[var(--dash-muted)] transition hover:border-[var(--dash-accent)] hover:text-[var(--dash-accent)]"
           >
-            <Home className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Site</span>
-          </Link>
-          <form action={logoutReferrer}>
+            {theme === "dark" ? (
+              <Sun className="h-4 w-4" />
+            ) : (
+              <Moon className="h-4 w-4" />
+            )}
+          </motion.button>
+
+          <div className="relative" ref={menuRef}>
             <button
-              type="submit"
-              className="inline-flex h-9 items-center gap-1.5 rounded-full border border-white/10 px-3 font-archivo text-[10px] uppercase tracking-widest text-white/50 transition hover:border-gaude-orange/40 hover:text-white"
+              type="button"
+              onClick={() => setMenuOpen((o) => !o)}
+              aria-expanded={menuOpen}
+              aria-haspopup="menu"
+              className="inline-flex items-center gap-2 rounded-full border border-[var(--dash-border)] bg-[var(--dash-surface)] py-1.5 pl-1.5 pr-2.5 transition hover:border-[var(--dash-accent)]/40 sm:pr-3"
             >
-              <LogOut className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Log out</span>
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--dash-accent-soft)] font-inter text-[11px] font-semibold text-[var(--dash-accent)]">
+                {first.slice(0, 1).toUpperCase()}
+              </span>
+              <span className="hidden font-inter text-[13px] font-medium text-[var(--dash-text)] sm:inline">
+                {first}
+              </span>
+              <ChevronDown
+                className={`h-3.5 w-3.5 text-[var(--dash-faint)] transition-transform duration-200 ${
+                  menuOpen ? "rotate-180" : ""
+                }`}
+              />
             </button>
-          </form>
+
+            <AnimatePresence>
+              {menuOpen ? (
+                <motion.div
+                  role="menu"
+                  initial={{ opacity: 0, y: 6, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 4, scale: 0.98 }}
+                  transition={{ duration: 0.16 }}
+                  className="absolute right-0 top-[calc(100%+8px)] z-50 min-w-[160px] overflow-hidden rounded-2xl border border-[var(--dash-border)] bg-[var(--dash-bg)] p-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.35)]"
+                >
+                  <form action={logoutReferrer}>
+                    <button
+                      type="submit"
+                      role="menuitem"
+                      className="inline-flex w-full items-center gap-2 rounded-xl px-3 py-2.5 font-inter text-[13px] font-medium text-[var(--dash-muted)] transition hover:bg-[var(--dash-hover)] hover:text-[var(--dash-text)]"
+                    >
+                      <LogOut className="h-3.5 w-3.5" />
+                      Log out
+                    </button>
+                  </form>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
     </header>

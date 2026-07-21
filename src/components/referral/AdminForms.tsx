@@ -39,20 +39,25 @@ export function AdminStageForm({
   const [state, action] = useActionState(updateReferralStage, initial);
 
   return (
-    <form action={action} className="space-y-4">
+    <form action={action} className="flex h-full flex-col space-y-5">
       <input type="hidden" name="referralId" value={referralId} />
 
       <div className="space-y-2">
-        <Label htmlFor="stage">Stage</Label>
+        <Label
+          htmlFor="stage"
+          className="font-archivo text-[10px] uppercase tracking-[0.16em] text-white/45"
+        >
+          Stage
+        </Label>
         <select
           id="stage"
           name="stage"
           value={stage}
           onChange={(e) => setStage(e.target.value as Stage)}
-          className="flex h-11 w-full rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-white"
+          className="flex h-11 w-full rounded-xl border border-white/10 bg-white/5 px-3 text-sm text-white transition focus:border-gaude-orange/50 focus:outline-none"
         >
           {STAGES.map((s) => (
-            <option key={s} value={s} className="bg-zinc-900">
+            <option key={s} value={s} className="bg-gaude-black">
               {STAGE_LABELS[s]}
             </option>
           ))}
@@ -61,18 +66,23 @@ export function AdminStageForm({
 
       {stage === "lost" && (
         <div className="space-y-2">
-          <Label htmlFor="lostReason">Lost reason</Label>
+          <Label
+            htmlFor="lostReason"
+            className="font-archivo text-[10px] uppercase tracking-[0.16em] text-white/45"
+          >
+            Lost reason
+          </Label>
           <select
             id="lostReason"
             name="lostReason"
             required
-            className="flex h-11 w-full rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-white"
+            className="flex h-11 w-full rounded-xl border border-white/10 bg-white/5 px-3 text-sm text-white transition focus:border-gaude-orange/50 focus:outline-none"
           >
-            <option value="" className="bg-zinc-900">
+            <option value="" className="bg-gaude-black">
               Select reason
             </option>
             {LOST_REASONS.map((r) => (
-              <option key={r.value} value={r.value} className="bg-zinc-900">
+              <option key={r.value} value={r.value} className="bg-gaude-black">
                 {r.label}
               </option>
             ))}
@@ -83,25 +93,35 @@ export function AdminStageForm({
       {stage === "won" && (
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="projectType">Project type</Label>
+            <Label
+              htmlFor="projectType"
+              className="font-archivo text-[10px] uppercase tracking-[0.16em] text-white/45"
+            >
+              Project type
+            </Label>
             <select
               id="projectType"
               name="projectType"
               required
-              className="flex h-11 w-full rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-white"
+              className="flex h-11 w-full rounded-xl border border-white/10 bg-white/5 px-3 text-sm text-white transition focus:border-gaude-orange/50 focus:outline-none"
             >
-              <option value="" className="bg-zinc-900">
+              <option value="" className="bg-gaude-black">
                 Select type
               </option>
               {PROJECT_TYPES.map((p) => (
-                <option key={p.value} value={p.value} className="bg-zinc-900">
+                <option key={p.value} value={p.value} className="bg-gaude-black">
                   {p.label}
                 </option>
               ))}
             </select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="projectValue">Project value (₹)</Label>
+            <Label
+              htmlFor="projectValue"
+              className="font-archivo text-[10px] uppercase tracking-[0.16em] text-white/45"
+            >
+              Project value (₹)
+            </Label>
             <Input
               id="projectValue"
               name="projectValue"
@@ -114,19 +134,47 @@ export function AdminStageForm({
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="referrerFacingNote">Note for referrer (optional)</Label>
-        <Textarea id="referrerFacingNote" name="referrerFacingNote" />
+        <Label
+          htmlFor="referrerFacingNote"
+          className="font-archivo text-[10px] uppercase tracking-[0.16em] text-white/45"
+        >
+          Note for referrer
+        </Label>
+        <Textarea
+          id="referrerFacingNote"
+          name="referrerFacingNote"
+          placeholder="Optional — visible to the partner"
+          className="min-h-[88px]"
+        />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="adminInternalNote">Internal note (admin only)</Label>
-        <Textarea id="adminInternalNote" name="adminInternalNote" />
+        <Label
+          htmlFor="adminInternalNote"
+          className="font-archivo text-[10px] uppercase tracking-[0.16em] text-white/45"
+        >
+          Internal note
+        </Label>
+        <Textarea
+          id="adminInternalNote"
+          name="adminInternalNote"
+          placeholder="Admin only"
+          className="min-h-[88px]"
+        />
       </div>
 
-      {state.error && <p className="text-sm text-red-400">{state.error}</p>}
-      {state.success && (
-        <p className="text-sm text-emerald-400">{state.success}</p>
+      {state.error && (
+        <p className="rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+          {state.error}
+        </p>
       )}
-      <Submit label="Update stage" />
+      {state.success && (
+        <p className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-300">
+          {state.success}
+        </p>
+      )}
+      <div className="mt-auto pt-1">
+        <Submit label="Update stage" />
+      </div>
     </form>
   );
 }

@@ -109,7 +109,7 @@ export async function sendReferralSubmittedAdmin(params: {
          ? `<p><strong style="color:#fff;">UTM:</strong> ${params.utm.source || "—"} / ${params.utm.medium || "—"} / ${params.utm.campaign || "—"}</p>`
          : ""
      }
-     ${cta(`${appUrl}/admin/referrals`, "Open admin")}`
+     ${cta(`${appUrl}/admin`, "Open admin")}`
   );
   return send(adminEmail, `New referral: ${params.referredName}`, html);
 }

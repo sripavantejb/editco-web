@@ -34,7 +34,7 @@ export function PublicPartnerToggle({
       <CardTitle>Public partner wall</CardTitle>
       <CardDescription className="mt-1">
         As an Elite Partner you can opt in to be listed on{" "}
-        <span className="text-zinc-300">/partners</span>.
+        <span className="text-[var(--dash-text)]">/partners</span>.
       </CardDescription>
       <form action={action} className="mt-4">
         <input type="hidden" name="enabled" value={isPublic ? "false" : "true"} />

@@ -53,7 +53,7 @@ export function ProcessSection() {
       <div className="absolute left-1/2 top-[450px] bottom-32 w-[1px] -translate-x-1/2 bg-white/5 hidden md:block">
         <motion.div 
           style={{ height: useTransform(scrollYProgress, [0.2, 0.9], ["0%", "100%"]) }}
-          className="w-full bg-gradient-to-b from-gaude-orange via-gaude-purple to-gaude-green shadow-[0_0_15px_rgba(255,78,0,0.3)]"
+          className="w-full bg-gradient-to-b from-gaude-orange via-gaude-purple to-gaude-green shadow-[0_0_15px_rgba(255,140,97,0.3)]"
         />
       </div>
 

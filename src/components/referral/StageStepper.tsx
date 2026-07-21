@@ -23,20 +23,16 @@ export function StageStepper({
 }) {
   const isLost = stage === "lost";
   const activeIndex = isLost
-    ? Math.max(
-        0,
-        PIPELINE_STEPS.indexOf("proposal_sent")
-      )
+    ? Math.max(0, PIPELINE_STEPS.indexOf("proposal_sent"))
     : PIPELINE_STEPS.indexOf(stage === "won" ? "won" : stage);
 
   return (
     <div className="space-y-4">
-      {/* Desktop / tablet rail */}
       <div className="hidden sm:block">
         <div className="relative flex justify-between">
-          <div className="absolute left-0 right-0 top-4 h-[2px] bg-white/10" />
+          <div className="absolute left-0 right-0 top-4 h-[2px] bg-[var(--dash-border)]" />
           <motion.div
-            className="absolute left-0 top-4 h-[2px] bg-gaude-orange"
+            className="absolute left-0 top-4 h-[2px] bg-[var(--dash-accent)]"
             initial={{ width: "0%" }}
             animate={{
               width: isLost
@@ -61,9 +57,9 @@ export function StageStepper({
                   className={cn(
                     "flex h-8 w-8 items-center justify-center rounded-full border text-xs transition-all",
                     done || current
-                      ? "border-gaude-orange bg-gaude-orange text-white shadow-[0_0_18px_rgba(255,78,0,0.45)]"
-                      : "border-white/15 bg-[#0a0a0a] text-neutral-500",
-                    current && "scale-110"
+                      ? "border-[var(--dash-accent)] bg-[var(--dash-accent)] text-[var(--dash-on-accent)]"
+                      : "border-[var(--dash-border)] bg-[var(--dash-bg)] text-[var(--dash-faint)]",
+                    current && "scale-110 ring-2 ring-[var(--dash-accent)]/30"
                   )}
                 >
                   {done && !current ? (
@@ -75,7 +71,9 @@ export function StageStepper({
                 <span
                   className={cn(
                     "text-center text-[10px] font-medium uppercase leading-tight tracking-wide",
-                    current || done ? "text-white" : "text-neutral-500"
+                    current || done
+                      ? "text-[var(--dash-text)]"
+                      : "text-[var(--dash-faint)]"
                   )}
                 >
                   {STAGE_LABELS[step]}
@@ -86,7 +84,6 @@ export function StageStepper({
         </div>
       </div>
 
-      {/* Mobile chips */}
       <div className="flex flex-wrap gap-2 sm:hidden">
         {PIPELINE_STEPS.map((step, index) => {
           const done =
@@ -97,11 +94,11 @@ export function StageStepper({
             <div
               key={step}
               className={cn(
-                "rounded-full px-3 py-1 text-xs font-medium border",
+                "rounded-full border px-3 py-1 text-xs font-medium",
                 done || current
-                  ? "bg-gaude-orange/15 border-gaude-orange/40 text-orange-100"
-                  : "bg-white/5 border-white/10 text-zinc-500",
-                current && "ring-2 ring-gaude-orange/40"
+                  ? "border-[var(--dash-accent)]/40 bg-[var(--dash-accent-soft)] text-[var(--dash-accent)]"
+                  : "border-[var(--dash-border)] bg-[var(--dash-hover)] text-[var(--dash-faint)]",
+                current && "ring-2 ring-[var(--dash-accent)]/35"
               )}
             >
               {STAGE_LABELS[step]}
@@ -111,14 +108,14 @@ export function StageStepper({
       </div>
 
       <div className="flex flex-wrap items-center gap-2 text-sm">
-        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-wider text-neutral-300">
+        <span className="rounded-full border border-[var(--dash-border)] bg-[var(--dash-hover)] px-3 py-1 text-xs uppercase tracking-wider text-[var(--dash-muted)]">
           Now:{" "}
-          <span className="text-gaude-orange">
+          <span className="text-[var(--dash-accent)]">
             {isLost ? "Lost" : STAGE_LABELS[stage]}
           </span>
         </span>
         {isLost && lostReason && (
-          <span className="text-sm text-neutral-400">
+          <span className="text-sm text-[var(--dash-muted)]">
             Not moving forward — {LOST_REASON_LABELS[lostReason] || lostReason}.
           </span>
         )}
@@ -128,16 +125,16 @@ export function StageStepper({
         <motion.div
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex gap-3 rounded-xl border border-gaude-orange/25 bg-gaude-orange/8 p-3"
+          className="flex gap-3 rounded-xl border border-[var(--dash-accent)]/25 bg-[var(--dash-accent-soft)] p-3"
         >
-          <MessageSquare className="mt-0.5 h-4 w-4 shrink-0 text-gaude-orange" />
+          <MessageSquare className="mt-0.5 h-4 w-4 shrink-0 text-[var(--dash-accent)]" />
           <div>
-            <p className="text-xs uppercase tracking-wider text-gaude-orange">
+            <p className="text-xs uppercase tracking-wider text-[var(--dash-accent)]">
               Update from Editco
             </p>
-            <p className="mt-1 text-sm text-neutral-200">{latestNote}</p>
+            <p className="mt-1 text-sm text-[var(--dash-text)]">{latestNote}</p>
             {latestNoteAt && (
-              <p className="mt-1 text-xs text-neutral-500">
+              <p className="mt-1 text-xs text-[var(--dash-faint)]">
                 {formatDateTime(latestNoteAt)}
               </p>
             )}

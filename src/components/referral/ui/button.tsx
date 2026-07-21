@@ -9,10 +9,11 @@ const buttonVariants = cva(
       variant: {
         default: "bg-gaude-orange text-white hover:bg-gaude-orange/90",
         secondary:
-          "bg-white/5 text-white hover:bg-white/10 border border-white/10",
+          "bg-[var(--dash-hover,rgba(255,255,255,0.05))] text-[var(--dash-text,#fff)] hover:bg-[var(--dash-surface-strong,rgba(255,255,255,0.1))] border border-[var(--dash-border,rgba(255,255,255,0.1))]",
         outline:
-          "border border-white/15 bg-transparent hover:bg-white/5 text-white",
-        ghost: "hover:bg-white/5 text-white tracking-normal normal-case font-sans",
+          "border border-[var(--dash-border,rgba(255,255,255,0.15))] bg-transparent hover:bg-[var(--dash-hover,rgba(255,255,255,0.05))] text-[var(--dash-text,#fff)]",
+        ghost:
+          "hover:bg-[var(--dash-hover,rgba(255,255,255,0.05))] text-[var(--dash-text,#fff)] tracking-normal normal-case font-sans",
         destructive: "bg-red-600 text-white hover:bg-red-500",
       },
       size: {

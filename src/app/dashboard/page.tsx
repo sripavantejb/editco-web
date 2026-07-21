@@ -77,7 +77,7 @@ export default async function DashboardPage() {
   });
 
   return (
-    <div className="min-h-screen">
+    <>
       <DashboardNav name={referrer.fullName} />
       <DashboardClient
         referrer={{
@@ -96,6 +96,6 @@ export default async function DashboardPage() {
           earned: referrer.totalRewardEarned || 0,
         }}
       />
-    </div>
+    </>
   );
 }

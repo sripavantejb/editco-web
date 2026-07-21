@@ -8,7 +8,7 @@ export function Card({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm",
+        "rounded-[20px] border border-[var(--dash-border,rgba(255,255,255,0.1))] bg-[var(--dash-surface,rgba(255,255,255,0.03))] p-5",
         className
       )}
       {...props}
@@ -22,7 +22,10 @@ export function CardTitle({
 }: HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
-      className={cn("font-archivo text-base uppercase tracking-wide text-white", className)}
+      className={cn(
+        "font-archivo text-base uppercase tracking-wide text-[var(--dash-text,#fff)]",
+        className
+      )}
       {...props}
     />
   );
@@ -33,6 +36,12 @@ export function CardDescription({
   ...props
 }: HTMLAttributes<HTMLParagraphElement>) {
   return (
-    <p className={cn("text-sm text-neutral-400", className)} {...props} />
+    <p
+      className={cn(
+        "text-sm text-[var(--dash-muted,rgba(163,163,163,1))]",
+        className
+      )}
+      {...props}
+    />
   );
 }

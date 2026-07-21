@@ -61,13 +61,13 @@ export function NewReferralForm() {
           {NEED_OPTIONS.map((need) => (
             <label
               key={need}
-              className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-zinc-300"
+              className="flex items-center gap-2 rounded-lg border border-[var(--dash-border)] bg-[var(--dash-hover)] px-3 py-2 text-sm text-[var(--dash-muted)]"
             >
               <input
                 type="checkbox"
                 name="needs"
                 value={need}
-                className="accent-gaude-orange"
+                className="accent-[var(--dash-accent)]"
               />
               {need}
             </label>
@@ -84,21 +84,21 @@ export function NewReferralForm() {
         />
       </div>
 
-      <label className="flex items-start gap-2 text-sm text-zinc-300">
+      <label className="flex items-start gap-2 text-sm text-[var(--dash-muted)]">
         <input
           type="checkbox"
           name="mentionReferrerName"
-          className="mt-1 accent-gaude-orange"
+          className="mt-1 accent-[var(--dash-accent)]"
           defaultChecked
         />
         Can we mention your name when we reach out?
       </label>
 
-      <label className="flex items-start gap-2 text-sm text-zinc-300">
+      <label className="flex items-start gap-2 text-sm text-[var(--dash-muted)]">
         <input
           type="checkbox"
           name="consentToIntroEmail"
-          className="mt-1 accent-gaude-orange"
+          className="mt-1 accent-[var(--dash-accent)]"
         />
         Can we send them a short intro email directly?
       </label>

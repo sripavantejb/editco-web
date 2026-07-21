@@ -1,14 +1,16 @@
 export const dynamic = "force-dynamic";
 
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { connectDB } from "@/lib/db";
 import { getAdminSession } from "@/lib/session";
 import { Referrer } from "@/models/Referrer";
 import { Referral } from "@/models/Referral";
-import { AdminNav } from "@/components/referral/AdminNav";
-import { Card, CardDescription } from "@/components/referral/ui/card";
-import { TIER_LABELS } from "@/lib/constants";
+import {
+  AdminOverviewPanel,
+  type OverviewReferral,
+  type OverviewReferrer,
+} from "@/components/referral/AdminOverviewPanel";
+import type { Stage, Tier } from "@/lib/constants";
 import { formatCurrencyINR } from "@/lib/utils";
 
 export default async function AdminOverviewPage() {
@@ -22,7 +24,7 @@ export default async function AdminOverviewPage() {
 
   const [referrers, referrals, monthReferrals] = await Promise.all([
     Referrer.find().sort({ createdAt: -1 }).lean(),
-    Referral.find().lean(),
+    Referral.find().sort({ updatedAt: -1 }).lean(),
     Referral.find({ createdAt: { $gte: startOfMonth } }).lean(),
   ]);
 
@@ -38,87 +40,57 @@ export default async function AdminOverviewPage() {
     .filter((r) => r.rewardStatus === "paid")
     .reduce((sum, r) => sum + (r.rewardAmount || 0), 0);
 
+  const referralCountByReferrer = referrals.reduce<Record<string, number>>(
+    (acc, r) => {
+      const id = String(r.referrerId);
+      acc[id] = (acc[id] || 0) + 1;
+      return acc;
+    },
+    {}
+  );
+
+  const overviewReferrers: OverviewReferrer[] = referrers.map((r) => ({
+    id: String(r._id),
+    fullName: r.fullName,
+    email: r.email,
+    tier: r.tier as Tier,
+    successfulReferralCount: r.successfulReferralCount || 0,
+    totalRewardEarned: r.totalRewardEarned || 0,
+    totalRewardPaid: r.totalRewardPaid || 0,
+    referralCount: referralCountByReferrer[String(r._id)] || 0,
+  }));
+
+  const overviewReferrals: OverviewReferral[] = referrals.map((r) => ({
+    id: String(r._id),
+    referrerId: String(r.referrerId),
+    referredName: r.referredName,
+    referredBusiness: r.referredBusiness || null,
+    source: r.source,
+    stage: r.stage as Stage,
+    rewardStatus: r.rewardStatus || "not_applicable",
+    utmSource: r.utmSource || null,
+    utmMedium: r.utmMedium || null,
+    utmCampaign: r.utmCampaign || null,
+    createdAt:
+      r.createdAt instanceof Date
+        ? r.createdAt.toISOString()
+        : String(r.createdAt),
+  }));
+
   return (
-    <div className="min-h-screen">
-      <AdminNav email={session.email} />
-      <main className="mx-auto max-w-[1600px] space-y-8 px-4 py-8 sm:px-6 lg:px-10">
-        <h1 className="font-archivo text-3xl uppercase tracking-tighter text-white">
-          Overview
-        </h1>
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            { label: "Total referrers", value: String(referrers.length) },
-            {
-              label: "Referrals this month",
-              value: String(monthReferrals.length),
-            },
-            { label: "Conversion rate", value: `${conversionRate}%` },
-            {
-              label: "Rewards paid / pending",
-              value: `${formatCurrencyINR(paidRewards)} / ${formatCurrencyINR(pendingRewards)}`,
-            },
-          ].map((s) => (
-            <Card key={s.label}>
-              <CardDescription>{s.label}</CardDescription>
-              <p className="mt-2 text-xl font-semibold text-white">{s.value}</p>
-            </Card>
-          ))}
-        </div>
-
-        <section>
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-archivo text-xl uppercase text-white">
-              Referrers
-            </h2>
-            <Link href="/admin/referrals" className="text-sm text-gaude-orange">
-              All referrals →
-            </Link>
-          </div>
-          <div className="overflow-x-auto rounded-2xl border border-white/10">
-            <table className="min-w-full text-left text-sm">
-              <thead className="bg-white/5 text-white/50">
-                <tr>
-                  <th className="px-4 py-3 font-medium">Name</th>
-                  <th className="px-4 py-3 font-medium">Tier</th>
-                  <th className="px-4 py-3 font-medium">Wins</th>
-                  <th className="px-4 py-3 font-medium">Earned</th>
-                  <th className="px-4 py-3 font-medium">Paid</th>
-                </tr>
-              </thead>
-              <tbody>
-                {referrers.map((r) => (
-                  <tr key={String(r._id)} className="border-t border-white/10">
-                    <td className="px-4 py-3 text-white">
-                      {r.fullName}
-                      <div className="text-xs text-white/40">{r.email}</div>
-                    </td>
-                    <td className="px-4 py-3 text-white/70">
-                      {TIER_LABELS[r.tier as keyof typeof TIER_LABELS]}
-                    </td>
-                    <td className="px-4 py-3 text-white/70">
-                      {r.successfulReferralCount}
-                    </td>
-                    <td className="px-4 py-3 text-white/70">
-                      {formatCurrencyINR(r.totalRewardEarned || 0)}
-                    </td>
-                    <td className="px-4 py-3 text-white/70">
-                      {formatCurrencyINR(r.totalRewardPaid || 0)}
-                    </td>
-                  </tr>
-                ))}
-                {referrers.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="px-4 py-8 sm:px-6 lg:px-10 text-center text-white/40">
-                      No referrers yet
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      </main>
-    </div>
+    <main className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:px-10">
+      <AdminOverviewPanel
+        referrers={overviewReferrers}
+        referrals={overviewReferrals}
+        stats={{
+          totalReferrers: referrers.length,
+          monthReferrals: monthReferrals.length,
+          conversionRate,
+          paidRewards: formatCurrencyINR(paidRewards),
+          pendingRewards: formatCurrencyINR(pendingRewards),
+        }}
+        monthStartIso={startOfMonth.toISOString()}
+      />
+    </main>
   );
 }

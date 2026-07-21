@@ -58,7 +58,7 @@ export function MotionCard({
   return (
     <motion.div
       variants={fadeUp}
-      whileHover={{ y: -4, borderColor: "rgba(255,78,0,0.35)" }}
+      whileHover={{ y: -4, borderColor: "rgba(255,140,97,0.35)" }}
       transition={{ duration: 0.25 }}
       className={cn(
         "rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm",
