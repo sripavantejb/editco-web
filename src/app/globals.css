@@ -153,3 +153,111 @@ body {
 .animate-float-subtle {
   animation: float-subtle 6s ease-in-out infinite;
 }
+
+/* Partner dashboard theme tokens — portal only */
+.dashboard-theme {
+  /* Lime green accent — matches refer page; does not affect main site */
+  --dash-accent: #c8f542;
+  --dash-accent-hover: #b8e636;
+  --dash-on-accent: #0a0a0a;
+  --dash-accent-soft: rgba(200, 245, 66, 0.16);
+  --dash-accent-glow: rgba(200, 245, 66, 0.28);
+  /* Remap Tailwind gaude-orange utilities inside portal only */
+  --color-gaude-orange: #c8f542;
+
+  --dash-bg: #0c0c0c;
+  --dash-surface: rgba(255, 255, 255, 0.035);
+  --dash-surface-strong: rgba(255, 255, 255, 0.055);
+  --dash-border: rgba(255, 255, 255, 0.1);
+  --dash-text: #f5f5f5;
+  --dash-muted: rgba(245, 245, 245, 0.55);
+  --dash-faint: rgba(245, 245, 245, 0.36);
+  --dash-nav: rgba(12, 12, 12, 0.88);
+  --dash-input: rgba(255, 255, 255, 0.05);
+  --dash-hover: rgba(255, 255, 255, 0.05);
+  --dash-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  background-color: var(--dash-bg);
+  background-image: radial-gradient(
+    ellipse 70% 45% at 100% -10%,
+    rgba(200, 245, 66, 0.1),
+    transparent 55%
+  );
+  color: var(--dash-text);
+}
+
+.dashboard-theme[data-theme="light"] {
+  --dash-bg: #f7f5f3;
+  --dash-surface: #ffffff;
+  --dash-surface-strong: #fff8f4;
+  --dash-border: rgba(10, 10, 10, 0.08);
+  --dash-text: #0a0a0a;
+  --dash-muted: rgba(10, 10, 10, 0.55);
+  --dash-faint: rgba(10, 10, 10, 0.38);
+  --dash-nav: rgba(247, 245, 243, 0.92);
+  --dash-input: #ffffff;
+  --dash-hover: rgba(200, 245, 66, 0.07);
+  --dash-shadow: 0 8px 24px rgba(10, 10, 10, 0.05);
+  --dash-accent-soft: rgba(200, 245, 66, 0.14);
+  background-image: radial-gradient(
+    ellipse 70% 45% at 100% -10%,
+    rgba(200, 245, 66, 0.12),
+    transparent 55%
+  );
+}
+
+.dashboard-theme[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #eceae7;
+}
+
+.dashboard-theme[data-theme="light"] ::-webkit-scrollbar-thumb {
+  border-color: #eceae7;
+}
+
+/* Active nav pill — lime accent */
+.dashboard-theme .dash-pill-active {
+  background-color: var(--dash-accent);
+  color: var(--dash-on-accent);
+}
+
+/* Primary CTAs — black capsule; accent stays lime elsewhere */
+.dashboard-theme .dash-cta {
+  background-color: #0a0a0a;
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+}
+.dashboard-theme .dash-cta:hover {
+  background-color: #1a1a1a;
+}
+.dashboard-theme[data-theme="light"] .dash-cta {
+  box-shadow: 0 6px 16px rgba(10, 10, 10, 0.12);
+}
+
+/* Form Button default inside portal mirrors black CTA */
+.dashboard-theme .bg-gaude-orange {
+  background-color: #0a0a0a !important;
+  color: #ffffff;
+}
+.dashboard-theme .bg-gaude-orange:hover {
+  background-color: #1a1a1a !important;
+}
+
+/* Admin portal — same lime green as partner dashboard */
+.admin-theme {
+  --color-gaude-orange: #c8f542;
+  --dash-accent: #c8f542;
+  --dash-on-accent: #0a0a0a;
+  --dash-accent-soft: rgba(200, 245, 66, 0.16);
+  --dash-muted: rgba(245, 245, 245, 0.55);
+  --dash-text: #f5f5f5;
+  --dash-faint: rgba(245, 245, 245, 0.36);
+  --dash-border: rgba(255, 255, 255, 0.1);
+  --dash-surface: rgba(255, 255, 255, 0.035);
+  --dash-hover: rgba(255, 255, 255, 0.05);
+  --dash-bg: #0c0c0c;
+}
+
+.admin-theme .dash-pill-active {
+  background-color: var(--dash-accent);
+  color: var(--dash-on-accent);
+}
+

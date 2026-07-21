@@ -403,6 +403,7 @@ export const footer = {
     { label: "Selected Works", href: "#case-study" },
     { label: "The Crew", href: "#why-editco" },
     { label: "Process", href: "#process" },
+    { label: "Referral", href: "/refer" },
     { label: "Contact", href: "#contact" },
   ],
   serviceLinks: [

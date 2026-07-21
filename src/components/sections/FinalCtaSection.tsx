@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { finalCta } from "@/content/landing";
 import { CalInlineEmbed } from "@/components/cal/CalInlineEmbed";
 import { sectionFlow } from "@/lib/stickyStack";
@@ -40,6 +41,16 @@ export function FinalCtaSection() {
         <div className="relative mx-auto w-full overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md shadow-2xl">
           <CalInlineEmbed embedId="cal-inline-embed" />
         </div>
+
+        <p className="mt-8 text-center font-inter text-sm text-white/50">
+          Know a business that needs Editco?{" "}
+          <Link
+            href="/refer"
+            className="font-archivo text-xs uppercase tracking-widest text-gaude-orange transition-opacity hover:opacity-80"
+          >
+            Join the referral program →
+          </Link>
+        </p>
       </div>
     </section>
   );

@@ -44,7 +44,7 @@ export function ServicesSection() {
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              className="rounded-[20px] border-4 border-gaude-black bg-white p-6 shadow-[8px_8px_0_0_#ff4e00] md:rounded-[24px] md:p-10 md:shadow-[12px_12px_0_0_#ff4e00]"
+              className="rounded-[20px] border-4 border-gaude-black bg-white p-6 shadow-[8px_8px_0_0_#ff8c61] md:rounded-[24px] md:p-10 md:shadow-[12px_12px_0_0_#ff8c61]"
             >
               <span className="font-inter text-[10px] font-black uppercase tracking-widest text-gaude-orange md:text-xs">
                 {services.stickyPanel.label}

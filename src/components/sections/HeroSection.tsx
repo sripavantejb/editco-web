@@ -68,7 +68,7 @@ export function HeroSection() {
           <div className="flex w-full flex-col items-center gap-4 px-4 sm:flex-row sm:justify-center sm:gap-6">
             <a
               href="#services"
-              className="group relative flex h-14 w-full items-center justify-center overflow-hidden rounded-full border border-gaude-orange bg-gaude-orange px-8 font-archivo text-[10px] font-bold uppercase tracking-widest text-white transition-all hover:shadow-[0_0_30px_rgba(255,78,0,0.4)] sm:h-16 sm:w-auto sm:px-10 md:text-[11px]"
+              className="group relative flex h-14 w-full items-center justify-center overflow-hidden rounded-full border border-gaude-orange bg-gaude-orange px-8 font-archivo text-[10px] font-bold uppercase tracking-widest text-white transition-all hover:shadow-[0_0_30px_rgba(255,140,97,0.4)] sm:h-16 sm:w-auto sm:px-10 md:text-[11px]"
             >
               <span className="relative z-10 flex items-center gap-2">
                 VIEW OUR WORK <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

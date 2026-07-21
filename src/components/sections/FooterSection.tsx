@@ -133,7 +133,7 @@ export function FooterSection() {
           >
             {[...Array(10)].map((_, i) => (
               <div key={i} className="flex items-center">
-                <div className="mr-3 flex items-center rounded-lg bg-[#FF4E00] px-5 py-2.5">
+                <div className="mr-3 flex items-center rounded-lg bg-[#ff8c61] px-5 py-2.5">
                   <span className="font-archivo text-4xl tracking-[-0.05em] text-black md:text-6xl">GET EDITCO</span>
                 </div>
                 <div className="mr-3 flex h-16 w-16 items-center justify-center rounded-full bg-[#7C3AED] md:h-20 md:w-20">

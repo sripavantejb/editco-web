@@ -9,7 +9,7 @@ type BlogFaqPanelProps = {
   accent?: string;
 };
 
-export function BlogFaqPanel({ faqs, accent = "#ff4e00" }: BlogFaqPanelProps) {
+export function BlogFaqPanel({ faqs, accent = "#ff8c61" }: BlogFaqPanelProps) {
   if (faqs.length === 0) return null;
 
   return (

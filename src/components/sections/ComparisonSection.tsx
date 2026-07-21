@@ -69,7 +69,7 @@ export function ComparisonSection() {
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="relative flex flex-col border-4 border-gaude-orange bg-gaude-orange p-8 shadow-[20px_20px_0_0_rgba(255,78,0,0.1)] md:p-12"
+            className="relative flex flex-col border-4 border-gaude-orange bg-gaude-orange p-8 shadow-[20px_20px_0_0_rgba(255,140,97,0.1)] md:p-12"
           >
             {/* Glossy Overlay */}
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
