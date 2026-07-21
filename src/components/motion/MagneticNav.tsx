@@ -11,19 +11,23 @@ export function MagneticNav() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const hideOnAppRoutes =
+    pathname?.startsWith("/dashboard") || pathname?.startsWith("/admin");
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = useCallback(() => setIsOpen(false), []);
 
   useEffect(() => {
+    if (hideOnAppRoutes) return;
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [hideOnAppRoutes]);
 
   useEffect(() => {
+    if (hideOnAppRoutes) return;
     if (isOpen) {
       document.body.style.overflow = "hidden";
     } else {
@@ -32,7 +36,9 @@ export function MagneticNav() {
     return () => {
       document.body.style.overflow = "unset";
     };
-  }, [isOpen]);
+  }, [isOpen, hideOnAppRoutes]);
+
+  if (hideOnAppRoutes) return null;
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href.startsWith("#")) {

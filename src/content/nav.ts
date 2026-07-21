@@ -7,6 +7,7 @@ export const navLinks = [
   { href: "#process", label: "Process" },
   { href: "#tech", label: "Technologies" },
   { href: "#faq", label: "FAQ" },
+  { href: "/refer", label: "Referral" },
   { href: "#contact", label: "Contact" },
 ] as const;
 
@@ -14,6 +15,7 @@ export const navLinks = [
 export const desktopNavLinks = [
   { href: "#services", label: "Services" },
   { href: "#case-study", label: "Selected Works" },
+  { href: "/refer", label: "Referral" },
   { href: "#faq", label: "FAQ" },
   { href: "#contact", label: "Contact" },
 ] as const;
