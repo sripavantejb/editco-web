@@ -57,6 +57,45 @@ body {
   }
 }
 
+/* Growth calculator range — thumb centered on track */
+.calc-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 18px;
+  background: transparent;
+}
+.calc-range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: transparent;
+}
+.calc-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -6px; /* (track 6px - thumb 18px) / 2 */
+  border-radius: 9999px;
+  background: #fff;
+  border: 3px solid var(--color-gaude-black);
+  box-shadow: 0 2px 6px rgba(10, 10, 10, 0.18);
+  cursor: pointer;
+}
+.calc-range::-moz-range-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: transparent;
+}
+.calc-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: 3px solid var(--color-gaude-black);
+  border-radius: 9999px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(10, 10, 10, 0.18);
+  cursor: pointer;
+}
+
 @keyframes marquee {
   0% {
     transform: translateX(0%);

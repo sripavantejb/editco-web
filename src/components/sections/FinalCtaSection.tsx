@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { finalCta } from "@/content/landing";
 import { CalInlineEmbed } from "@/components/cal/CalInlineEmbed";
-import { sectionFlow } from "@/lib/stickyStack";
+import { sectionFlowAfter } from "@/lib/stickyStack";
 
 export function FinalCtaSection() {
   return (
     <section
       id={finalCta.id}
-      className={`relative flex min-h-0 flex-col justify-center overflow-hidden bg-[#050505] px-4 py-16 md:min-h-screen md:px-8 md:py-24 ${sectionFlow}`}
+      className={`relative flex min-h-0 flex-col justify-center overflow-hidden bg-[#050505] px-4 py-16 md:min-h-screen md:px-8 md:py-24 ${sectionFlowAfter}`}
     >
       {/* Premium Background Visuals */}
       <div className="absolute inset-0 z-0">

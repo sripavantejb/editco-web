@@ -1,7 +1,7 @@
 "use client";
 import { tech } from "@/content/landing";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { sectionFlow } from "@/lib/stickyStack";
+import { sectionFlowAfter } from "@/lib/stickyStack";
 import { motion } from "framer-motion";
 
 const TECH_STACK = [
@@ -53,7 +53,7 @@ export function TechSection() {
   return (
     <section
       id={tech.id}
-      className={`flex min-h-[70svh] flex-col justify-center bg-white px-4 py-16 md:px-8 md:py-24 ${sectionFlow}`}
+      className={`flex min-h-[70svh] flex-col justify-center bg-white px-4 py-16 md:px-8 md:py-24 ${sectionFlowAfter}`}
     >
       <div className="mx-auto max-w-6xl">
         <div className="mb-12">

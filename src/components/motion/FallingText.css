@@ -1,0 +1,71 @@
+.falling-text-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  padding: 1.25rem 1rem 1.5rem;
+  /* Hits go through to footer UI; Matter listens on window */
+  pointer-events: none;
+  touch-action: none;
+}
+
+.falling-text-target {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.falling-text-target .word {
+  display: inline-block;
+  margin: 0.35rem 0.4rem;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.falling-chip {
+  border-radius: 999px;
+  padding: 0.55rem 1.15rem;
+  font-family: var(--font-archivo), "Archivo Black", sans-serif;
+  font-size: inherit;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  line-height: 1.1;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+  color: #0a0a0a;
+}
+
+.falling-chip-yellow {
+  background: #ffd600;
+}
+
+.falling-chip-coral {
+  background: #ff8c61;
+}
+
+.falling-chip-purple {
+  background: #7c3aed;
+  color: #fff;
+}
+
+.falling-chip-blue {
+  background: #3b82f6;
+  color: #fff;
+}
+
+.falling-chip-green {
+  background: #36df93;
+}
+
+.falling-chip-orange {
+  background: #ff4e00;
+  color: #fff;
+}
+
+.falling-chip-white {
+  background: #ffffff;
+}

@@ -154,62 +154,39 @@ export const services = {
   ],
 } as const;
 
-export const industries = {
-  id: "industries" as const,
-  heading: "Built for Businesses That Want to Grow Smarter",
-  items: [
+export const whyEditco = {
+  id: "why-editco" as const,
+  eyebrow: "Why Editco",
+  heading: "Everything we cut out, on purpose.",
+  subheading:
+    "Most software studios add layers — account managers, sales decks, prototypes that never ship. We removed them.",
+  points: [
     {
-      title: "Clinics & Healthcare",
-      body: "For appointments, missed calls, patient queries, Google visibility, and booking systems.",
+      title: "Direct from the developers",
+      body: 'No middlemen, no relayed messages, no "I\'ll check with the team and get back to you." You talk to the person actually writing your code — from the first call to the last deploy.',
     },
     {
-      title: "Startups",
-      body: "For landing pages, MVP websites, dashboards, UI/UX, and automation systems.",
+      title: "No sales mess",
+      body: "No 40-slide pitch decks. No discovery calls that exist just to book another discovery call. You get a scope, a price, and a start date — usually in one conversation.",
     },
     {
-      title: "Marketing Agencies",
-      body: "For white-label websites, automations, AI agents, and client delivery support.",
+      title: "No prototype promises",
+      body: "We don't hand you a Figma file and call it progress. What you see in week one is what you can click, test, and break — a real, working build, not a mockup pretending to be one.",
     },
     {
-      title: "Local Businesses",
-      body: "For lead generation, WhatsApp automation, website presence, and customer follow-ups.",
+      title: "Real-time bug fixing",
+      body: "Something breaks, you tell us, it gets fixed — not logged into a ticket queue and revisited next sprint. We treat your live software like it's ours, because for as long as we're building it, it is.",
     },
     {
-      title: "Coaches & Consultants",
-      body: "For personal brand websites, booking flows, lead magnets, and automated follow-ups.",
-    },
-    {
-      title: "Educational Businesses",
-      body: "For counselling flows, student onboarding, webinar systems, and CRM dashboards.",
+      title: "Pricing and plans built around you",
+      body: "Fixed scope. Phased rollout. Ongoing retainer. Pick the structure that matches how you actually want to pay and how much risk you want to carry — not a one-size template you're forced to fit into.",
     },
   ],
 } as const;
 
-export const whyEditco = {
-  id: "why-editco" as const,
-  heading: "Why Businesses Choose Editco Media",
-  points: [
-    {
-      title: "We Think Beyond Design",
-      body: "We don’t just make things look good. We focus on what happens after a visitor lands on your website.",
-    },
-    {
-      title: "We Build Outcome-Based Systems",
-      body: "Our focus is leads, bookings, automation, and conversions.",
-    },
-    {
-      title: "We Move Fast",
-      body: "We understand business speed. We build quickly, test fast, and improve continuously.",
-    },
-    {
-      title: "We Understand Real Business Problems",
-      body: "From missed calls to poor follow-ups, we build solutions for practical business issues.",
-    },
-    {
-      title: "We Combine Tech + Design + Growth",
-      body: "Websites, AI agents, automation, CRM, SEO, and UI/UX come together in one system.",
-    },
-  ],
+export const crew = {
+  id: "crew" as const,
+  heading: "The Crew Behind the Growth",
 } as const;
 
 export const process = {
@@ -245,8 +222,7 @@ export const works = [
     title: "Dentin Oral Experts",
     location: "Hyderabad, India",
     category: "Website & Appointment Booking",
-    video:
-      "https://res.cloudinary.com/dxeoibunj/video/upload/v1779709298/Dentin_oral_experts_phone_appoin__202605251704_fbt0vj.mp4",
+    image: "/works/dentin-oral-experts.png",
     url: "https://www.dentinoralexperts.com/",
     fullWidth: true,
   },
@@ -255,8 +231,7 @@ export const works = [
     title: "Sai Preethi Clinic",
     location: "Chennai, India",
     category: "Website & Clinic Branding",
-    video:
-      "https://res.cloudinary.com/dxeoibunj/video/upload/v1779636713/animate_this_professioally_intro_202605242101_nszjco.mp4",
+    image: "/works/saipreethi-clinic.png",
     url: "https://www.saipreethiclinic.com/",
     fullWidth: false,
   },
@@ -265,8 +240,7 @@ export const works = [
     title: "LumaSwitch",
     location: "Brooklyn, USA",
     category: "E-Commerce & Interactive Website",
-    video:
-      "https://res.cloudinary.com/dxeoibunj/video/upload/v1779620543/Website_scrolling_inside_laptop_202605241631_afmhpo.mp4",
+    image: "/works/lumaswitch.png",
     url: "https://lumaswitch.vercel.app/",
     fullWidth: false,
   },
@@ -275,8 +249,7 @@ export const works = [
     title: "EasyMove",
     location: "India",
     category: "Physiotherapy WebApp",
-    video:
-      "https://res.cloudinary.com/dxeoibunj/video/upload/v1779709935/Initial_Scene_-_2026-05-25_202605251721_zqebvs.mp4",
+    image: "/works/easymove.png",
     url: "https://easymove-alpha.vercel.app/",
     fullWidth: true,
   },
@@ -285,8 +258,7 @@ export const works = [
     title: "BuildTrack",
     location: "India",
     category: "Construction SaaS & Project Management",
-    video:
-      "https://res.cloudinary.com/dxeoibunj/video/upload/v1782963744/SaaS_product_showcase_dashboard___202607020911_raawgm.mp4",
+    image: "/works/buildtrack.png",
     url: "https://buildtrack.editcomedia.com/",
     fullWidth: true,
   },
@@ -395,13 +367,46 @@ export const positioning = {
     "Editco Media is not just a web design agency. It is a digital growth partner that builds websites, AI agents, automation systems, and lead conversion flows for businesses.",
 } as const;
 
+export const industriesWorked = {
+  id: "industries" as const,
+  items: [
+    "Clinics",
+    "Healthcare",
+    "Startups",
+    "Agencies",
+    "Real-Estate",
+    "Education",
+    "Coaches",
+    "Restaurants",
+    "Gyms",
+    "Wellness",
+    "Local-Business",
+    "SaaS",
+  ],
+  /** Exact chip colors from the footer palette / design */
+  chipClassByWord: {
+    Clinics: "falling-chip falling-chip-yellow",
+    Healthcare: "falling-chip falling-chip-coral",
+    Startups: "falling-chip falling-chip-purple",
+    Agencies: "falling-chip falling-chip-blue",
+    "Real-Estate": "falling-chip falling-chip-green",
+    Education: "falling-chip falling-chip-orange",
+    Coaches: "falling-chip falling-chip-white",
+    Restaurants: "falling-chip falling-chip-yellow",
+    Gyms: "falling-chip falling-chip-coral",
+    Wellness: "falling-chip falling-chip-purple",
+    "Local-Business": "falling-chip falling-chip-blue",
+    SaaS: "falling-chip falling-chip-green",
+  } as Record<string, string>,
+} as const;
+
 export const footer = {
   id: "contact" as const,
   quickLinks: [
     { label: "Services", href: "#services" },
-    { label: "Industries", href: "#industries" },
+    { label: "Why Editco", href: "#why-editco" },
     { label: "Selected Works", href: "#case-study" },
-    { label: "The Crew", href: "#why-editco" },
+    { label: "The Crew", href: "#crew" },
     { label: "Process", href: "#process" },
     { label: "Referral", href: "/refer" },
     { label: "Contact", href: "#contact" },

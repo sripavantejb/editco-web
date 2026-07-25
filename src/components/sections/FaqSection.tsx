@@ -1,13 +1,13 @@
 import { Plus } from "lucide-react";
 import { faq } from "@/content/landing";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { sectionFlow } from "@/lib/stickyStack";
+import { sectionFlowAfter } from "@/lib/stickyStack";
 
 export function FaqSection() {
   return (
     <section
       id={faq.id}
-      className={`border-b-4 border-gaude-black bg-gaude-black px-4 py-16 md:px-8 md:py-24 ${sectionFlow}`}
+      className={`border-b-4 border-gaude-black bg-gaude-black px-4 py-16 md:px-8 md:py-24 ${sectionFlowAfter}`}
     >
       <div className="mx-auto max-w-3xl">
         <SectionHeading title={faq.heading} light />

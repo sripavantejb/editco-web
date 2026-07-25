@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, X } from "lucide-react";
 import { services } from "@/content/landing";
 import { sectionFlow } from "@/lib/stickyStack";
 import { BrutalistLink } from "@/components/ui/BrutalistLink";
@@ -33,11 +32,9 @@ export function ServicesSection() {
         </motion.div>
       </div>
 
-
       {/* SECTION 3: Sticky Growth Systems Layout */}
       <div className="mx-auto max-w-[1200px] px-6 pb-[80px] md:pb-[130px]">
         <div className="grid items-start gap-12 lg:grid-cols-[0.38fr_0.62fr] lg:gap-16">
-          
           {/* Left Sticky Panel */}
           <div className="lg:sticky lg:top-[60px]">
             <motion.div
@@ -55,11 +52,11 @@ export function ServicesSection() {
               <p className="mt-4 font-inter text-sm font-medium leading-relaxed text-gaude-black/70 md:mt-6 md:text-base">
                 {services.stickyPanel.paragraph}
               </p>
-              
+
               <div className="mt-6 md:mt-8">
-                <BrutalistLink 
-                  href={site.primaryCtaHref} 
-                  variant="primary" 
+                <BrutalistLink
+                  href={site.primaryCtaHref}
+                  variant="primary"
                   className="w-full border-4 border-gaude-black bg-gaude-black text-white shadow-none hover:translate-y-0.5"
                 >
                   {services.stickyPanel.cta}
@@ -90,7 +87,6 @@ export function ServicesSection() {
                 className={`group relative min-h-[280px] rounded-[20px] border-4 border-gaude-black p-6 shadow-[6px_6px_0_0_#0a0a0a] transition-all md:min-h-[320px] md:rounded-[24px] md:p-12 md:shadow-[8px_8px_0_0_#0a0a0a] ${card.bgColor} text-gaude-black`}
               >
                 <div className="flex flex-col gap-5 md:gap-6">
-                  {/* Card Header */}
                   <div className="flex items-center justify-between">
                     <span className="font-archivo text-3xl font-black opacity-20 md:text-4xl">
                       {card.number}
@@ -100,7 +96,6 @@ export function ServicesSection() {
                     </span>
                   </div>
 
-                  {/* Card Title & Desc */}
                   <div>
                     <h4 className="font-space-grotesk text-2xl font-black uppercase leading-none tracking-tighter md:text-5xl">
                       {card.title}
@@ -110,32 +105,45 @@ export function ServicesSection() {
                     </p>
                   </div>
 
-                  {/* Tags */}
                   <div className="flex flex-wrap gap-2">
                     {card.tags.map((tag) => (
-                      <span key={tag} className="rounded-full border-2 border-gaude-black/10 bg-gaude-black/5 px-3 py-1 font-inter text-[11px] font-bold uppercase tracking-wider">
+                      <span
+                        key={tag}
+                        className="rounded-full border-2 border-gaude-black/10 bg-gaude-black/5 px-3 py-1 font-inter text-[11px] font-bold uppercase tracking-wider"
+                      >
                         {tag}
                       </span>
                     ))}
                   </div>
 
-                  {/* Outcome Box */}
                   <div className="mt-4 flex items-center gap-4 rounded-xl border-2 border-gaude-black/10 bg-gaude-black/5 p-4">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gaude-black text-white">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
                     </div>
                     <div>
-                      <p className="font-inter text-[10px] font-black uppercase tracking-widest opacity-40">The Outcome</p>
-                      <p className="font-syne text-sm font-black uppercase tracking-tight">{card.outcome}</p>
+                      <p className="font-inter text-[10px] font-black uppercase tracking-widest opacity-40">
+                        The Outcome
+                      </p>
+                      <p className="font-syne text-sm font-black uppercase tracking-tight">
+                        {card.outcome}
+                      </p>
                     </div>
                   </div>
                 </div>
               </motion.div>
             ))}
           </div>
-
         </div>
       </div>
     </section>

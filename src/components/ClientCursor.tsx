@@ -2,6 +2,18 @@
 
 import { useEffect, useState } from "react";
 
+function isInteractiveTarget(el: Element | null) {
+  if (!el || !(el instanceof HTMLElement)) return false;
+  return !!(
+    el.closest("a") ||
+    el.closest("button") ||
+    el.closest(".cursor-pointer") ||
+    el.closest(".word") ||
+    el.closest("[href]") ||
+    document.documentElement.classList.contains("ecm-chip-hover")
+  );
+}
+
 export function ClientCursor() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
@@ -21,29 +33,16 @@ export function ClientCursor() {
 
     const handleMove = (e: MouseEvent) => {
       setMousePos({ x: e.clientX, y: e.clientY });
-    };
-    const handleOver = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (
-        target.closest("a") ||
-        target.closest("button") ||
-        target.closest(".cursor-pointer") ||
-        target.closest("[href]")
-      ) {
-        setIsHovering(true);
-      } else {
-        setIsHovering(false);
-      }
+      const under = document.elementFromPoint(e.clientX, e.clientY);
+      setIsHovering(isInteractiveTarget(under));
     };
 
     window.addEventListener("mousemove", handleMove);
-    window.addEventListener("mouseover", handleOver);
 
     return () => {
       cancelAnimationFrame(frame);
       root.classList.remove("ecm-hide-system-cursor");
       window.removeEventListener("mousemove", handleMove);
-      window.removeEventListener("mouseover", handleOver);
     };
   }, []);
 

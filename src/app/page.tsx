@@ -1,12 +1,13 @@
 import { SlamVisibilityProvider } from "@/components/motion/SlamVisibilityProvider";
 import { CaseStudySection } from "@/components/sections/CaseStudySection";
+import { CalculatorSection } from "@/components/sections/CalculatorSection";
+import { ClientsSection } from "@/components/sections/ClientsSection";
 import { FaqSection } from "@/components/sections/FaqSection";
 import { FinalCtaSection } from "@/components/sections/FinalCtaSection";
 import { FooterSection } from "@/components/sections/FooterSection";
 import { HeroSection } from "@/components/sections/HeroSection";
-import { IndustriesSection } from "@/components/sections/IndustriesSection";
+import { WhyEditcoSection } from "@/components/sections/WhyEditcoSection";
 
-import { PositioningSection } from "@/components/sections/PositioningSection";
 import { ProblemSection } from "@/components/sections/ProblemSection";
 import { ProcessSection } from "@/components/sections/ProcessSection";
 import { ServicesSection } from "@/components/sections/ServicesSection";
@@ -21,9 +22,11 @@ export default function Home() {
       <main id="main" className="relative w-full overflow-x-clip">
         <HeroSection />
         <ProblemSection />
+        <ClientsSection />
         <SolutionSection />
         <ServicesSection />
-        <IndustriesSection />
+        <WhyEditcoSection />
+        <CalculatorSection />
         <CaseStudySection />
         <WhySection />
         <ProcessSection />

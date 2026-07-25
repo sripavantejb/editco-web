@@ -1,11 +1,12 @@
 /** Full-screen menu — matches homepage section heads. */
 export const navLinks = [
   { href: "#services", label: "Services" },
-  { href: "#industries", label: "Industries" },
+  { href: "#why-editco", label: "Why Editco" },
   { href: "#case-study", label: "Selected Works" },
-  { href: "#why-editco", label: "The Crew" },
+  { href: "#crew", label: "The Crew" },
   { href: "#process", label: "Process" },
   { href: "#tech", label: "Technologies" },
+  { href: "/blog", label: "Blog" },
   { href: "#faq", label: "FAQ" },
   { href: "/refer", label: "Referral" },
   { href: "#contact", label: "Contact" },
@@ -14,7 +15,9 @@ export const navLinks = [
 /** Desktop pill — compact subset of main sections. */
 export const desktopNavLinks = [
   { href: "#services", label: "Services" },
+  { href: "#why-editco", label: "Why Editco" },
   { href: "#case-study", label: "Selected Works" },
+  { href: "/blog", label: "Blog" },
   { href: "/refer", label: "Referral" },
   { href: "#faq", label: "FAQ" },
   { href: "#contact", label: "Contact" },
