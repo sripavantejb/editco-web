@@ -3,13 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { process } from "@/content/landing";
+import { process as processContent } from "@/content/landing";
 import { LineSidebar } from "@/components/motion/LineSidebar";
 import { sectionFlowAfter } from "@/lib/stickyStack";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const steps = process.steps;
+const steps = processContent.steps;
 const labels = steps.map((s) => s.title);
 
 export function ProcessSection() {
@@ -62,7 +62,7 @@ export function ProcessSection() {
 
   return (
     <section
-      id={process.id}
+      id={processContent.id}
       ref={stageRef}
       className={`relative scroll-mt-24 bg-gaude-black text-white ${sectionFlowAfter}`}
     >
