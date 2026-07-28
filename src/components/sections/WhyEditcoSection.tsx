@@ -170,7 +170,7 @@ export function WhyEditcoSection() {
         >
           <div className="relative max-w-full leading-none">
             <span
-              className="font-syne block whitespace-nowrap text-[clamp(2.4rem,11vw,8.5rem)] font-extrabold tracking-[-0.05em] lowercase"
+              className="font-syne block whitespace-nowrap text-[clamp(2rem,11vw,8.5rem)] font-extrabold tracking-[-0.05em] lowercase"
               style={{ color: "#1a1a1a" }}
             >
               why editco
@@ -180,7 +180,7 @@ export function WhyEditcoSection() {
               className="absolute inset-y-0 left-0 overflow-hidden"
               style={{ width: "0%" }}
             >
-              <span className="absolute top-0 left-0 block whitespace-nowrap font-syne text-[clamp(2.4rem,11vw,8.5rem)] font-extrabold tracking-[-0.05em] lowercase text-gaude-orange">
+              <span className="absolute top-0 left-0 block whitespace-nowrap font-syne text-[clamp(2rem,11vw,8.5rem)] font-extrabold tracking-[-0.05em] lowercase text-gaude-orange">
                 why editco
               </span>
             </div>
@@ -200,7 +200,7 @@ export function WhyEditcoSection() {
                   ref={(el) => {
                     cardRefs.current[index] = el;
                   }}
-                  className="flex h-[360px] w-[min(300px,84vw)] shrink-0 flex-col justify-between rounded-2xl border border-white/10 p-6 sm:h-[400px] sm:w-[340px] sm:p-7 md:h-[440px] md:w-[400px] md:rounded-[1.25rem] md:p-8 lg:w-[420px]"
+                  className="flex h-[320px] w-[min(280px,82vw)] shrink-0 flex-col justify-between rounded-2xl border border-white/10 p-5 sm:h-[400px] sm:w-[340px] sm:p-7 md:h-[440px] md:w-[400px] md:rounded-[1.25rem] md:p-8 lg:w-[420px]"
                   style={{
                     backgroundColor: "rgba(22, 22, 22, 0.55)",
                     boxShadow: "0 28px 70px rgba(0,0,0,0.55)",

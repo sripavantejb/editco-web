@@ -20,6 +20,7 @@ export function CalInlineEmbed({ embedId, className = "" }: CalInlineEmbedProps)
         config: {
           layout: "month_view",
           theme: "dark",
+          useSlotsViewOnSmallScreen: "true",
         },
       });
     };
@@ -42,7 +43,7 @@ export function CalInlineEmbed({ embedId, className = "" }: CalInlineEmbedProps)
   return (
     <div
       id={embedId}
-      className={`min-h-[480px] w-full sm:min-h-[560px] md:min-h-[700px] ${className}`}
+      className={`min-h-[420px] w-full max-w-full overflow-x-auto sm:min-h-[560px] md:min-h-[700px] ${className}`}
     />
   );
 }

@@ -77,3 +77,86 @@ export const TIER_BONUS: Record<Tier, number> = {
 export const REF_COOKIE = "editco_ref";
 export const SESSION_COOKIE = "editco_session";
 export const ADMIN_SESSION_COOKIE = "editco_admin_session";
+
+/* ─── Careers / Jobs ─── */
+
+export const EMPLOYMENT_TYPES = [
+  "full_time",
+  "part_time",
+  "contract",
+  "internship",
+  "freelance",
+] as const;
+
+export type EmploymentType = (typeof EMPLOYMENT_TYPES)[number];
+
+export const EMPLOYMENT_TYPE_LABELS: Record<EmploymentType, string> = {
+  full_time: "Full-time",
+  part_time: "Part-time",
+  contract: "Contract",
+  internship: "Internship",
+  freelance: "Freelance",
+};
+
+export const JOB_STATUSES = ["draft", "published", "closed"] as const;
+export type JobStatus = (typeof JOB_STATUSES)[number];
+
+export const JOB_STATUS_LABELS: Record<JobStatus, string> = {
+  draft: "Draft",
+  published: "Published",
+  closed: "Closed",
+};
+
+export const APPLICATION_STATUSES = [
+  "new",
+  "reviewing",
+  "shortlisted",
+  "rejected",
+  "hired",
+] as const;
+
+export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number];
+
+export const APPLICATION_STATUS_LABELS: Record<ApplicationStatus, string> = {
+  new: "New",
+  reviewing: "Reviewing",
+  shortlisted: "Shortlisted",
+  rejected: "Rejected",
+  hired: "Hired",
+};
+
+export const FORM_FIELD_TYPES = [
+  "short_text",
+  "long_text",
+  "email",
+  "phone",
+  "number",
+  "url",
+  "date",
+  "select",
+  "radio",
+  "checkbox",
+  "multi_checkbox",
+  "file",
+] as const;
+
+export type FormFieldType = (typeof FORM_FIELD_TYPES)[number];
+
+export const FORM_FIELD_TYPE_LABELS: Record<FormFieldType, string> = {
+  short_text: "Short text",
+  long_text: "Long text",
+  email: "Email",
+  phone: "Phone",
+  number: "Number",
+  url: "URL",
+  date: "Date",
+  select: "Dropdown",
+  radio: "Radio",
+  checkbox: "Checkbox",
+  multi_checkbox: "Multi checkbox",
+  file: "File upload",
+};
+
+export const JOB_FILE_MAX_MB = 5;
+export const JOB_FILE_ACCEPT =
+  ".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document";

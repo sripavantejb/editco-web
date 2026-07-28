@@ -253,15 +253,15 @@ export default function ServicesPage() {
   return (
     <div className="relative w-full overflow-x-clip bg-gaude-black text-white pt-20 sm:pt-24">
       {/* Background Gradients */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute top-[5%] left-[-10%] h-[600px] w-[600px] rounded-full bg-gaude-orange/10 blur-[130px]" />
-        <div className="absolute top-[25%] right-[-10%] h-[700px] w-[700px] rounded-full bg-gaude-purple/8 blur-[160px]" />
-        <div className="absolute bottom-[20%] left-[-5%] h-[500px] w-[500px] rounded-full bg-gaude-green/5 blur-[120px]" />
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[5%] left-[-10%] h-[280px] w-[280px] rounded-full bg-gaude-orange/10 blur-[80px] sm:h-[600px] sm:w-[600px] sm:blur-[130px]" />
+        <div className="absolute top-[25%] right-[-10%] h-[300px] w-[300px] rounded-full bg-gaude-purple/8 blur-[90px] sm:h-[700px] sm:w-[700px] sm:blur-[160px]" />
+        <div className="absolute bottom-[20%] left-[-5%] h-[240px] w-[240px] rounded-full bg-gaude-green/5 blur-[70px] sm:h-[500px] sm:w-[500px] sm:blur-[120px]" />
         <div className="absolute inset-0 opacity-[0.02] [background-image:radial-gradient(#ffffff_1px,transparent_1px)] [background-size:32px_32px]" />
       </div>
 
       {/* 1. HERO SECTION */}
-      <section className="relative z-10 mx-auto max-w-[1200px] px-6 py-12 md:py-24">
+      <section className="relative z-10 mx-auto max-w-[1200px] px-4 py-12 sm:px-6 md:py-24">
         <div className="max-w-3xl">
           <div className="flex flex-col items-start text-left">
             <motion.div
@@ -310,7 +310,7 @@ export default function ServicesPage() {
       </section>
 
       {/* 2. SERVICES OVERVIEW SECTION */}
-      <section id="overview" className="relative z-10 mx-auto max-w-[1200px] px-6 py-16 md:py-28">
+      <section id="overview" className="relative z-10 mx-auto max-w-[1200px] px-4 py-16 sm:px-6 md:py-28">
         <div className="mb-16 text-center max-w-3xl mx-auto">
           <span className="font-archivo text-[10px] font-bold uppercase tracking-[0.2em] text-gaude-orange/90">
             SOLUTIONS FOR PROGRESS
@@ -375,7 +375,7 @@ export default function ServicesPage() {
       </section>
 
       {/* 3. WITH EDITCO VS WITHOUT EDITCO COMPARISON SECTION */}
-      <section className="relative z-10 mx-auto max-w-[1200px] px-6 py-16 md:py-28">
+      <section className="relative z-10 mx-auto max-w-[1200px] px-4 py-16 sm:px-6 md:py-28">
         <div className="mb-16 text-center max-w-3xl mx-auto">
           <span className="font-archivo text-[10px] font-bold uppercase tracking-[0.2em] text-gaude-orange/90">
             GROWTH VS LOSS
@@ -396,7 +396,7 @@ export default function ServicesPage() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="rounded-3xl border border-red-950/40 bg-red-950/10 p-8 backdrop-blur-md shadow-xl flex flex-col justify-between"
+            className="rounded-3xl border border-red-950/40 bg-red-950/10 p-5 backdrop-blur-md shadow-xl flex flex-col justify-between sm:p-8"
           >
             <div>
               <div className="flex items-center gap-3 border-b border-red-950/40 pb-6 mb-8">
@@ -431,7 +431,7 @@ export default function ServicesPage() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="relative rounded-3xl border border-gaude-green/30 bg-gaude-green/5 p-8 backdrop-blur-md shadow-[0_0_50px_rgba(47,223,146,0.15)] flex flex-col justify-between"
+            className="relative rounded-3xl border border-gaude-green/30 bg-gaude-green/5 p-5 backdrop-blur-md shadow-[0_0_50px_rgba(47,223,146,0.15)] flex flex-col justify-between sm:p-8"
           >
             {/* Green Glow */}
             <div className="absolute top-0 right-0 h-[250px] w-[250px] rounded-full bg-gaude-green/10 blur-[80px] pointer-events-none" />
@@ -476,7 +476,7 @@ export default function ServicesPage() {
 
       {/* 4. DETAILED SERVICE BREAKDOWN SECTION */}
       <section id="details" className="relative z-10 bg-[#050505] border-y border-white/5 py-16 md:py-28">
-        <div className="mx-auto max-w-[1200px] px-6">
+        <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
           <div className="mb-20 text-center max-w-3xl mx-auto">
             <span className="font-archivo text-[10px] font-bold uppercase tracking-[0.2em] text-gaude-orange/90">
               DEEP DIVES
@@ -602,7 +602,7 @@ export default function ServicesPage() {
       </section>
 
       {/* 5. INDUSTRIES WE SERVE SECTION */}
-      <section className="relative z-10 mx-auto max-w-[1200px] px-6 py-16 md:py-28">
+      <section className="relative z-10 mx-auto max-w-[1200px] px-4 py-16 sm:px-6 md:py-28">
         <div className="mb-16 text-center max-w-3xl mx-auto">
           <span className="font-archivo text-[10px] font-bold uppercase tracking-[0.2em] text-gaude-orange/90">
             TARGET SECTORS
@@ -646,14 +646,14 @@ export default function ServicesPage() {
           <div className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 h-[500px] w-[500px] rounded-full bg-gaude-orange/10 blur-[130px]" />
         </div>
 
-        <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
+        <div className="relative z-10 mx-auto max-w-4xl px-4 text-center sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="font-archivo text-3xl uppercase leading-[0.85] tracking-tighter text-white md:text-6xl">
+            <h2 className="font-archivo text-[clamp(1.75rem,7vw,3.75rem)] uppercase leading-[0.9] tracking-tighter text-white md:text-6xl">
               Start Your Business <br /> <span className="text-gaude-orange">Transformation</span> With Editco
             </h2>
             
@@ -682,8 +682,8 @@ export default function ServicesPage() {
       </section>
 
       {/* 7. BOOK A CALL — Cal.com embed */}
-      <section id="lead-form" ref={leadFormRef} className="relative z-10 mx-auto max-w-5xl px-6 py-16 md:py-28">
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-6 md:p-10 backdrop-blur-md shadow-2xl relative overflow-hidden">
+      <section id="lead-form" ref={leadFormRef} className="relative z-10 mx-auto max-w-5xl px-4 py-16 sm:px-6 md:py-28">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-4 sm:p-6 md:p-10 backdrop-blur-md shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 h-[200px] w-[200px] rounded-full bg-gaude-orange/5 blur-[60px] pointer-events-none" />
 
           <div className="mb-8 text-center md:mb-10">

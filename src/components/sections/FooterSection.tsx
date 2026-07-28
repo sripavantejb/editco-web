@@ -65,7 +65,7 @@ export function FooterSection() {
         <div className="pointer-events-none relative z-40 grid grid-cols-1 gap-1.5 md:grid-cols-2">
           <div className="pointer-events-auto relative overflow-hidden rounded-[20px] bg-[#FFD600] p-4 md:p-6">
             <div className="relative z-10">
-              <h2 className="mb-0.5 max-w-md origin-left font-archivo text-3xl italic leading-[0.8] tracking-[-0.05em] text-black skew-x-[-12deg] md:text-5xl">
+              <h2 className="mb-0.5 max-w-md origin-left font-archivo text-2xl italic leading-[0.85] tracking-[-0.05em] text-black skew-x-[-12deg] sm:text-3xl md:text-5xl">
                 YOUR INBOX
                 <br />
                 JUST GOT BETTER
@@ -75,15 +75,15 @@ export function FooterSection() {
               </p>
 
               <div className="flex flex-col gap-1.5">
-                <div className="relative flex max-w-xs items-center">
+                <div className="flex w-full max-w-sm flex-col gap-2 sm:max-w-xs">
                   <input
                     type="email"
                     placeholder="Your email address"
-                    className="w-full rounded-full border-none bg-white px-3.5 py-2 text-[11px] text-black placeholder-black/40 focus:ring-1 focus:ring-black/10"
+                    className="w-full min-w-0 rounded-full border-none bg-white px-3.5 py-2.5 text-[11px] text-black placeholder-black/40 focus:ring-1 focus:ring-black/10"
                   />
                   <button
                     type="button"
-                    className="absolute right-1 rounded-full bg-black px-3.5 py-1 text-[9px] font-black text-white transition-transform hover:scale-105 active:scale-95"
+                    className="w-full rounded-full bg-black px-3.5 py-2 text-[9px] font-black text-white transition-transform hover:scale-105 active:scale-95 sm:w-auto"
                   >
                     SUBSCRIBE
                   </button>
@@ -91,7 +91,7 @@ export function FooterSection() {
                 <label className="flex items-start gap-1 text-[8px] font-bold leading-none text-black/60">
                   <input
                     type="checkbox"
-                    className="h-2.5 w-2.5 rounded border-none bg-black/10 text-black focus:ring-transparent"
+                    className="h-2.5 w-2.5 shrink-0 rounded border-none bg-black/10 text-black focus:ring-transparent"
                   />
                   <span>I agree to receive communications from {site.name}.</span>
                 </label>
@@ -105,7 +105,7 @@ export function FooterSection() {
 
           <div className="pointer-events-auto relative overflow-hidden rounded-[20px] bg-[#FFD600] p-4 md:p-6">
             <div className="relative z-10">
-              <h2 className="mb-0.5 max-w-md origin-left font-archivo text-3xl italic leading-[0.8] tracking-[-0.05em] text-black skew-x-[-12deg] md:text-5xl">
+              <h2 className="mb-0.5 max-w-md origin-left font-archivo text-2xl italic leading-[0.85] tracking-[-0.05em] text-black skew-x-[-12deg] sm:text-3xl md:text-5xl">
                 ALWAYS HERE
                 <br />
                 TO HELP
@@ -196,19 +196,19 @@ export function FooterSection() {
           </div>
 
           <div className="pointer-events-auto relative flex flex-1 flex-col justify-between overflow-hidden rounded-[24px] bg-[#36DF93] p-4 text-black md:p-6">
-            <div className="flex flex-col justify-between gap-4 md:flex-row">
-              <h2 className="max-w-[260px] origin-left font-archivo text-3xl italic leading-[0.8] tracking-[-0.05em] skew-x-[-12deg] md:text-4xl">
+            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
+              <h2 className="max-w-[260px] origin-left font-archivo text-2xl italic leading-[0.85] tracking-[-0.05em] skew-x-[-12deg] sm:text-3xl md:text-4xl">
                 BUILD WITH EDITCO.
                 <br />
                 THEN MAKE IT ALL HAPPEN.
               </h2>
 
-              <div className="flex flex-col items-end gap-0.5 text-right">
+              <div className="flex flex-col items-start gap-0.5 text-left md:items-end md:text-right">
                 {footer.quickLinks.map((link) => (
                   <Link
                     key={link.label}
                     href={link.href}
-                    className="origin-right font-archivo text-base leading-none tracking-tight italic skew-x-[-8deg] transition-opacity hover:opacity-70"
+                    className="origin-left font-archivo text-sm leading-none tracking-tight italic skew-x-[-8deg] transition-opacity hover:opacity-70 sm:text-base md:origin-right"
                   >
                     {link.label.toUpperCase()}
                   </Link>
@@ -216,11 +216,11 @@ export function FooterSection() {
               </div>
             </div>
 
-            <div className="mt-6 flex flex-col items-end justify-between gap-2 md:flex-row">
+            <div className="mt-6 flex flex-col items-start justify-between gap-2 sm:items-end md:flex-row md:items-end">
               <p className="text-[8px] font-black opacity-60">
                 © 2025 {site.name.toUpperCase()}, INC.
               </p>
-              <div className="flex flex-col items-end gap-0 text-right">
+              <div className="flex flex-col items-start gap-0 text-left sm:items-end sm:text-right">
                 <Link href="#" className="text-[8px] font-black tracking-wider uppercase opacity-60 hover:opacity-100">
                   Brand Assets
                 </Link>

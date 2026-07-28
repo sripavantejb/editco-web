@@ -32,21 +32,21 @@ export function FinalCtaSection() {
             </span>
           </div>
 
-          <h2 className="font-archivo text-3xl uppercase leading-[0.85] tracking-[-0.04em] text-white sm:text-4xl md:text-7xl">
+          <h2 className="font-archivo text-[clamp(2rem,10vw,4.5rem)] uppercase leading-[0.9] tracking-[-0.04em] text-white sm:text-4xl md:text-7xl">
             READY TO <span className="text-gaude-orange">SCALE?</span>
           </h2>
         </div>
 
         {/* Cal.com Inline Embed Container */}
-        <div className="relative mx-auto w-full overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md shadow-2xl">
+        <div className="relative mx-auto w-full max-w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-2xl sm:rounded-3xl">
           <CalInlineEmbed embedId="cal-inline-embed" />
         </div>
 
-        <p className="mt-8 text-center font-inter text-sm text-white/50">
+        <p className="mt-8 px-2 text-center font-inter text-sm text-white/50">
           Know a business that needs Editco?{" "}
           <Link
             href="/refer"
-            className="font-archivo text-xs uppercase tracking-widest text-gaude-orange transition-opacity hover:opacity-80"
+            className="inline-block font-archivo text-xs uppercase tracking-widest text-gaude-orange transition-opacity hover:opacity-80"
           >
             Join the referral program →
           </Link>

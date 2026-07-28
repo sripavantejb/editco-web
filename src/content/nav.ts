@@ -7,8 +7,9 @@ export const navLinks = [
   { href: "#process", label: "Process" },
   { href: "#tech", label: "Technologies" },
   { href: "/blog", label: "Blog" },
-  { href: "#faq", label: "FAQ" },
+  { href: "/careers", label: "Careers" },
   { href: "/refer", label: "Referral" },
+  { href: "#faq", label: "FAQ" },
   { href: "#contact", label: "Contact" },
 ] as const;
 
@@ -18,6 +19,7 @@ export const desktopNavLinks = [
   { href: "#why-editco", label: "Why Editco" },
   { href: "#case-study", label: "Selected Works" },
   { href: "/blog", label: "Blog" },
+  { href: "/careers", label: "Careers" },
   { href: "/refer", label: "Referral" },
   { href: "#faq", label: "FAQ" },
   { href: "#contact", label: "Contact" },

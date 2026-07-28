@@ -134,15 +134,15 @@ export function ShareReferralModal({
             clipPath: "polygon(100% 0, 100% 0, 100% 0, 100% 0)",
           }}
           transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-          className="fixed inset-0 z-[250] overflow-y-auto bg-white p-6 text-black sm:p-8 md:p-16"
+          className="fixed inset-0 z-[250] overflow-x-hidden overflow-y-auto bg-white p-5 text-black sm:p-8 md:p-16"
           role="dialog"
           aria-modal="true"
           aria-labelledby="share-overlay-title"
         >
           <div className="flex min-h-full flex-col">
             {/* One top row: logo + QR/text | close + socials */}
-            <div className="flex items-start justify-between gap-6">
-              <div className="flex min-w-0 flex-1 flex-wrap items-start gap-10 sm:gap-16 md:gap-24 lg:gap-32">
+            <div className="flex items-start justify-between gap-4 sm:gap-6">
+              <div className="flex min-w-0 flex-1 flex-col flex-wrap items-start gap-8 sm:flex-row sm:gap-16 md:gap-24 lg:gap-32">
                 <div className="flex h-12 shrink-0 items-center gap-3">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -159,10 +159,10 @@ export function ShareReferralModal({
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.35, duration: 0.4 }}
-                  className="mt-8 ml-4 flex flex-col gap-2 sm:mt-10 sm:ml-8 md:mt-12 md:ml-12 lg:ml-16"
+                  className="mt-2 flex w-full min-w-0 flex-col gap-2 sm:mt-10 sm:ml-8 md:mt-12 md:ml-12 lg:ml-16"
                 >
-                  <div className="flex items-center gap-7 sm:gap-9 md:gap-12">
-                    <div className="h-[11.5rem] w-[11.5rem] shrink-0 border border-black/10 bg-white p-2.5 sm:h-[13.5rem] sm:w-[13.5rem] md:h-[15.5rem] md:w-[15.5rem]">
+                  <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:gap-9 md:gap-12">
+                    <div className="h-[10rem] w-[10rem] shrink-0 border border-black/10 bg-white p-2.5 sm:h-[13.5rem] sm:w-[13.5rem] md:h-[15.5rem] md:w-[15.5rem]">
                       {qr ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -177,7 +177,7 @@ export function ShareReferralModal({
 
                     <nav
                       id="share-overlay-title"
-                      className="flex h-[11.5rem] flex-col justify-center gap-2 sm:h-[13.5rem] sm:gap-2.5 md:h-[15.5rem] md:gap-3"
+                      className="flex min-w-0 flex-col justify-center gap-2 sm:h-[13.5rem] sm:gap-2.5 md:h-[15.5rem] md:gap-3"
                       aria-label="Share options"
                     >
                       {actions.map((action, i) => (
@@ -189,14 +189,14 @@ export function ShareReferralModal({
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.4 + i * 0.04, duration: 0.3 }}
                           onClick={action.onClick}
-                          className="w-fit text-left font-inter text-[clamp(1.75rem,3.8vw,2.85rem)] font-medium leading-none tracking-tight text-black transition-opacity hover:opacity-50 disabled:opacity-30"
+                          className="w-fit max-w-full text-left font-inter text-[clamp(1.5rem,7vw,2.85rem)] font-medium leading-none tracking-tight text-black transition-opacity hover:opacity-50 disabled:opacity-30"
                         >
                           {action.label}
                         </motion.button>
                       ))}
                     </nav>
                   </div>
-                  <p className="font-inter text-xs tracking-wide text-black/40 sm:text-sm">
+                  <p className="break-all font-inter text-xs tracking-wide text-black/40 sm:text-sm">
                     {code}
                   </p>
                 </motion.div>
@@ -206,7 +206,7 @@ export function ShareReferralModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex h-12 w-12 items-center justify-center rounded-full bg-black text-white transition-transform hover:scale-110 active:scale-95"
+                  className="flex h-11 w-11 items-center justify-center rounded-full bg-black text-white transition-transform hover:scale-110 active:scale-95 sm:h-12 sm:w-12"
                   aria-label="Close share menu"
                 >
                   <svg

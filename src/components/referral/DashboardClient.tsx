@@ -102,7 +102,7 @@ export function DashboardClient({
             <p className="font-archivo text-[10px] uppercase tracking-[0.16em] text-[var(--dash-faint)]">
               {stat.label}
             </p>
-            <p className="mt-2 font-archivo text-xl tracking-tight text-[var(--dash-text)] sm:text-2xl">
+            <p className="mt-2 truncate font-archivo text-lg tracking-tight text-[var(--dash-text)] sm:text-2xl">
               {stat.value}
             </p>
           </div>

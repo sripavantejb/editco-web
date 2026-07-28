@@ -71,7 +71,7 @@ export function MagneticNav() {
   return (
     <>
       {/* 1. Main Centered Pill - Hides on scroll */}
-      <div className="fixed inset-x-0 top-8 z-[200] flex justify-center px-6 pointer-events-none">
+      <div className="fixed inset-x-0 top-6 z-[200] flex justify-center px-4 pointer-events-none sm:top-8 sm:px-6">
         <AnimatePresence mode="wait">
           {!isScrolled && (
             <motion.div 
@@ -81,7 +81,7 @@ export function MagneticNav() {
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               exit={{ opacity: 0, y: -20, filter: "blur(10px)", scale: 0.95 }}
               transition={smoothSpring}
-              className="pointer-events-auto flex items-center gap-1 rounded-full border border-white/10 bg-white/5 p-1.5 shadow-2xl backdrop-blur-xl"
+              className="pointer-events-auto flex max-w-[calc(100vw-2rem)] items-center gap-1 rounded-full border border-white/10 bg-white/5 p-1.5 shadow-2xl backdrop-blur-xl"
             >
               {/* Logo Image */}
               <Link
@@ -208,7 +208,7 @@ export function MagneticNav() {
               clipPath: "polygon(100% 0, 100% 0, 100% 0, 100% 0)",
             }}
             transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-            className="fixed inset-0 z-[250] overflow-y-auto bg-white p-6 text-black sm:p-8 md:p-16"
+            className="fixed inset-0 z-[250] overflow-x-hidden overflow-y-auto bg-white p-5 text-black sm:p-8 md:p-16"
           >
             <div className="grid min-h-full grid-cols-1 gap-8 md:grid-cols-12 md:gap-8">
               {/* Column 1: Logo (Left) */}

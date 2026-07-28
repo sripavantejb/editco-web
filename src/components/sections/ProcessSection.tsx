@@ -68,7 +68,7 @@ export function ProcessSection() {
     >
       <div
         ref={stickyRef}
-        className="flex min-h-screen flex-col justify-start px-5 pt-20 pb-12 sm:px-6 sm:pt-24 sm:pb-16 md:px-10 md:pt-28 md:pb-20"
+        className="flex min-h-screen flex-col justify-start px-4 pt-20 pb-12 sm:px-6 sm:pt-24 sm:pb-16 md:px-10 md:pt-28 md:pb-20"
       >
         <div className="pointer-events-none absolute inset-0 opacity-[0.04] [background-image:linear-gradient(to_right,rgba(255,255,255,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.12)_1px,transparent_1px)] [background-size:40px_40px]" />
 
@@ -76,7 +76,7 @@ export function ProcessSection() {
           <p className="mb-3 font-archivo text-[10px] font-bold uppercase tracking-[0.25em] text-gaude-orange sm:text-xs">
             Our Process
           </p>
-          <h2 className="max-w-2xl font-archivo text-3xl font-black uppercase tracking-tighter text-white sm:text-5xl">
+          <h2 className="max-w-2xl font-archivo text-[clamp(1.75rem,8vw,3rem)] font-black uppercase tracking-tighter text-white sm:text-5xl">
             Our{" "}
             <span className="italic text-gaude-orange">Execution</span> Process
           </h2>

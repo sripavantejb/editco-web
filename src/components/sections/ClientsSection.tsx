@@ -37,7 +37,7 @@ export function ClientsSection() {
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-gaude-pink/10 to-transparent" />
 
-      <div className="relative z-10 mx-auto max-w-[1200px] px-6">
+      <div className="relative z-10 mx-auto max-w-[1200px] px-4 sm:px-6">
         <div className="max-w-4xl">
           <SectionHeading
             title={
@@ -99,7 +99,7 @@ export function ClientsSection() {
 
               const card = (
                 <div
-                  className={`group relative flex h-[120px] w-[220px] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-[18px] border transition-all md:h-[132px] md:w-[250px] md:rounded-[22px] ${
+                  className={`group relative flex h-[100px] w-[min(200px,70vw)] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-[18px] border transition-all sm:h-[120px] sm:w-[220px] md:h-[132px] md:w-[250px] md:rounded-[22px] ${
                     onDark
                       ? "border-white/10 bg-[#0a0a0a] hover:border-gaude-orange/35"
                       : "border-black/10 bg-white hover:border-gaude-orange/40"

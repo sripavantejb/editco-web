@@ -254,7 +254,7 @@ export function AdminOverviewPanel({
                   >
                     {card.label}
                   </p>
-                  <p className="mt-2 font-archivo text-xl tracking-tight text-white sm:text-2xl">
+                  <p className="mt-2 truncate font-archivo text-xl tracking-tight text-white sm:text-2xl">
                     {card.value}
                   </p>
                   <p className="mt-1 font-inter text-[11px] text-white/30">

@@ -66,7 +66,7 @@ export function WhySection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className={`group relative flex flex-col border-4 border-gaude-black bg-white p-4 shadow-[12px_12px_0_0_#000] transition-all hover:shadow-[16px_16px_0_0_#000] hover:-translate-y-2 ${member.rotate}`}
+              className={`group relative flex flex-col border-4 border-gaude-black bg-white p-4 shadow-[8px_8px_0_0_#000] transition-all hover:shadow-[12px_12px_0_0_#000] hover:-translate-y-2 md:shadow-[12px_12px_0_0_#000] md:hover:shadow-[16px_16px_0_0_#000] max-md:rotate-0 ${member.rotate}`}
             >
               <div className="relative aspect-[4/5] overflow-hidden border-4 border-gaude-black">
                 <div

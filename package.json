@@ -3,10 +3,11 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "oxlint"
+    "dev": "node scripts/run-next.mjs dev",
+    "build": "node scripts/run-next.mjs build",
+    "start": "node scripts/run-next.mjs start",
+    "lint": "oxlint",
+    "postinstall": "node scripts/ensure-oxide-wasm.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

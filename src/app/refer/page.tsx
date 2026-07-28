@@ -23,7 +23,7 @@ import SideRays from "@/components/referral/SideRays";
  * Must be direct children of main — no short wrappers, or sticky breaks.
  */
 const referSlideCore =
-  "relative w-full border-b-4 border-gaude-black shadow-[0_-20px_40px_rgba(0,0,0,0.28)] lg:sticky lg:top-0 lg:h-[100svh] lg:overflow-hidden";
+  "relative w-full border-b-4 border-gaude-black shadow-[0_-20px_40px_rgba(0,0,0,0.28)] lg:sticky lg:top-0 lg:min-h-[100svh] lg:overflow-y-auto";
 const referSlide1 = `${referSlideCore} z-10`;
 const referSlide2 = `${referSlideCore} z-20`;
 const referSlide3 = `${referSlideCore} z-[25]`;
@@ -207,7 +207,7 @@ export default function ReferLandingPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/40 to-[#050505]" />
         </div>
 
-        <div className="relative z-10 mx-auto grid w-full max-w-[1680px] items-center gap-6 md:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.9fr)] md:gap-8 lg:gap-12">
+        <div className="relative z-10 mx-auto grid w-full max-w-[1680px] items-center gap-6 md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.9fr)] md:gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.9fr)] lg:gap-12">
           <div className="min-w-0">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -229,7 +229,7 @@ export default function ReferLandingPage() {
                 initial={{ opacity: 0, y: 48 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.95, ease }}
-                className="block bg-gradient-to-b from-white to-white/40 bg-clip-text text-[clamp(3.25rem,9.5vw,8.5rem)] text-transparent"
+                className="block bg-gradient-to-b from-white to-white/40 bg-clip-text text-[clamp(2.75rem,14vw,8.5rem)] text-transparent"
               >
                 Refer
               </motion.span>
@@ -237,7 +237,7 @@ export default function ReferLandingPage() {
                 initial={{ opacity: 0, y: 48 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.95, delay: 0.12, ease }}
-                className="block text-[clamp(3.25rem,9.5vw,8.5rem)] text-[var(--refer-accent)]"
+                className="block text-[clamp(2.75rem,14vw,8.5rem)] text-[var(--refer-accent)]"
               >
                 Earn.
               </motion.span>
@@ -299,7 +299,7 @@ export default function ReferLandingPage() {
               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
               className="absolute -inset-5 rounded-[36px] bg-[var(--refer-accent)]/15 blur-3xl"
             />
-            <div className="relative rounded-[24px] border border-white/10 bg-white/[0.05] p-5 backdrop-blur-xl sm:p-6">
+            <div className="relative min-w-0 rounded-[24px] border border-white/10 bg-white/[0.05] p-4 backdrop-blur-xl sm:p-6">
               <div className="mb-4">
                 <p className="font-inter text-base font-semibold text-white">
                   Get started
@@ -329,9 +329,9 @@ export default function ReferLandingPage() {
             <span className="inline-block border-2 border-gaude-black bg-white px-3 py-1 font-inter text-[10px] font-black uppercase tracking-[0.2em] text-gaude-black shadow-[3px_3px_0_0_#0a0a0a]">
               Process
             </span>
-            <h2 className="mt-3 whitespace-nowrap font-archivo text-3xl font-black uppercase leading-none tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl">
+            <h2 className="mt-3 font-archivo text-[clamp(1.75rem,8vw,3.75rem)] font-black uppercase leading-[1.05] tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl">
               How it{" "}
-              <span className="bg-gaude-black px-2 text-[var(--refer-accent)]">
+              <span className="inline-block bg-gaude-black px-2 text-[var(--refer-accent)]">
                 works
               </span>
             </h2>
@@ -402,9 +402,9 @@ export default function ReferLandingPage() {
             <span className="inline-block border-2 border-gaude-black bg-[var(--refer-accent)] px-3 py-1 font-inter text-[10px] font-black uppercase tracking-[0.2em] text-gaude-black shadow-[3px_3px_0_0_#0a0a0a]">
               Reward tiers
             </span>
-            <h2 className="mt-3 whitespace-nowrap font-archivo text-3xl font-black uppercase leading-none tracking-tighter text-gaude-black sm:text-4xl md:text-5xl lg:text-6xl">
+            <h2 className="mt-3 font-archivo text-[clamp(1.75rem,8vw,3.75rem)] font-black uppercase leading-[1.05] tracking-tighter text-gaude-black sm:text-4xl md:text-5xl lg:text-6xl">
               Grow your{" "}
-              <span className="bg-gaude-black px-2 text-[var(--refer-accent)]">
+              <span className="inline-block bg-gaude-black px-2 text-[var(--refer-accent)]">
                 payouts
               </span>
             </h2>
@@ -434,7 +434,7 @@ export default function ReferLandingPage() {
                 }`}
               >
                 {t.highlight && (
-                  <span className="absolute -right-2 -top-3 rotate-6 border-2 border-gaude-black bg-white px-2.5 py-1 font-inter text-[9px] font-black uppercase tracking-widest shadow-[3px_3px_0_0_#0a0a0a]">
+                  <span className="absolute right-3 top-3 rotate-6 border-2 border-gaude-black bg-white px-2.5 py-1 font-inter text-[9px] font-black uppercase tracking-widest shadow-[3px_3px_0_0_#0a0a0a] sm:-right-2 sm:-top-3">
                     Popular
                   </span>
                 )}

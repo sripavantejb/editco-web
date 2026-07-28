@@ -42,7 +42,7 @@ function AnimatedCost({ value }: { value: number }) {
       initial={{ scale: 0.97, opacity: 0.7 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ type: "spring", stiffness: 280, damping: 22 }}
-      className="font-archivo text-3xl font-black leading-none tracking-tighter text-white tabular-nums sm:text-4xl md:text-5xl"
+      className="font-archivo text-2xl font-black leading-none tracking-tighter text-white tabular-nums sm:text-4xl md:text-5xl"
     >
       {formatInr(display)}
     </motion.p>
@@ -65,7 +65,7 @@ export function CalculatorSection() {
       id="calculator"
       className={`relative overflow-hidden bg-gaude-black pt-16 pb-20 md:pt-[110px] md:pb-24 ${sectionFlow}`}
     >
-      <div className="relative z-10 mx-auto max-w-[1200px] px-6">
+      <div className="relative z-10 mx-auto max-w-[1200px] px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -95,7 +95,7 @@ export function CalculatorSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.55, delay: 0.15, ease: easeOut }}
-            className="flex flex-col gap-6 border-b-2 border-white/10 bg-white p-6 md:border-r-2 md:border-b-0 md:p-8"
+            className="flex min-w-0 flex-col gap-6 border-b-2 border-white/10 bg-white p-4 sm:p-6 md:border-r-2 md:border-b-0 md:p-8"
           >
             <motion.p
               initial={{ opacity: 0 }}
@@ -151,7 +151,7 @@ export function CalculatorSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.55, delay: 0.22, ease: easeOut }}
-            className="flex flex-col bg-gaude-black p-6 text-white md:p-8"
+            className="flex min-w-0 flex-col bg-gaude-black p-4 text-white sm:p-6 md:p-8"
           >
             <motion.p
               initial={{ opacity: 0 }}
@@ -288,8 +288,8 @@ function SliderField({
       viewport={{ once: true }}
       transition={{ delay, duration: 0.45, ease: easeOut }}
     >
-      <div className="mb-1 flex items-end justify-between gap-3">
-        <div>
+      <div className="mb-1 flex items-end justify-between gap-2 sm:gap-3">
+        <div className="min-w-0">
           <label className="font-archivo text-xs font-bold uppercase tracking-wide text-gaude-black">
             {label}
           </label>
@@ -303,7 +303,7 @@ function SliderField({
             initial={{ opacity: 0.5, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
-            className="font-archivo text-sm font-bold tabular-nums text-gaude-orange"
+            className="font-archivo text-xs font-bold tabular-nums text-gaude-orange sm:text-sm"
           >
             {display}
           </motion.p>

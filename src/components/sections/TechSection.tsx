@@ -53,14 +53,14 @@ export function TechSection() {
   return (
     <section
       id={tech.id}
-      className={`flex min-h-[70svh] flex-col justify-center bg-white px-4 py-16 md:px-8 md:py-24 ${sectionFlowAfter}`}
+      className={`flex min-h-[60svh] flex-col justify-center overflow-x-clip bg-white px-4 py-16 md:min-h-[70svh] md:px-8 md:py-24 ${sectionFlowAfter}`}
     >
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto w-full max-w-6xl">
         <div className="mb-12">
           <SectionHeading title={tech.heading} description={tech.description} />
         </div>
 
-        <div className="flex flex-wrap gap-1 md:gap-1.5 justify-center md:justify-start">
+        <div className="flex flex-wrap justify-center gap-1 md:justify-start md:gap-1.5">
           {TECH_STACK.map((item, i) => (
             <motion.div
               key={item.name}
@@ -73,7 +73,7 @@ export function TechSection() {
                 ease: "easeOut"
               }}
               style={{ backgroundColor: item.color }}
-              className={`px-3 py-1.5 md:px-5 md:py-2.5 rounded-[4px] font-archivo text-[10px] md:text-xs font-black uppercase tracking-wider shadow-sm transition-transform hover:scale-110 hover:z-10 cursor-default ${item.textColor === 'black' ? 'text-black' : 'text-white'}`}
+              className={`rounded-[4px] px-2.5 py-1.5 font-archivo text-[9px] font-black uppercase tracking-wider shadow-sm transition-transform hover:z-10 hover:scale-110 cursor-default sm:px-3 sm:text-[10px] md:px-5 md:py-2.5 md:text-xs ${item.textColor === 'black' ? 'text-black' : 'text-white'}`}
             >
               {item.name}
             </motion.div>

@@ -13,7 +13,7 @@ export function ServicesSection() {
       className={`relative bg-gaude-black text-white ${sectionFlow}`}
     >
       {/* SECTION 1: Intro */}
-      <div className="mx-auto max-w-[1200px] px-6 pt-16 pb-12">
+      <div className="mx-auto max-w-[1200px] px-4 pt-16 pb-12 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -23,7 +23,7 @@ export function ServicesSection() {
           <span className="font-inter text-xs font-black uppercase tracking-[0.2em] text-gaude-orange md:text-sm">
             {services.label}
           </span>
-          <h2 className="mt-2 font-archivo text-3xl uppercase leading-[0.95] tracking-tighter text-white md:text-5xl lg:text-6xl">
+          <h2 className="mt-2 font-archivo text-[clamp(1.75rem,8vw,3.75rem)] uppercase leading-[0.95] tracking-tighter text-white md:text-5xl lg:text-6xl">
             GROWTH <br className="hidden md:block" /> SYSTEMS FOR <br className="hidden md:block" /> LEADS & <span className="text-gaude-orange">REVENUE</span>
           </h2>
           <p className="mt-6 max-w-[720px] font-inter text-base font-medium leading-relaxed text-white/70 md:text-xl">
@@ -33,15 +33,15 @@ export function ServicesSection() {
       </div>
 
       {/* SECTION 3: Sticky Growth Systems Layout */}
-      <div className="mx-auto max-w-[1200px] px-6 pb-[80px] md:pb-[130px]">
-        <div className="grid items-start gap-12 lg:grid-cols-[0.38fr_0.62fr] lg:gap-16">
+      <div className="mx-auto max-w-[1200px] px-4 pb-[80px] sm:px-6 md:pb-[130px]">
+        <div className="grid items-start gap-8 lg:grid-cols-[0.38fr_0.62fr] lg:gap-16">
           {/* Left Sticky Panel */}
-          <div className="lg:sticky lg:top-[60px]">
+          <div className="min-w-0 lg:sticky lg:top-[60px]">
             <motion.div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              className="rounded-[20px] border-4 border-gaude-black bg-white p-6 shadow-[8px_8px_0_0_#ff8c61] md:rounded-[24px] md:p-10 md:shadow-[12px_12px_0_0_#ff8c61]"
+              className="rounded-[20px] border-4 border-gaude-black bg-white p-5 shadow-[6px_6px_0_0_#ff8c61] sm:p-6 md:rounded-[24px] md:p-10 md:shadow-[12px_12px_0_0_#ff8c61]"
             >
               <span className="font-inter text-[10px] font-black uppercase tracking-widest text-gaude-orange md:text-xs">
                 {services.stickyPanel.label}
@@ -84,10 +84,10 @@ export function ServicesSection() {
                 viewport={{ once: true, margin: "-100px" }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 whileHover={{ y: -6 }}
-                className={`group relative min-h-[280px] rounded-[20px] border-4 border-gaude-black p-6 shadow-[6px_6px_0_0_#0a0a0a] transition-all md:min-h-[320px] md:rounded-[24px] md:p-12 md:shadow-[8px_8px_0_0_#0a0a0a] ${card.bgColor} text-gaude-black`}
+                className={`group relative min-h-[240px] min-w-0 rounded-[20px] border-4 border-gaude-black p-5 shadow-[6px_6px_0_0_#0a0a0a] transition-all sm:p-6 md:min-h-[320px] md:rounded-[24px] md:p-12 md:shadow-[8px_8px_0_0_#0a0a0a] ${card.bgColor} text-gaude-black`}
               >
                 <div className="flex flex-col gap-5 md:gap-6">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-3">
                     <span className="font-archivo text-3xl font-black opacity-20 md:text-4xl">
                       {card.number}
                     </span>
@@ -96,8 +96,8 @@ export function ServicesSection() {
                     </span>
                   </div>
 
-                  <div>
-                    <h4 className="font-space-grotesk text-2xl font-black uppercase leading-none tracking-tighter md:text-5xl">
+                  <div className="min-w-0">
+                    <h4 className="font-space-grotesk text-xl font-black uppercase leading-[1.05] tracking-tighter sm:text-2xl md:text-5xl">
                       {card.title}
                     </h4>
                     <p className="mt-4 max-w-xl font-inter text-sm font-semibold leading-relaxed opacity-80 md:mt-6 md:text-lg">

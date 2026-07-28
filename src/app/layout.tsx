@@ -13,7 +13,7 @@ const syne = Syne({
 });
 
 const archivoBlack = Archivo_Black({
-  variable: "--font-archivo-black",
+  variable: "--font-archivo",
   weight: "400",
   subsets: ["latin"],
 });

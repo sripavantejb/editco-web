@@ -6,12 +6,16 @@
   --color-gaude-purple: #c3a4f6;
   --color-gaude-green: #2fdf92;
   --color-gaude-pink: #fca5cc;
+}
 
-  --font-syne: "Syne", sans-serif;
-  --font-archivo: "Archivo Black", sans-serif;
-  --font-inter: "Inter", sans-serif;
-  /* Set on <html> by next/font Space_Grotesk; used for hero display + stack labels */
-  --font-hero-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+/* Wire next/font CSS variables (set on <html> in layout.tsx) into Tailwind font-* utilities.
+   @theme inline is required so utilities resolve var(--font-*) from the document, not a broken theme chain. */
+@theme inline {
+  --font-syne: var(--font-syne);
+  --font-archivo: var(--font-archivo);
+  --font-inter: var(--font-inter);
+  --font-space-grotesk: var(--font-space-grotesk);
+  --font-hero-display: var(--font-space-grotesk);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -36,6 +40,17 @@ body {
   scroll-behavior: smooth;
   overflow-x: clip;
   -webkit-text-size-adjust: 100%;
+}
+
+/* Prevent common mobile overflow from media / embeds */
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+iframe {
+  max-width: 100%;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -386,5 +401,39 @@ body {
 .admin-theme .dash-pill-active {
   background-color: var(--dash-accent);
   color: var(--dash-on-accent);
+}
+
+/* Careers public pages — soft violet accent (refer-style tokens) */
+.careers-theme {
+  --careers-accent: #c3a4f6;
+  --careers-accent-hover: #b18eef;
+  --careers-on-accent: #0a0a0a;
+  --careers-accent-soft: rgba(195, 164, 246, 0.16);
+  --careers-accent-glow: rgba(195, 164, 246, 0.28);
+  --careers-bg: #050505;
+  --careers-surface: rgba(255, 255, 255, 0.05);
+  --careers-border: rgba(255, 255, 255, 0.1);
+  --careers-text: #f5f5f5;
+  --careers-muted: rgba(245, 245, 245, 0.55);
+  --careers-faint: rgba(245, 245, 245, 0.36);
+  --color-gaude-orange: #c3a4f6;
+  background-color: var(--careers-bg);
+  color: var(--careers-text);
+}
+
+.careers-theme .careers-cta {
+  background-color: var(--careers-accent);
+  color: var(--careers-on-accent);
+  box-shadow: 0 8px 28px var(--careers-accent-glow);
+}
+
+.careers-theme .careers-cta:hover {
+  background-color: var(--careers-accent-hover);
+}
+
+.careers-theme input,
+.careers-theme textarea,
+.careers-theme select {
+  min-height: 44px;
 }
 

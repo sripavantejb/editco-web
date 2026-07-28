@@ -39,7 +39,7 @@ export function ProblemSection() {
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-gaude-purple/10 to-transparent" />
 
-      <div className="relative z-10 mx-auto max-w-[1200px] px-6">
+      <div className="relative z-10 mx-auto max-w-[1200px] px-4 sm:px-6">
         <div className="max-w-4xl">
           <SectionHeading 
             title={
@@ -66,7 +66,7 @@ export function ProblemSection() {
               return (
                 <div
                   key={`${p.label}-${i}`}
-                  className="group relative flex min-w-[260px] md:min-w-[300px] flex-col gap-5 rounded-[20px] border-2 border-white/5 bg-white/[0.03] p-6 transition-all hover:border-gaude-orange/20 hover:bg-white/[0.06] md:gap-6 md:rounded-[24px] md:p-8"
+                  className="group relative flex min-w-[min(240px,78vw)] flex-col gap-5 rounded-[20px] border-2 border-white/5 bg-white/[0.03] p-5 transition-all hover:border-gaude-orange/20 hover:bg-white/[0.06] md:min-w-[300px] md:gap-6 md:rounded-[24px] md:p-8"
                 >
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl border-2 border-gaude-orange/20 bg-gaude-orange/5 text-gaude-orange transition-all group-hover:scale-110 group-hover:bg-gaude-orange/20 md:h-14 md:w-14 md:rounded-2xl">
                     <Icon className="size-6 md:size-7" strokeWidth={1.5} />

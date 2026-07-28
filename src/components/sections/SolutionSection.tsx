@@ -111,7 +111,7 @@ function Card({ card, index, total, scrollYProgress, isDesktop }: any) {
           top: isDesktop ? topOffset : undefined,
           backgroundColor: bgColor
         }}
-        className="relative min-h-[380px] w-full overflow-hidden rounded-[24px] border-4 border-black p-6 shadow-[8px_8px_0_0_#000] transition-shadow hover:shadow-[12px_12px_0_0_#000] sm:min-h-[420px] sm:rounded-[28px] sm:p-8 md:h-[500px] md:rounded-[32px] md:p-12"
+        className="relative min-h-[340px] w-full overflow-hidden rounded-[24px] border-4 border-black p-5 shadow-[8px_8px_0_0_#000] transition-shadow hover:shadow-[12px_12px_0_0_#000] sm:min-h-[420px] sm:rounded-[28px] sm:p-8 md:h-[500px] md:rounded-[32px] md:p-12"
       >
         {/* Technical Background Details */}
         <div className="absolute inset-0 pointer-events-none opacity-[0.05]" 
@@ -134,7 +134,7 @@ function Card({ card, index, total, scrollYProgress, isDesktop }: any) {
             </div>
 
             <div className="space-y-4">
-              <h3 className="font-archivo text-2xl font-black uppercase leading-[0.95] tracking-tighter text-black sm:text-3xl md:text-6xl lg:text-7xl">
+              <h3 className="font-archivo text-xl font-black uppercase leading-[1.05] tracking-tighter text-black sm:text-3xl md:text-5xl lg:text-6xl xl:text-7xl">
                 {card.title}
               </h3>
               <p className="max-w-md font-inter text-sm font-medium leading-relaxed text-black/70 md:text-lg">
