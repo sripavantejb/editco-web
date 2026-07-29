@@ -75,14 +75,17 @@ export function SolutionSection() {
     };
   }, []);
 
-  // Desktop: sticky stack focus from scroll progress
+  // Desktop: sticky stack focus — map full scroll range across every card
   useMotionValueEvent(scrollYProgress, "change", (progress) => {
     if (!isDesktop) return;
-    const next = Math.min(total - 1, Math.max(0, Math.floor(progress * total)));
+    const next = Math.min(
+      total - 1,
+      Math.max(0, Math.round(progress * (total - 1)))
+    );
     setActiveIndex((prev) => (prev === next ? prev : next));
   });
 
-  // Mobile: most-visible card via IntersectionObserver
+  // Mobile: card most centered in the viewport
   useEffect(() => {
     if (isDesktop) return;
     const ratios = new Map<number, number>();
@@ -91,7 +94,7 @@ export function SolutionSection() {
         for (const entry of entries) {
           const idx = Number((entry.target as HTMLElement).dataset.cardIndex);
           if (Number.isNaN(idx)) continue;
-          ratios.set(idx, entry.intersectionRatio);
+          ratios.set(idx, entry.isIntersecting ? entry.intersectionRatio : 0);
         }
         let best = 0;
         let bestRatio = -1;
@@ -105,7 +108,10 @@ export function SolutionSection() {
           setActiveIndex((prev) => (prev === best ? prev : best));
         }
       },
-      { threshold: [0.25, 0.4, 0.55, 0.7, 0.85], rootMargin: "-10% 0px -25% 0px" }
+      {
+        threshold: [0.2, 0.35, 0.5, 0.65, 0.8, 1],
+        rootMargin: "-12% 0px -28% 0px",
+      }
     );
 
     cardRefs.current.forEach((el) => {
@@ -114,10 +120,9 @@ export function SolutionSection() {
     return () => observer.disconnect();
   }, [isDesktop, total]);
 
-  const focusColor = cardColors[activeIndex % cardColors.length];
   const morphTransition = reduceMotion
     ? { duration: 0 }
-    : { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const };
+    : { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const };
 
   return (
     <section
@@ -125,40 +130,39 @@ export function SolutionSection() {
       ref={containerRef}
       className="relative z-[50] w-full bg-gaude-black py-16 md:pt-24 md:pb-48"
     >
-      {/* Liquid glass backdrop — tints to focused card color */}
+      {/* Refer-style glass morphism — soft glow tinted by focused card */}
       <div
         className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
         aria-hidden
       >
         <div className="absolute inset-0 bg-gaude-black" />
 
-        <motion.div
-          className="absolute -left-[20%] top-[-10%] h-[70%] w-[70%] rounded-full"
-          animate={{
-            background: `radial-gradient(circle at center, ${hexToRgba(focusColor, 0.55)} 0%, transparent 68%)`,
-          }}
-          transition={morphTransition}
-          style={{ filter: "blur(100px)" }}
-        />
-        <motion.div
-          className="absolute -right-[15%] bottom-[-5%] h-[65%] w-[60%] rounded-full"
-          animate={{
-            background: `radial-gradient(circle at center, ${hexToRgba(focusColor, 0.4)} 0%, transparent 70%)`,
-          }}
-          transition={morphTransition}
-          style={{ filter: "blur(110px)" }}
-        />
-        <motion.div
-          className="absolute left-[30%] top-[35%] h-[40%] w-[45%] rounded-full"
-          animate={{
-            background: `radial-gradient(circle at center, ${hexToRgba(focusColor, 0.28)} 0%, transparent 65%)`,
-          }}
-          transition={morphTransition}
-          style={{ filter: "blur(80px)" }}
-        />
+        {/* One glow layer per card color so every tint always paints correctly */}
+        {cardColors.slice(0, total).map((color, i) => (
+          <motion.div
+            key={color}
+            className="absolute inset-0"
+            initial={false}
+            animate={{ opacity: activeIndex === i ? 1 : 0 }}
+            transition={morphTransition}
+          >
+            <div
+              className="absolute -left-[18%] top-[-8%] h-[72%] w-[72%] rounded-full blur-3xl"
+              style={{ backgroundColor: hexToRgba(color, 0.42) }}
+            />
+            <div
+              className="absolute -right-[12%] bottom-[-6%] h-[62%] w-[58%] rounded-full blur-3xl"
+              style={{ backgroundColor: hexToRgba(color, 0.28) }}
+            />
+            <div
+              className="absolute left-[28%] top-[32%] h-[42%] w-[48%] rounded-full blur-[80px]"
+              style={{ backgroundColor: hexToRgba(color, 0.2) }}
+            />
+          </motion.div>
+        ))}
 
-        {/* Frosted glass sheet */}
-        <div className="solution-liquid-glass absolute inset-0" />
+        {/* Frosted sheet — same recipe as Refer & Earn panels */}
+        <div className="solution-liquid-glass absolute inset-0 border-y border-white/10 bg-white/[0.05] backdrop-blur-xl" />
       </div>
 
       <div className="relative z-10 mx-auto w-full max-w-[1100px] px-6">
