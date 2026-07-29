@@ -171,7 +171,7 @@ export function SolutionSection() {
             title={
               <>
                 Editco Media Builds Complete{" "}
-                <span className="text-gaude-purple">Digital Growth Systems.</span>
+                <span className="text-black">Digital Growth Systems.</span>
               </>
             }
             description={solution.description}
