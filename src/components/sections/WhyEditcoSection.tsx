@@ -17,10 +17,10 @@ const SCALE_MAX = 1.08;
 const Y_FAR = 48;
 const Y_FOCUS = -36;
 
-const SCALE_MIN_MOBILE = 0.88;
-const SCALE_MAX_MOBILE = 1.02;
-const Y_FAR_MOBILE = 20;
-const Y_FOCUS_MOBILE = -12;
+const SCALE_MIN_MOBILE = 0.92;
+const SCALE_MAX_MOBILE = 1;
+const Y_FAR_MOBILE = 8;
+const Y_FOCUS_MOBILE = 0;
 
 /** How much of the scroll is “move cards” vs “hold last card” */
 const MOVE_RATIO = 1;
@@ -162,7 +162,7 @@ export function WhyEditcoSection() {
     >
       <div
         ref={stickyRef}
-        className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden bg-gaude-black"
+        className="sticky top-0 flex h-[100dvh] flex-col justify-center overflow-hidden bg-gaude-black"
       >
         <div
           aria-hidden
@@ -200,7 +200,7 @@ export function WhyEditcoSection() {
                   ref={(el) => {
                     cardRefs.current[index] = el;
                   }}
-                  className="flex h-[320px] w-[min(280px,82vw)] shrink-0 flex-col justify-between rounded-2xl border border-white/10 p-5 sm:h-[400px] sm:w-[340px] sm:p-7 md:h-[440px] md:w-[400px] md:rounded-[1.25rem] md:p-8 lg:w-[420px]"
+                  className="flex h-[280px] w-[min(260px,78vw)] shrink-0 flex-col justify-between rounded-2xl border border-white/10 p-5 sm:h-[400px] sm:w-[340px] sm:p-7 md:h-[440px] md:w-[400px] md:rounded-[1.25rem] md:p-8 lg:w-[420px]"
                   style={{
                     backgroundColor: "rgba(22, 22, 22, 0.55)",
                     boxShadow: "0 28px 70px rgba(0,0,0,0.55)",

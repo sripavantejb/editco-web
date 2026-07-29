@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./generated-tw-sources.css";
 
 @theme {
   --color-gaude-orange: #ff4e00;
@@ -40,6 +41,23 @@ body {
   scroll-behavior: smooth;
   overflow-x: clip;
   -webkit-text-size-adjust: 100%;
+}
+
+/* Hero wordmark: fit “EDITCO” inside the viewport with side padding */
+.hero-wordmark {
+  font-size: clamp(2.5rem, calc((100dvw - 1.5rem) / 5.5), 14rem);
+}
+
+@media (min-width: 640px) {
+  .hero-wordmark {
+    font-size: clamp(3.5rem, calc((100dvw - 3rem) / 5.15), 15rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-wordmark {
+    font-size: clamp(4rem, calc((100dvw - 4rem) / 5.05), 16rem);
+  }
 }
 
 /* Prevent common mobile overflow from media / embeds */

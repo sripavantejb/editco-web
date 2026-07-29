@@ -68,7 +68,7 @@ export function ProcessSection() {
     >
       <div
         ref={stickyRef}
-        className="flex min-h-screen flex-col justify-start px-4 pt-20 pb-12 sm:px-6 sm:pt-24 sm:pb-16 md:px-10 md:pt-28 md:pb-20"
+        className="flex min-h-[100svh] flex-col justify-start overflow-x-clip px-4 pt-20 pb-12 sm:px-6 sm:pt-24 sm:pb-16 md:px-10 md:pt-28 md:pb-20"
       >
         <div className="pointer-events-none absolute inset-0 opacity-[0.04] [background-image:linear-gradient(to_right,rgba(255,255,255,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.12)_1px,transparent_1px)] [background-size:40px_40px]" />
 
@@ -92,21 +92,21 @@ export function ProcessSection() {
               textColor="#9a9a94"
               markerColor="#2a2a2a"
               showIndex
-              showMarker
+              showMarker={!compact}
               proximityRadius={compact ? 70 : 100}
-              maxShift={compact ? 12 : 28}
+              maxShift={compact ? 0 : 28}
               falloff="smooth"
-              markerLength={compact ? 28 : 56}
-              markerGap={compact ? 6 : 8}
+              markerLength={compact ? 0 : 56}
+              markerGap={compact ? 0 : 8}
               tickScale={0.45}
               scaleTick
-              itemGap={compact ? 16 : 28}
-              fontSize={compact ? 0.95 : 1.15}
+              itemGap={compact ? 14 : 28}
+              fontSize={compact ? 0.85 : 1.15}
               smoothing={100}
               defaultActive={0}
               activeIndex={active}
               onItemClick={(index) => setActive(index)}
-              className="font-archivo font-bold uppercase tracking-tight"
+              className="min-w-0 font-archivo font-bold uppercase tracking-tight [&>ul>li>span]:break-words"
             />
 
             <article

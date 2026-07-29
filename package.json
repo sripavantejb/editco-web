@@ -7,7 +7,8 @@
     "build": "node scripts/run-next.mjs build",
     "start": "node scripts/run-next.mjs start",
     "lint": "oxlint",
-    "postinstall": "node scripts/ensure-oxide-wasm.mjs"
+    "postinstall": "node scripts/ensure-oxide-wasm.mjs && node scripts/generate-tw-sources.mjs",
+    "tw:sources": "node scripts/generate-tw-sources.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

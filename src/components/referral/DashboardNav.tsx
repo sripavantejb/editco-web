@@ -48,7 +48,7 @@ export function DashboardNav({ name }: { name: string }) {
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--dash-border)] bg-[var(--dash-nav)] backdrop-blur-xl transition-colors duration-300">
-      <div className="mx-auto grid w-full max-w-[1400px] grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-3 sm:px-6 lg:px-10">
+      <div className="mx-auto grid w-full max-w-[1400px] grid-cols-[auto_1fr_auto] items-center gap-2 px-3 py-3 sm:grid-cols-[1fr_auto_1fr] sm:gap-3 sm:px-6 lg:px-10">
         <div className="flex min-w-0 items-center justify-start">
           <Link
             href="/"

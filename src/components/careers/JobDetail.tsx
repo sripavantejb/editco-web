@@ -41,9 +41,9 @@ function Block({ title, body }: { title: string; body: string }) {
 
 export function JobDetail({ job }: { job: JobDetailData }) {
   return (
-    <main className="careers-theme min-h-svh bg-[#050505] px-4 pb-20 pt-28 sm:px-6 lg:px-10">
+    <main className="careers-theme min-h-svh overflow-x-clip bg-[#050505] px-4 pb-24 pt-28 sm:px-6 lg:px-10">
       <div className="mx-auto grid max-w-[1100px] gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
-        <div>
+        <div className="min-w-0">
           <Link
             href="/careers"
             className="inline-flex min-h-11 items-center gap-2 text-sm text-white/55 transition hover:text-[var(--careers-accent)]"
@@ -63,7 +63,7 @@ export function JobDetail({ job }: { job: JobDetailData }) {
               {job.department ? <span aria-hidden>·</span> : null}
               <span>{EMPLOYMENT_TYPE_LABELS[job.employmentType]}</span>
             </div>
-            <h1 className="mt-3 font-archivo text-[clamp(2rem,8vw,3.5rem)] uppercase leading-[0.95] tracking-tight text-white">
+            <h1 className="mt-3 break-words font-archivo text-[clamp(1.75rem,7.5vw,3.5rem)] uppercase leading-[0.95] tracking-tight text-white">
               {job.title}
             </h1>
             <p className="mt-4 inline-flex items-center gap-1.5 text-sm text-white/55">

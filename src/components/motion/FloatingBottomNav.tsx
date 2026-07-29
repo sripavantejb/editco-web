@@ -55,7 +55,7 @@ export function FloatingBottomNav() {
           animate={{ y: 0, opacity: 1, x: "-50%" }}
           exit={{ y: 100, opacity: 0, x: "-50%" }}
           transition={{ type: "spring", stiffness: 260, damping: 20 }}
-          className="pointer-events-none fixed bottom-4 left-1/2 z-[200] w-[calc(100%-2rem)] max-w-fit px-0 sm:bottom-8 sm:w-full sm:px-6"
+          className="pointer-events-none fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 z-[200] w-[calc(100%-2rem)] max-w-fit px-0 sm:bottom-8 sm:w-full sm:px-6"
         >
           <div className="pointer-events-auto mx-auto flex w-full max-w-fit items-center gap-1 rounded-full border border-white/10 bg-gaude-black/60 p-1.5 shadow-2xl backdrop-blur-xl">
             <div className="flex items-center gap-0.5">

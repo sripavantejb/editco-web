@@ -65,7 +65,7 @@ export function FooterSection() {
         <div className="pointer-events-none relative z-40 grid grid-cols-1 gap-1.5 md:grid-cols-2">
           <div className="pointer-events-auto relative overflow-hidden rounded-[20px] bg-[#FFD600] p-4 md:p-6">
             <div className="relative z-10">
-              <h2 className="mb-0.5 max-w-md origin-left font-archivo text-2xl italic leading-[0.85] tracking-[-0.05em] text-black skew-x-[-12deg] sm:text-3xl md:text-5xl">
+              <h2 className="mb-0.5 max-w-md origin-left px-1 font-archivo text-2xl italic leading-[1.05] tracking-[-0.05em] text-black sm:skew-x-[-12deg] sm:leading-[0.85] sm:text-3xl md:text-5xl">
                 YOUR INBOX
                 <br />
                 JUST GOT BETTER
@@ -105,7 +105,7 @@ export function FooterSection() {
 
           <div className="pointer-events-auto relative overflow-hidden rounded-[20px] bg-[#FFD600] p-4 md:p-6">
             <div className="relative z-10">
-              <h2 className="mb-0.5 max-w-md origin-left font-archivo text-2xl italic leading-[0.85] tracking-[-0.05em] text-black skew-x-[-12deg] sm:text-3xl md:text-5xl">
+              <h2 className="mb-0.5 max-w-md origin-left px-1 font-archivo text-2xl italic leading-[1.05] tracking-[-0.05em] text-black sm:skew-x-[-12deg] sm:leading-[0.85] sm:text-3xl md:text-5xl">
                 ALWAYS HERE
                 <br />
                 TO HELP
@@ -197,7 +197,7 @@ export function FooterSection() {
 
           <div className="pointer-events-auto relative flex flex-1 flex-col justify-between overflow-hidden rounded-[24px] bg-[#36DF93] p-4 text-black md:p-6">
             <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
-              <h2 className="max-w-[260px] origin-left font-archivo text-2xl italic leading-[0.85] tracking-[-0.05em] skew-x-[-12deg] sm:text-3xl md:text-4xl">
+              <h2 className="max-w-[260px] origin-left px-1 font-archivo text-2xl italic leading-[1.05] tracking-[-0.05em] sm:skew-x-[-12deg] sm:leading-[0.85] sm:text-3xl md:text-4xl">
                 BUILD WITH EDITCO.
                 <br />
                 THEN MAKE IT ALL HAPPEN.

@@ -35,13 +35,13 @@ export function ComparisonSection() {
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="group relative flex flex-col border-4 border-white/5 bg-white/[0.02] p-8 md:border-r-0 md:p-12"
+            className="group relative flex flex-col border-4 border-white/5 bg-white/[0.02] p-5 sm:p-8 md:border-r-0 md:p-12"
           >
             <div className="mb-10">
               <span className="font-archivo text-[10px] font-black uppercase tracking-[0.3em] text-white/30">
                 THE OLD WAY
               </span>
-              <h3 className="mt-2 font-archivo text-3xl font-black uppercase tracking-tighter text-white/50">
+              <h3 className="mt-2 break-words font-archivo text-2xl font-black uppercase tracking-tighter text-white/50 sm:text-3xl">
                 TRADITIONAL AGENCY
               </h3>
             </div>
@@ -69,7 +69,7 @@ export function ComparisonSection() {
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="relative flex flex-col border-4 border-gaude-orange bg-gaude-orange p-8 shadow-[20px_20px_0_0_rgba(255,140,97,0.1)] md:p-12"
+            className="relative flex flex-col border-4 border-gaude-orange bg-gaude-orange p-5 shadow-[12px_12px_0_0_rgba(255,140,97,0.1)] sm:p-8 md:p-12 md:shadow-[20px_20px_0_0_rgba(255,140,97,0.1)]"
           >
             {/* Glossy Overlay */}
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
@@ -81,7 +81,7 @@ export function ComparisonSection() {
                   THE SYSTEM WAY
                 </span>
               </div>
-              <h3 className="mt-2 font-archivo text-3xl font-black uppercase tracking-tighter text-white">
+              <h3 className="mt-2 break-words font-archivo text-2xl font-black uppercase tracking-tighter text-white sm:text-3xl">
                 EDITCO MEDIA
               </h3>
             </div>
@@ -98,16 +98,16 @@ export function ComparisonSection() {
             </ul>
 
             <div className="mt-12 border-t border-white/20 pt-8">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="font-inter text-sm font-black text-white">
                   Result: Automated scaling & clear ROI.
                 </p>
-                <ArrowRight className="text-white" />
+                <ArrowRight className="shrink-0 text-white" />
               </div>
             </div>
 
             {/* "Better" Badge */}
-            <div className="absolute -right-4 -top-4 rotate-12 border-4 border-gaude-black bg-white px-4 py-1 font-archivo text-xs font-black uppercase text-gaude-black shadow-[4px_4px_0_0_#000]">
+            <div className="absolute right-2 top-2 rotate-12 border-4 border-gaude-black bg-white px-3 py-1 font-archivo text-[10px] font-black uppercase text-gaude-black shadow-[4px_4px_0_0_#000] sm:-right-4 sm:-top-4 sm:px-4 sm:text-xs">
               THE FUTURE
             </div>
           </motion.div>

@@ -276,9 +276,10 @@ export default function ServicesPage() {
                 </span>
               </div>
               
-              <h1 className="font-archivo text-[clamp(2rem,5.5vw,4.5rem)] font-black uppercase leading-[0.9] tracking-tighter text-white">
-                Services That Turn <br />
-                Your Business Into <br />
+              <h1 className="break-words font-archivo text-[clamp(1.75rem,8vw,4.5rem)] font-black uppercase leading-[0.95] tracking-tighter text-white sm:leading-[0.9]">
+                Services That Turn <br className="hidden sm:block" />
+                Your Business Into{" "}
+                <br className="hidden sm:block" />
                 A <span className="text-gaude-orange">Growth System</span>
               </h1>
               
@@ -683,7 +684,7 @@ export default function ServicesPage() {
 
       {/* 7. BOOK A CALL — Cal.com embed */}
       <section id="lead-form" ref={leadFormRef} className="relative z-10 mx-auto max-w-5xl px-4 py-16 sm:px-6 md:py-28">
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-4 sm:p-6 md:p-10 backdrop-blur-md shadow-2xl relative overflow-hidden">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-4 sm:p-6 md:p-10 backdrop-blur-md shadow-2xl relative overflow-x-auto overflow-y-visible">
           <div className="absolute top-0 right-0 h-[200px] w-[200px] rounded-full bg-gaude-orange/5 blur-[60px] pointer-events-none" />
 
           <div className="mb-8 text-center md:mb-10">

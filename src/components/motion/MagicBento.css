@@ -167,8 +167,17 @@
 
   .magic-bento-card,
   .magic-bento-card--wide {
-    aspect-ratio: 16/11;
-    min-height: 200px;
+    aspect-ratio: auto;
+    min-height: 220px;
+  }
+
+  .magic-bento-card--text-autohide .magic-bento-card__title,
+  .magic-bento-card--text-autohide .magic-bento-card__description {
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+    display: block;
+    overflow: visible;
+    text-overflow: unset;
   }
 }
 

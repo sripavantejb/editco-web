@@ -162,7 +162,7 @@ export function ShareReferralModal({
                   className="mt-2 flex w-full min-w-0 flex-col gap-2 sm:mt-10 sm:ml-8 md:mt-12 md:ml-12 lg:ml-16"
                 >
                   <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:gap-9 md:gap-12">
-                    <div className="h-[10rem] w-[10rem] shrink-0 border border-black/10 bg-white p-2.5 sm:h-[13.5rem] sm:w-[13.5rem] md:h-[15.5rem] md:w-[15.5rem]">
+                    <div className="h-[8rem] w-[8rem] shrink-0 border border-black/10 bg-white p-2 sm:h-[13.5rem] sm:w-[13.5rem] sm:p-2.5 md:h-[15.5rem] md:w-[15.5rem]">
                       {qr ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img

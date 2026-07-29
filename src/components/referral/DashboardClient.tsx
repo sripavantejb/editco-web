@@ -80,7 +80,7 @@ export function DashboardClient({
   return (
     <main className="mx-auto w-full max-w-[1400px] space-y-8 px-4 py-7 sm:px-6 lg:px-10 lg:py-9">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-archivo text-3xl tracking-tight text-[var(--dash-text)] sm:text-4xl">
+        <h1 className="min-w-0 break-words font-archivo text-3xl tracking-tight text-[var(--dash-text)] sm:text-4xl">
           Hi, {first}
         </h1>
         <button
@@ -102,7 +102,7 @@ export function DashboardClient({
             <p className="font-archivo text-[10px] uppercase tracking-[0.16em] text-[var(--dash-faint)]">
               {stat.label}
             </p>
-            <p className="mt-2 truncate font-archivo text-lg tracking-tight text-[var(--dash-text)] sm:text-2xl">
+            <p className="mt-2 break-words font-archivo text-base tracking-tight text-[var(--dash-text)] sm:text-2xl">
               {stat.value}
             </p>
           </div>

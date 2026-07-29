@@ -38,7 +38,7 @@ export function FinalCtaSection() {
         </div>
 
         {/* Cal.com Inline Embed Container */}
-        <div className="relative mx-auto w-full max-w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-2xl sm:rounded-3xl">
+        <div className="relative mx-auto w-full max-w-full overflow-x-auto overflow-y-visible rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-2xl sm:rounded-3xl">
           <CalInlineEmbed embedId="cal-inline-embed" />
         </div>
 

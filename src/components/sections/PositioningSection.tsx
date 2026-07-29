@@ -46,11 +46,12 @@ export function PositioningSection() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.8, type: "spring", stiffness: 200 }}
+          className="flex w-full flex-col items-center"
         >
           <BrutalistLink 
             href="#contact" 
             variant="primary" 
-            className="px-10 py-5 text-xl font-black md:text-2xl"
+            className="w-full max-w-sm px-4 py-4 text-sm font-black sm:w-auto sm:px-10 sm:py-5 sm:text-xl md:text-2xl"
           >
             BOOK YOUR STRATEGY CALL
           </BrutalistLink>

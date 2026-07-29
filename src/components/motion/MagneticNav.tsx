@@ -81,7 +81,7 @@ export function MagneticNav() {
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               exit={{ opacity: 0, y: -20, filter: "blur(10px)", scale: 0.95 }}
               transition={smoothSpring}
-              className="pointer-events-auto flex max-w-[calc(100vw-2rem)] items-center gap-1 rounded-full border border-white/10 bg-white/5 p-1.5 shadow-2xl backdrop-blur-xl"
+              className="pointer-events-auto flex max-w-full items-center gap-1 rounded-full border border-white/10 bg-white/5 p-1.5 shadow-2xl backdrop-blur-xl"
             >
               {/* Logo Image */}
               <Link
@@ -97,18 +97,25 @@ export function MagneticNav() {
               </Link>
 
               {/* Desktop Nav Links */}
-              <div className="hidden items-center gap-1 md:flex">
+              <div className="hidden items-center gap-0.5 lg:flex xl:gap-1">
                 {desktopNavLinks.map((link) => {
                   const isReferral = link.href === "/refer";
+                  const hideUntilLg = link.priority === "low";
+                  const hideUntilXl = link.priority === "med";
+                  const visibility = hideUntilLg
+                    ? "hidden xl:inline-flex"
+                    : hideUntilXl
+                      ? "hidden lg:inline-flex"
+                      : "inline-flex";
                   if (isReferral) {
                     return (
                       <a
                         key={link.label}
                         href={getActiveHref(link.href)}
                         onClick={(e) => handleNavClick(e, link.href)}
-                        className="nav-referral font-archivo text-[10px] font-bold uppercase tracking-widest text-white/70 transition-colors hover:text-white"
+                        className={`nav-referral shrink-0 font-archivo text-[9px] font-bold uppercase tracking-widest text-white/70 transition-colors hover:text-white lg:text-[10px] ${visibility}`}
                       >
-                        <span className="px-4 py-2">{link.label}</span>
+                        <span className="px-2.5 py-2 lg:px-3.5">{link.label}</span>
                       </a>
                     );
                   }
@@ -117,7 +124,7 @@ export function MagneticNav() {
                       key={link.label}
                       href={getActiveHref(link.href)}
                       onClick={(e) => handleNavClick(e, link.href)}
-                      className="rounded-full px-4 py-2 font-archivo text-[10px] font-bold uppercase tracking-widest text-white/70 transition-all hover:bg-white/10 hover:text-white"
+                      className={`shrink-0 items-center rounded-full px-2.5 py-2 font-archivo text-[9px] font-bold uppercase tracking-widest whitespace-nowrap text-white/70 transition-all hover:bg-white/10 hover:text-white lg:px-3.5 lg:text-[10px] ${visibility}`}
                     >
                       {link.label}
                     </a>
@@ -125,7 +132,7 @@ export function MagneticNav() {
                 })}
               </div>
               
-              <div className="mx-2 hidden h-4 w-[1px] bg-white/10 md:block" />
+              <div className="mx-2 hidden h-4 w-[1px] bg-white/10 lg:block" />
 
               {/* Plus Trigger (Un-scrolled state) */}
               <motion.button
@@ -194,111 +201,121 @@ export function MagneticNav() {
         </AnimatePresence>
       </div>
 
-      {/* Fullscreen Overlay */}
+      {/* Fullscreen Overlay — layout mirrors reference: logo left, links right, close/socials top-right */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ 
+            initial={{
               clipPath: "polygon(100% 0, 100% 0, 100% 0, 100% 0)",
             }}
-            animate={{ 
+            animate={{
               clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)",
             }}
-            exit={{ 
+            exit={{
               clipPath: "polygon(100% 0, 100% 0, 100% 0, 100% 0)",
             }}
             transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-            className="fixed inset-0 z-[250] overflow-x-hidden overflow-y-auto bg-white p-5 text-black sm:p-8 md:p-16"
+            className="fixed inset-0 z-[250] overflow-x-hidden overflow-y-auto bg-white text-black"
           >
-            <div className="grid min-h-full grid-cols-1 gap-8 md:grid-cols-12 md:gap-8">
-              {/* Column 1: Logo (Left) */}
-              <div className="flex items-start justify-between md:col-span-3 md:block lg:col-span-4">
+            <div className="mx-auto flex min-h-full w-full max-w-[1400px] flex-col px-5 py-5 sm:px-8 sm:py-8 md:px-12 md:py-10 lg:px-16">
+              {/* Top row: brand + close */}
+              <div className="flex items-center justify-between gap-4">
                 <Link
                   href="/"
                   onClick={closeMenu}
-                  className="flex w-fit items-center gap-3 transition-opacity hover:opacity-70"
+                  className="group flex items-center gap-3 transition-opacity hover:opacity-70"
                   aria-label="Editco Media home"
                 >
-                  <img 
-                    src="https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png" 
-                    alt="Editco Logo" 
-                    className="h-10 w-auto brightness-0 md:h-12"
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png"
+                    alt=""
+                    className="h-9 w-9 shrink-0 object-contain brightness-0 sm:h-10 sm:w-10"
                   />
-                  <span className="font-inter text-xl font-semibold tracking-tighter uppercase text-black sm:text-2xl">
-                    {site.name}
+                  <span className="flex flex-col leading-none">
+                    <span className="font-archivo text-[11px] font-bold uppercase tracking-[0.14em] text-black sm:text-xs">
+                      Editco
+                    </span>
+                    <span className="mt-0.5 font-archivo text-[10px] font-bold uppercase tracking-[0.18em] text-black/45 sm:text-[11px]">
+                      Media
+                    </span>
                   </span>
                 </Link>
-                <button 
+
+                <button
+                  type="button"
                   onClick={closeMenu}
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-black text-white transition-transform hover:scale-110 active:scale-95 md:hidden"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gaude-black text-white transition-transform hover:scale-105 active:scale-95 sm:h-11 sm:w-11"
                   aria-label="Close menu"
                 >
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  >
                     <line x1="18" y1="6" x2="6" y2="18" />
                     <line x1="6" y1="6" x2="18" y2="18" />
                   </svg>
                 </button>
               </div>
 
-              {/* Column 2: Main Links (Center-Right) */}
-              <div className="md:col-span-6 md:flex md:justify-end lg:col-span-5">
-                <nav className="flex flex-col gap-1 sm:gap-0">
+              {/* Body: empty left / links + socials right (like reference) */}
+              <div className="mt-12 flex flex-1 flex-col gap-12 pb-8 sm:mt-16 md:mt-20 md:flex-row md:items-start md:justify-end md:gap-16 lg:gap-24">
+                <nav className="flex flex-col items-start md:items-end">
                   {navLinks.map((link, i) => {
                     const isReferral = link.href === "/refer";
-                    if (isReferral) {
-                      return (
-                        <motion.a
-                          key={link.href}
-                          href={getActiveHref(link.href)}
-                          initial={{ opacity: 0, y: 15 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.4 + i * 0.05, duration: 0.4 }}
-                          onClick={(e) => handleNavClick(e, link.href)}
-                          className="nav-referral-menu mt-1 w-fit font-inter text-[clamp(1.5rem,8vw,3rem)] font-medium leading-[1.1] tracking-tight text-black transition-opacity hover:opacity-70 sm:text-[clamp(1.8rem,4.5vw,3rem)] sm:leading-[1.0]"
-                        >
-                          <span>{link.label}</span>
-                        </motion.a>
-                      );
-                    }
                     return (
                       <motion.a
                         key={link.href}
                         href={getActiveHref(link.href)}
-                        initial={{ opacity: 0, y: 15 }}
+                        initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4 + i * 0.05, duration: 0.4 }}
+                        transition={{ delay: 0.28 + i * 0.035, duration: 0.4 }}
                         onClick={(e) => handleNavClick(e, link.href)}
-                        className="group relative flex w-fit items-center font-inter text-[clamp(1.5rem,8vw,3rem)] font-medium leading-[1.1] tracking-tight text-black transition-opacity hover:opacity-50 sm:text-[clamp(1.8rem,4.5vw,3rem)] sm:leading-[1.0]"
+                        className={`font-inter text-[clamp(1.65rem,4.5vw,2.75rem)] font-medium leading-[1.15] tracking-[-0.02em] text-black transition-opacity hover:opacity-45 ${
+                          isReferral ? "text-gaude-orange hover:opacity-80" : ""
+                        }`}
                       >
                         {link.label}
                       </motion.a>
                     );
                   })}
                 </nav>
-              </div>
 
-              {/* Column 3: Close + Socials (Far Right) */}
-              <div className="flex flex-col items-start gap-8 sm:items-end sm:gap-12 md:col-span-3 lg:col-span-3">
-                <button 
-                  onClick={closeMenu}
-                  className="hidden h-12 w-12 items-center justify-center rounded-full bg-black text-white transition-transform hover:scale-110 active:scale-95 md:flex"
-                  aria-label="Close menu"
-                >
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
-                </button>
+                <div className="flex flex-col items-start gap-6 md:min-w-[7.5rem] md:items-end md:pt-1">
+                  <div className="flex flex-col items-start gap-1.5 md:items-end">
+                    <a
+                      href={site.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-inter text-sm font-medium text-black/70 transition-opacity hover:text-gaude-orange"
+                    >
+                      Instagram
+                    </a>
+                    <a
+                      href={site.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-inter text-sm font-medium text-black/70 transition-opacity hover:text-gaude-orange"
+                    >
+                      LinkedIn
+                    </a>
+                    <a
+                      href={`mailto:${site.email}`}
+                      className="font-inter text-sm font-medium text-black/70 transition-opacity hover:text-gaude-orange"
+                    >
+                      Email
+                    </a>
+                  </div>
 
-                <div className="flex flex-col items-start gap-2 sm:items-end sm:text-right">
-                  <a href={site.instagram} target="_blank" rel="noopener noreferrer" className="font-inter text-lg font-medium text-black hover:opacity-50 transition-opacity">Instagram</a>
-                  <a href={site.linkedin} target="_blank" rel="noopener noreferrer" className="font-inter text-lg font-medium text-black hover:opacity-50 transition-opacity">LinkedIn</a>
-                  <a href={`mailto:${site.email}`} className="font-inter text-lg font-medium text-black hover:opacity-50 transition-opacity">Email</a>
-                </div>
-
-                <div className="mt-auto hidden text-right text-[10px] font-bold uppercase tracking-widest text-black/40 md:block">
-                  <p>© 2026 {site.name.toUpperCase()}</p>
-                  <p>HYDERABAD, INDIA</p>
+                  <div className="hidden text-right text-[9px] font-bold uppercase tracking-[0.16em] text-black/35 md:block">
+                    <p>© 2026 {site.name.toUpperCase()}</p>
+                    <p>Hyderabad, India</p>
+                  </div>
                 </div>
               </div>
             </div>

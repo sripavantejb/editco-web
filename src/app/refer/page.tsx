@@ -187,7 +187,7 @@ export default function ReferLandingPage() {
     >
       {/* HERO */}
       <section
-        className={`flex flex-col justify-start overflow-hidden bg-[#050505] px-4 pb-12 pt-28 sm:px-5 md:px-6 md:pb-16 md:pt-32 lg:px-8 xl:px-10 ${referSlide1}`}
+        className={`flex flex-col justify-start overflow-x-clip bg-[#050505] px-4 pb-12 pt-28 sm:px-5 md:px-6 md:pb-16 md:pt-32 lg:px-8 xl:px-10 ${referSlide1}`}
       >
         <div className="absolute inset-0 z-0 bg-[#050505]">
           <SideRays
@@ -229,7 +229,7 @@ export default function ReferLandingPage() {
                 initial={{ opacity: 0, y: 48 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.95, ease }}
-                className="block bg-gradient-to-b from-white to-white/40 bg-clip-text text-[clamp(2.75rem,14vw,8.5rem)] text-transparent"
+                className="block bg-gradient-to-b from-white to-white/40 bg-clip-text text-[clamp(2.5rem,min(14vw,calc((100vw-2rem)/4.2)),8.5rem)] text-transparent"
               >
                 Refer
               </motion.span>
@@ -237,7 +237,7 @@ export default function ReferLandingPage() {
                 initial={{ opacity: 0, y: 48 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.95, delay: 0.12, ease }}
-                className="block text-[clamp(2.75rem,14vw,8.5rem)] text-[var(--refer-accent)]"
+                className="block text-[clamp(2.5rem,min(14vw,calc((100vw-2rem)/4.2)),8.5rem)] text-[var(--refer-accent)]"
               >
                 Earn.
               </motion.span>
@@ -434,7 +434,7 @@ export default function ReferLandingPage() {
                 }`}
               >
                 {t.highlight && (
-                  <span className="absolute right-3 top-3 rotate-6 border-2 border-gaude-black bg-white px-2.5 py-1 font-inter text-[9px] font-black uppercase tracking-widest shadow-[3px_3px_0_0_#0a0a0a] sm:-right-2 sm:-top-3">
+                  <span className="absolute right-3 top-3 rotate-6 border-2 border-gaude-black bg-white px-2.5 py-1 font-inter text-[9px] font-black uppercase tracking-widest shadow-[3px_3px_0_0_#0a0a0a]">
                     Popular
                   </span>
                 )}

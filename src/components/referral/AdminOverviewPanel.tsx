@@ -413,7 +413,64 @@ export function AdminOverviewPanel({
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.28 }}
           >
-            <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">
+            <div className="space-y-3 md:hidden">
+              {referrers.length === 0 ? (
+                <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-10 text-center text-sm text-white/40">
+                  No referrers yet
+                </div>
+              ) : (
+                referrers.map((r) => {
+                  const open = expandedId === r.id;
+                  const theirs = referralsByReferrer[r.id] || [];
+                  return (
+                    <div
+                      key={r.id}
+                      className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setExpandedId(open ? null : r.id)}
+                        className={`flex w-full items-start justify-between gap-3 p-4 text-left transition ${
+                          open ? "bg-gaude-orange/10" : "hover:bg-white/[0.04]"
+                        }`}
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate font-medium text-white">
+                            {r.fullName}
+                          </p>
+                          <p className="mt-0.5 truncate text-xs text-white/40">
+                            {r.email}
+                          </p>
+                          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-white/50">
+                            <span>{TIER_LABELS[r.tier]}</span>
+                            <span>{r.referralCount} refs</span>
+                            <span>{r.successfulReferralCount} wins</span>
+                            <span>{formatCurrencyINR(r.totalRewardEarned)}</span>
+                          </div>
+                        </div>
+                        <ChevronRight
+                          className={`mt-1 h-4 w-4 shrink-0 text-white/30 transition-transform ${
+                            open ? "rotate-90 text-gaude-orange" : ""
+                          }`}
+                        />
+                      </button>
+                      {open && (
+                        <div className="border-t border-gaude-orange/20 bg-black/40 px-4 py-4">
+                          <ReferralsTable
+                            referrals={theirs}
+                            referrerMap={referrerMap}
+                            onOpen={(id) => router.push(`/admin/referrals/${id}`)}
+                            emptyLabel="No referrals from this partner yet"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            <div className="hidden overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] md:block">
               <div className="overflow-x-auto">
                 <table className="min-w-full text-left text-sm">
                   <thead className="border-b border-white/10 bg-white/[0.03]">
@@ -490,92 +547,130 @@ function ReferralsTable({
   onOpen: (id: string) => void;
   emptyLabel: string;
 }) {
+  if (referrals.length === 0) {
+    return (
+      <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-10 text-center text-sm text-white/40">
+        {emptyLabel}
+      </div>
+    );
+  }
+
   return (
-    <div className="overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.02]">
-      <table className="min-w-full text-left text-sm">
-        <thead className="border-b border-white/10 bg-white/[0.03]">
-          <tr>
-            <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-white/45">
-              Lead
-            </th>
-            {showReferrer && (
-              <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-white/45">
-                Referrer
-              </th>
-            )}
-            <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-white/45">
-              Source
-            </th>
-            <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-white/45">
-              Stage
-            </th>
-            <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-white/45">
-              UTM
-            </th>
-            <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-white/45">
-              Created
-            </th>
-            <th className="w-10 px-4 py-3.5" />
-          </tr>
-        </thead>
-        <tbody>
-          {referrals.map((ref) => (
-            <tr
-              key={ref.id}
-              role="link"
-              tabIndex={0}
+    <>
+      <ul className="space-y-3 md:hidden">
+        {referrals.map((ref) => (
+          <li key={ref.id}>
+            <button
+              type="button"
               onClick={() => onOpen(ref.id)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  onOpen(ref.id);
-                }
-              }}
-              className="cursor-pointer border-t border-white/10 transition hover:bg-gaude-orange/5"
+              className="w-full rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-left transition hover:border-gaude-orange/40 hover:bg-gaude-orange/5"
             >
-              <td className="px-4 py-3.5">
-                <span className="font-medium text-white">{ref.referredName}</span>
-                <div className="text-xs text-white/40">
-                  {ref.referredBusiness || "—"}
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate font-medium text-white">
+                    {ref.referredName}
+                  </p>
+                  <p className="mt-0.5 truncate text-xs text-white/40">
+                    {ref.referredBusiness || "—"}
+                  </p>
                 </div>
-              </td>
-              {showReferrer && (
-                <td className="px-4 py-3.5 text-white/70">
-                  {referrerMap[ref.referrerId]?.fullName || "—"}
-                </td>
-              )}
-              <td className="px-4 py-3.5 text-white/50">
-                {ref.source === "manual_submission" ? "Manual" : "Link"}
-              </td>
-              <td className="px-4 py-3.5 text-white/70">
-                {STAGE_LABELS[ref.stage]}
-              </td>
-              <td className="px-4 py-3.5 text-xs text-white/40">
-                {[ref.utmSource, ref.utmMedium, ref.utmCampaign]
-                  .filter(Boolean)
-                  .join(" / ") || "—"}
-              </td>
-              <td className="px-4 py-3.5 text-white/50">
-                {formatDate(ref.createdAt)}
-              </td>
-              <td className="px-4 py-3.5 text-white/25">
-                <ChevronRight className="h-4 w-4" />
-              </td>
-            </tr>
-          ))}
-          {referrals.length === 0 && (
+                <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-white/25" />
+              </div>
+              <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-white/50">
+                <span>{STAGE_LABELS[ref.stage]}</span>
+                <span>
+                  {ref.source === "manual_submission" ? "Manual" : "Link"}
+                </span>
+                {showReferrer && (
+                  <span className="truncate">
+                    {referrerMap[ref.referrerId]?.fullName || "—"}
+                  </span>
+                )}
+                <span>{formatDate(ref.createdAt)}</span>
+              </div>
+            </button>
+          </li>
+        ))}
+      </ul>
+
+      <div className="hidden overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.02] md:block">
+        <table className="min-w-full text-left text-sm">
+          <thead className="border-b border-white/10 bg-white/[0.03]">
             <tr>
-              <td
-                colSpan={showReferrer ? 7 : 6}
-                className="px-4 py-10 text-center text-white/40"
-              >
-                {emptyLabel}
-              </td>
+              <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-white/45">
+                Lead
+              </th>
+              {showReferrer && (
+                <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-white/45">
+                  Referrer
+                </th>
+              )}
+              <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-white/45">
+                Source
+              </th>
+              <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-white/45">
+                Stage
+              </th>
+              <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-white/45">
+                UTM
+              </th>
+              <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-white/45">
+                Created
+              </th>
+              <th className="w-10 px-4 py-3.5" />
             </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {referrals.map((ref) => (
+              <tr
+                key={ref.id}
+                role="link"
+                tabIndex={0}
+                onClick={() => onOpen(ref.id)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onOpen(ref.id);
+                  }
+                }}
+                className="cursor-pointer border-t border-white/10 transition hover:bg-gaude-orange/5"
+              >
+                <td className="px-4 py-3.5">
+                  <span className="font-medium text-white">
+                    {ref.referredName}
+                  </span>
+                  <div className="text-xs text-white/40">
+                    {ref.referredBusiness || "—"}
+                  </div>
+                </td>
+                {showReferrer && (
+                  <td className="px-4 py-3.5 text-white/70">
+                    {referrerMap[ref.referrerId]?.fullName || "—"}
+                  </td>
+                )}
+                <td className="px-4 py-3.5 text-white/50">
+                  {ref.source === "manual_submission" ? "Manual" : "Link"}
+                </td>
+                <td className="px-4 py-3.5 text-white/70">
+                  {STAGE_LABELS[ref.stage]}
+                </td>
+                <td className="px-4 py-3.5 text-xs text-white/40">
+                  {[ref.utmSource, ref.utmMedium, ref.utmCampaign]
+                    .filter(Boolean)
+                    .join(" / ") || "—"}
+                </td>
+                <td className="px-4 py-3.5 text-white/50">
+                  {formatDate(ref.createdAt)}
+                </td>
+                <td className="px-4 py-3.5 text-white/25">
+                  <ChevronRight className="h-4 w-4" />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }
 

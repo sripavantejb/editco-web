@@ -29,7 +29,7 @@ export function BrutalistLink({
   return (
     <Link
       href={href}
-      className={`inline-flex cursor-pointer items-center justify-center px-6 py-3 font-archivo text-sm font-black uppercase tracking-wide transition-transform md:px-8 md:py-4 md:text-base ${variants[variant]} ${className}`}
+      className={`inline-flex max-w-full cursor-pointer items-center justify-center px-4 py-3 text-center font-archivo text-sm font-black uppercase tracking-wide transition-transform sm:px-6 md:px-8 md:py-4 md:text-base ${variants[variant]} ${className}`}
       {...props}
     >
       {children}

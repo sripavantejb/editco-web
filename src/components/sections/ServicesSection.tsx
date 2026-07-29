@@ -87,7 +87,7 @@ export function ServicesSection() {
                 className={`group relative min-h-[240px] min-w-0 rounded-[20px] border-4 border-gaude-black p-5 shadow-[6px_6px_0_0_#0a0a0a] transition-all sm:p-6 md:min-h-[320px] md:rounded-[24px] md:p-12 md:shadow-[8px_8px_0_0_#0a0a0a] ${card.bgColor} text-gaude-black`}
               >
                 <div className="flex flex-col gap-5 md:gap-6">
-                  <div className="flex items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
                     <span className="font-archivo text-3xl font-black opacity-20 md:text-4xl">
                       {card.number}
                     </span>

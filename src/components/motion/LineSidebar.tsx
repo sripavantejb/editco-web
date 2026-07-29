@@ -199,7 +199,9 @@ export function LineSidebar({
             }}
             aria-current={activeIndex === index ? "true" : undefined}
             onClick={() => handleClick(index, label)}
-            className={`relative cursor-pointer before:absolute before:-inset-x-12 before:-inset-y-[6px] before:content-[''] ${tickClass}`}
+            className={`relative cursor-pointer before:absolute before:-inset-y-[6px] before:content-[''] ${
+              showMarker ? "before:-inset-x-12" : "before:-inset-x-2"
+            } ${tickClass}`}
           >
             {showMarker && (
               <span
@@ -207,13 +209,13 @@ export function LineSidebar({
                 className="absolute top-1/2 left-[calc(-1*var(--marker-length)-var(--marker-gap))] h-px w-[length:var(--marker-length)] origin-left [background-color:color-mix(in_srgb,var(--accent-color)_calc(var(--effect,0)*100%),var(--marker-color))] [transform:translateY(-50%)_scaleX(calc(0.7+var(--effect,0)*0.5))]"
               />
             )}
-            <span className="relative inline-flex items-baseline leading-[1.2] [color:color-mix(in_srgb,var(--accent-color)_calc(var(--effect,0)*100%),var(--text-color))] [font-size:var(--font-size)] [transform:translateX(calc(var(--effect,0)*var(--max-shift)))]">
+            <span className="relative inline-flex max-w-full items-baseline leading-[1.2] break-words [color:color-mix(in_srgb,var(--accent-color)_calc(var(--effect,0)*100%),var(--text-color))] [font-size:var(--font-size)] [transform:translateX(calc(var(--effect,0)*var(--max-shift)))]">
               {showIndex && (
-                <span className="mr-[0.6rem] font-mono text-[0.85em] [opacity:calc(0.55+var(--effect,0)*0.45)]">
+                <span className="mr-[0.6rem] shrink-0 font-mono text-[0.85em] [opacity:calc(0.55+var(--effect,0)*0.45)]">
                   {String(index + 1).padStart(2, "0")}
                 </span>
               )}
-              <span>{label}</span>
+              <span className="min-w-0">{label}</span>
             </span>
           </li>
         ))}
