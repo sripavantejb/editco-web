@@ -29,7 +29,6 @@ export function AdminLoginForm() {
           name="email"
           type="email"
           required
-          placeholder="admin@editcomedia.com"
         />
       </div>
       <div className="space-y-2">
