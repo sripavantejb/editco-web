@@ -223,22 +223,17 @@ export function MagneticNav() {
                 <Link
                   href="/"
                   onClick={closeMenu}
-                  className="group flex items-center gap-3 transition-opacity hover:opacity-70"
+                  className="group flex items-center gap-3.5 transition-opacity hover:opacity-70 sm:gap-4"
                   aria-label="Editco Media home"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png"
                     alt=""
-                    className="h-9 w-9 shrink-0 object-contain brightness-0 sm:h-10 sm:w-10"
+                    className="h-12 w-12 shrink-0 object-contain brightness-0 sm:h-14 sm:w-14 md:h-16 md:w-16"
                   />
-                  <span className="flex flex-col leading-none">
-                    <span className="font-archivo text-[11px] font-bold uppercase tracking-[0.14em] text-black sm:text-xs">
-                      Editco
-                    </span>
-                    <span className="mt-0.5 font-archivo text-[10px] font-bold uppercase tracking-[0.18em] text-black/45 sm:text-[11px]">
-                      Media
-                    </span>
+                  <span className="font-archivo text-[1.15rem] font-bold uppercase tracking-[0.08em] text-black sm:text-[1.35rem] md:text-[1.6rem]">
+                    Editco Media
                   </span>
                 </Link>
 
