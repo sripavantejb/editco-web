@@ -49,8 +49,6 @@ function hexToRgba(hex: string, alpha: number) {
 
 export function SolutionSection() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const [isDesktop, setIsDesktop] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [reduceMotion, setReduceMotion] = useState(false);
   const total = solution.cards.length;
@@ -61,64 +59,21 @@ export function SolutionSection() {
   });
 
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 768px)");
     const motionMq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setIsDesktop(mq.matches);
     const updateMotion = () => setReduceMotion(motionMq.matches);
-    update();
     updateMotion();
-    mq.addEventListener("change", update);
     motionMq.addEventListener("change", updateMotion);
-    return () => {
-      mq.removeEventListener("change", update);
-      motionMq.removeEventListener("change", updateMotion);
-    };
+    return () => motionMq.removeEventListener("change", updateMotion);
   }, []);
 
-  // Desktop: sticky stack focus — map full scroll range across every card
+  // Sticky stack focus on all screen sizes
   useMotionValueEvent(scrollYProgress, "change", (progress) => {
-    if (!isDesktop) return;
     const next = Math.min(
       total - 1,
       Math.max(0, Math.round(progress * (total - 1)))
     );
     setActiveIndex((prev) => (prev === next ? prev : next));
   });
-
-  // Mobile: card most centered in the viewport
-  useEffect(() => {
-    if (isDesktop) return;
-    const ratios = new Map<number, number>();
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          const idx = Number((entry.target as HTMLElement).dataset.cardIndex);
-          if (Number.isNaN(idx)) continue;
-          ratios.set(idx, entry.isIntersecting ? entry.intersectionRatio : 0);
-        }
-        let best = 0;
-        let bestRatio = -1;
-        for (const [idx, ratio] of ratios) {
-          if (ratio > bestRatio) {
-            bestRatio = ratio;
-            best = idx;
-          }
-        }
-        if (bestRatio >= 0.2) {
-          setActiveIndex((prev) => (prev === best ? prev : best));
-        }
-      },
-      {
-        threshold: [0.2, 0.35, 0.5, 0.65, 0.8, 1],
-        rootMargin: "-12% 0px -28% 0px",
-      }
-    );
-
-    cardRefs.current.forEach((el) => {
-      if (el) observer.observe(el);
-    });
-    return () => observer.disconnect();
-  }, [isDesktop, total]);
 
   const morphTransition = reduceMotion
     ? { duration: 0 }
@@ -128,7 +83,7 @@ export function SolutionSection() {
     <section
       id={solution.id}
       ref={containerRef}
-      className="relative z-[50] w-full bg-gaude-black py-16 md:pt-24 md:pb-48"
+      className="relative z-[50] w-full bg-gaude-black py-16 pb-32 md:pt-24 md:pb-48"
     >
       {/* Refer-style glass morphism — soft glow tinted by focused card */}
       <div
@@ -137,7 +92,6 @@ export function SolutionSection() {
       >
         <div className="absolute inset-0 bg-gaude-black" />
 
-        {/* One glow layer per card color so every tint always paints correctly */}
         {cardColors.slice(0, total).map((color, i) => (
           <motion.div
             key={color}
@@ -161,7 +115,6 @@ export function SolutionSection() {
           </motion.div>
         ))}
 
-        {/* Frosted sheet — same recipe as Refer & Earn panels */}
         <div className="solution-liquid-glass absolute inset-0 border-y border-white/10 bg-white/[0.05] backdrop-blur-xl" />
       </div>
 
@@ -179,7 +132,7 @@ export function SolutionSection() {
           />
         </div>
 
-        <div className="relative flex flex-col gap-6 md:gap-[5vh]">
+        <div className="relative flex flex-col gap-[4vh] md:gap-[5vh]">
           {solution.cards.map((card, i) => (
             <Card
               key={card.title}
@@ -187,10 +140,7 @@ export function SolutionSection() {
               index={i}
               total={total}
               scrollYProgress={scrollYProgress}
-              isDesktop={isDesktop}
-              cardRef={(el) => {
-                cardRefs.current[i] = el;
-              }}
+              reduceMotion={reduceMotion}
             />
           ))}
         </div>
@@ -204,8 +154,7 @@ type CardProps = {
   index: number;
   total: number;
   scrollYProgress: MotionValue<number>;
-  isDesktop: boolean;
-  cardRef: (el: HTMLDivElement | null) => void;
+  reduceMotion: boolean;
 };
 
 function Card({
@@ -213,8 +162,7 @@ function Card({
   index,
   total,
   scrollYProgress,
-  isDesktop,
-  cardRef,
+  reduceMotion,
 }: CardProps) {
   const Icon = SOLUTION_ICONS[index % SOLUTION_ICONS.length];
   const bgColor = cardColors[index % cardColors.length];
@@ -223,24 +171,24 @@ function Card({
   const scale = useTransform(
     scrollYProgress,
     [index / total, 1],
-    [1, targetScale]
+    [1, reduceMotion ? 1 : targetScale]
   );
 
-  const topOffset = 60 + index * 20;
+  // Slightly tighter cascade on small screens so cards stay readable
+  const topOffset = 48 + index * 14;
 
   return (
     <div
-      ref={cardRef}
       data-card-index={index}
-      className="relative flex items-stretch py-2 md:sticky md:top-0 md:h-[80vh] md:items-center md:py-0"
+      className="sticky top-0 flex h-[75svh] items-center py-0 md:h-[80vh]"
     >
       <motion.div
         style={{
-          scale: isDesktop ? scale : 1,
-          top: isDesktop ? topOffset : undefined,
+          scale,
+          top: topOffset,
           backgroundColor: bgColor,
         }}
-        className="relative min-h-0 w-full overflow-visible rounded-[24px] border-4 border-black p-5 shadow-[8px_8px_0_0_#000] transition-shadow hover:shadow-[12px_12px_0_0_#000] sm:min-h-[420px] sm:overflow-hidden sm:rounded-[28px] sm:p-8 md:h-[500px] md:rounded-[32px] md:p-12"
+        className="relative min-h-0 w-full overflow-hidden rounded-[24px] border-4 border-black p-5 shadow-[8px_8px_0_0_#000] transition-shadow hover:shadow-[12px_12px_0_0_#000] sm:min-h-[420px] sm:rounded-[28px] sm:p-8 md:h-[500px] md:rounded-[32px] md:p-12"
       >
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.05]"
