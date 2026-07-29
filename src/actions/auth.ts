@@ -133,6 +133,8 @@ export async function logoutReferrer() {
   redirect("/refer");
 }
 
+const ADMIN_PASSWORD = "editcomedia@DHT";
+
 export async function adminLogin(
   _prev: ActionState,
   formData: FormData
@@ -140,14 +142,19 @@ export async function adminLogin(
   const email = String(formData.get("email") || "")
     .toLowerCase()
     .trim();
+  const password = String(formData.get("password") || "");
 
   if (!email || !email.includes("@")) {
     return { error: "Enter a valid admin email" };
   }
 
+  if (password !== ADMIN_PASSWORD) {
+    return { error: "Invalid email or password" };
+  }
+
   const allowed = await isAdminEmail(email);
   if (!allowed) {
-    return { error: "This email is not on the admin allowlist" };
+    return { error: "Invalid email or password" };
   }
 
   await createAdminSession(email);

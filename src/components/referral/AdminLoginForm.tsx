@@ -32,6 +32,16 @@ export function AdminLoginForm() {
           placeholder="admin@editcomedia.com"
         />
       </div>
+      <div className="space-y-2">
+        <Label htmlFor="password">Password</Label>
+        <Input
+          id="password"
+          name="password"
+          type="password"
+          required
+          autoComplete="current-password"
+        />
+      </div>
       {state.error && <p className="text-sm text-red-400">{state.error}</p>}
       <Submit />
     </form>
