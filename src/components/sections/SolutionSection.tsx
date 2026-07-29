@@ -123,7 +123,7 @@ export function SolutionSection() {
     <section
       id={solution.id}
       ref={containerRef}
-      className="relative z-[50] w-full overflow-hidden bg-gaude-black py-16 md:pt-24 md:pb-48"
+      className="relative z-[50] w-full bg-gaude-black py-16 md:pt-24 md:pb-48"
     >
       {/* Liquid glass backdrop — tints to focused card color */}
       <div
