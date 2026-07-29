@@ -1,32 +1,26 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import {
-  motion,
-  useMotionValueEvent,
-  useScroll,
-  useTransform,
-  type MotionValue,
-} from "framer-motion";
-import {
-  Zap,
-  Palette,
-  Users,
-  Search,
-  BarChart3,
+import { motion, useScroll, useTransform } from "framer-motion";
+import { 
+  Zap, 
+  Palette, 
+  Users, 
+  Search, 
+  BarChart3, 
   ShieldCheck,
-  Rocket,
+  Rocket
 } from "lucide-react";
 import { solution } from "@/content/landing";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 const SOLUTION_ICONS = [
-  Zap,
-  Palette,
-  Users,
-  Search,
-  BarChart3,
-  ShieldCheck,
+  Zap,        // Workflow Automations
+  Palette,    // UI/UX Design
+  Users,      // CRM & Lead Management
+  Search,     // SEO & AEO
+  BarChart3,  // Scale-Ready Performance
+  ShieldCheck // Security/Quality
 ];
 
 const cardColors = [
@@ -38,109 +32,59 @@ const cardColors = [
   "#88E0EF", // Cyan/Sky
 ];
 
-function hexToRgba(hex: string, alpha: number) {
-  const h = hex.replace("#", "");
-  const n = parseInt(h.length === 3 ? h.split("").map((c) => c + c).join("") : h, 16);
-  const r = (n >> 16) & 255;
-  const g = (n >> 8) & 255;
-  const b = n & 255;
-  return `rgba(${r},${g},${b},${alpha})`;
-}
+const textColors = [
+  "text-black",
+  "text-black",
+  "text-black",
+  "text-black",
+  "text-black",
+  "text-black",
+];
 
 export function SolutionSection() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [reduceMotion, setReduceMotion] = useState(false);
-  const total = solution.cards.length;
-
+  const [isDesktop, setIsDesktop] = useState(false);
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start start", "end end"],
+    offset: ["start start", "end end"]
   });
 
   useEffect(() => {
-    const motionMq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const updateMotion = () => setReduceMotion(motionMq.matches);
-    updateMotion();
-    motionMq.addEventListener("change", updateMotion);
-    return () => motionMq.removeEventListener("change", updateMotion);
+    const mq = window.matchMedia("(min-width: 768px)");
+    const update = () => setIsDesktop(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
   }, []);
 
-  // Sticky stack focus on all screen sizes
-  useMotionValueEvent(scrollYProgress, "change", (progress) => {
-    const next = Math.min(
-      total - 1,
-      Math.max(0, Math.round(progress * (total - 1)))
-    );
-    setActiveIndex((prev) => (prev === next ? prev : next));
-  });
-
-  const morphTransition = reduceMotion
-    ? { duration: 0 }
-    : { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const };
-
   return (
-    <section
+    <section 
       id={solution.id}
       ref={containerRef}
-      className="relative z-[50] w-full bg-gaude-black py-16 pb-32 md:pt-24 md:pb-48"
+      className="relative z-[50] w-full bg-gaude-black py-16 md:pt-24 md:pb-48"
     >
-      {/* Refer-style glass morphism — soft glow tinted by focused card */}
-      <div
-        className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
-        aria-hidden
-      >
-        <div className="absolute inset-0 bg-gaude-black" />
-
-        {cardColors.slice(0, total).map((color, i) => (
-          <motion.div
-            key={color}
-            className="absolute inset-0"
-            initial={false}
-            animate={{ opacity: activeIndex === i ? 1 : 0 }}
-            transition={morphTransition}
-          >
-            <div
-              className="absolute -left-[18%] top-[-8%] h-[72%] w-[72%] rounded-full blur-3xl"
-              style={{ backgroundColor: hexToRgba(color, 0.42) }}
-            />
-            <div
-              className="absolute -right-[12%] bottom-[-6%] h-[62%] w-[58%] rounded-full blur-3xl"
-              style={{ backgroundColor: hexToRgba(color, 0.28) }}
-            />
-            <div
-              className="absolute left-[28%] top-[32%] h-[42%] w-[48%] rounded-full blur-[80px]"
-              style={{ backgroundColor: hexToRgba(color, 0.2) }}
-            />
-          </motion.div>
-        ))}
-
-        <div className="solution-liquid-glass absolute inset-0 border-y border-white/10 bg-white/[0.05] backdrop-blur-xl" />
-      </div>
-
-      <div className="relative z-10 mx-auto w-full max-w-[1100px] px-6">
+      <div className="mx-auto w-full max-w-[1100px] px-6">
         <div className="mb-12 md:mb-16">
-          <SectionHeading
+          <SectionHeading 
             title={
               <>
-                Editco Media Builds Complete{" "}
-                <span className="text-black">Digital Growth Systems.</span>
+                Editco Media Builds Complete <span className="text-gaude-purple">Digital Growth Systems.</span>
               </>
-            }
-            description={solution.description}
-            light
+            } 
+            description={solution.description} 
+            light 
           />
         </div>
 
-        <div className="relative flex flex-col gap-[4vh] md:gap-[5vh]">
+        <div className="relative flex flex-col gap-6 md:gap-[5vh]">
           {solution.cards.map((card, i) => (
-            <Card
-              key={card.title}
-              card={card}
-              index={i}
-              total={total}
+            <Card 
+              key={card.title} 
+              card={card} 
+              index={i} 
+              total={solution.cards.length}
               scrollYProgress={scrollYProgress}
-              reduceMotion={reduceMotion}
+              isDesktop={isDesktop}
             />
           ))}
         </div>
@@ -149,57 +93,36 @@ export function SolutionSection() {
   );
 }
 
-type CardProps = {
-  card: (typeof solution.cards)[number];
-  index: number;
-  total: number;
-  scrollYProgress: MotionValue<number>;
-  reduceMotion: boolean;
-};
-
-function Card({
-  card,
-  index,
-  total,
-  scrollYProgress,
-  reduceMotion,
-}: CardProps) {
+function Card({ card, index, total, scrollYProgress, isDesktop }: any) {
   const Icon = SOLUTION_ICONS[index % SOLUTION_ICONS.length];
   const bgColor = cardColors[index % cardColors.length];
 
-  const targetScale = 1 - (total - index) * 0.05;
-  const scale = useTransform(
-    scrollYProgress,
-    [index / total, 1],
-    [1, reduceMotion ? 1 : targetScale]
-  );
-
-  // Slightly tighter cascade on small screens so cards stay readable
-  const topOffset = 48 + index * 14;
+  // Logic for stacking and scaling (desktop only)
+  const targetScale = 1 - ((total - index) * 0.05);
+  const scale = useTransform(scrollYProgress, [index / total, 1], [1, targetScale]);
+  
+  const topOffset = 60 + (index * 20);
 
   return (
-    <div
-      data-card-index={index}
-      className="sticky top-0 flex h-[75svh] items-center py-0 md:h-[80vh]"
-    >
+    <div className="relative flex items-stretch py-2 md:sticky md:top-0 md:h-[80vh] md:items-center md:py-0">
       <motion.div
-        style={{
-          scale,
-          top: topOffset,
-          backgroundColor: bgColor,
+        style={{ 
+          scale: isDesktop ? scale : 1,
+          top: isDesktop ? topOffset : undefined,
+          backgroundColor: bgColor
         }}
-        className="relative min-h-0 w-full overflow-hidden rounded-[24px] border-4 border-black p-5 shadow-[8px_8px_0_0_#000] transition-shadow hover:shadow-[12px_12px_0_0_#000] sm:min-h-[420px] sm:rounded-[28px] sm:p-8 md:h-[500px] md:rounded-[32px] md:p-12"
+        className="relative min-h-0 w-full overflow-visible rounded-[24px] border-4 border-black p-5 shadow-[8px_8px_0_0_#000] transition-shadow hover:shadow-[12px_12px_0_0_#000] sm:min-h-[420px] sm:overflow-hidden sm:rounded-[28px] sm:p-8 md:h-[500px] md:rounded-[32px] md:p-12"
       >
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.05]"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 2px 2px, black 1px, transparent 0)",
-            backgroundSize: "24px 24px",
-          }}
+        {/* Technical Background Details */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.05]" 
+          style={{ 
+            backgroundImage: 'radial-gradient(circle at 2px 2px, black 1px, transparent 0)',
+            backgroundSize: '24px 24px'
+          }} 
         />
-
+        
         <div className="relative flex h-full flex-col justify-between md:flex-row md:items-center">
+          {/* Content Side */}
           <div className="flex-1 space-y-6">
             <div className="flex items-center gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-black text-white">
@@ -220,26 +143,25 @@ function Card({
             </div>
 
             <div className="pt-4">
-              <a
-                href="#cta"
+              <a 
+                href="#cta" 
                 className="group inline-flex items-center gap-3 rounded-full border-2 border-black bg-black px-6 py-3 font-archivo text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-transparent hover:text-black"
               >
                 Get Started
-                <Rocket
-                  className="transition-transform group-hover:-translate-y-1 group-hover:translate-x-1"
-                  size={16}
-                />
+                <Rocket className="transition-transform group-hover:-translate-y-1 group-hover:translate-x-1" size={16} />
               </a>
             </div>
           </div>
 
-          <div className="hidden flex-1 items-center justify-end md:flex">
-            <div className="relative h-64 w-64 overflow-hidden rounded-2xl border-2 border-black/10 bg-black/[0.03] md:h-80 md:w-80">
+          {/* Visual/Illustration Side */}
+          <div className="hidden flex-1 md:flex justify-end items-center">
+            <div className="relative h-64 w-64 md:h-80 md:w-80 overflow-hidden rounded-2xl border-2 border-black/10 bg-black/[0.03]">
               <CardIllustration index={index} />
             </div>
           </div>
         </div>
 
+        {/* Bottom Metadata */}
         <div className="absolute bottom-8 right-8 hidden md:block">
           <p className="font-archivo text-[10px] font-black uppercase tracking-widest text-black/20">
             Editco Growth Engine v2.0 // Stacked Layer 0{index + 1}
@@ -251,37 +173,44 @@ function Card({
 }
 
 function CardIllustration({ index }: { index: number }) {
+  // Keeping the premium SVG illustrations from before but adapted for the new layout
   const illustrations = [
-    <svg key="0" className="h-full w-full p-12" viewBox="0 0 200 120" fill="none">
+    // 0: Websites
+    <svg key="0" className="w-full h-full p-12" viewBox="0 0 200 120" fill="none">
       <rect x="20" y="20" width="160" height="90" rx="6" stroke="black" strokeWidth="2" />
       <rect x="30" y="45" width="40" height="40" rx="4" fill="black" fillOpacity="0.1" />
       <rect x="80" y="45" width="90" height="4" rx="2" fill="black" fillOpacity="0.2" />
       <rect x="80" y="55" width="70" height="4" rx="2" fill="black" fillOpacity="0.2" />
     </svg>,
-    <svg key="1" className="h-full w-full p-12" viewBox="0 0 120 120" fill="none">
+    // 1: AI
+    <svg key="1" className="w-full h-full p-12" viewBox="0 0 120 120" fill="none">
       <circle cx="60" cy="60" r="40" stroke="black" strokeWidth="2" strokeDasharray="4 4" />
       <circle cx="60" cy="60" r="20" fill="black" fillOpacity="0.1" />
       <path d="M40 60H80" stroke="black" strokeWidth="2" />
       <path d="M60 40V80" stroke="black" strokeWidth="2" />
     </svg>,
-    <svg key="2" className="h-full w-full p-12" viewBox="0 0 120 120" fill="none">
+    // 2: Automations
+    <svg key="2" className="w-full h-full p-12" viewBox="0 0 120 120" fill="none">
       <rect x="20" y="20" width="30" height="30" rx="4" stroke="black" strokeWidth="2" />
       <rect x="70" y="70" width="30" height="30" rx="4" stroke="black" strokeWidth="2" />
       <path d="M50 35H85V70" stroke="black" strokeWidth="2" strokeDasharray="4 2" />
     </svg>,
-    <svg key="3" className="h-full w-full p-12" viewBox="0 0 120 120" fill="none">
+    // 3: UI/UX
+    <svg key="3" className="w-full h-full p-12" viewBox="0 0 120 120" fill="none">
       <path d="M20 20L100 100M20 100L100 20" stroke="black" strokeOpacity="0.1" strokeWidth="1" />
       <circle cx="60" cy="60" r="30" stroke="black" strokeWidth="2" />
       <rect x="45" y="45" width="30" height="30" fill="black" fillOpacity="0.1" />
     </svg>,
-    <svg key="4" className="h-full w-full p-12" viewBox="0 0 200 120" fill="none">
+    // 4: CRM
+    <svg key="4" className="w-full h-full p-12" viewBox="0 0 200 120" fill="none">
       <path d="M20 100 L60 40 L100 80 L140 20 L180 60" stroke="black" strokeWidth="3" />
       <circle cx="140" cy="20" r="6" fill="black" />
     </svg>,
-    <svg key="5" className="h-full w-full p-12" viewBox="0 0 120 120" fill="none">
+    // 5: SEO
+    <svg key="5" className="w-full h-full p-12" viewBox="0 0 120 120" fill="none">
       <circle cx="50" cy="50" r="30" stroke="black" strokeWidth="2" />
       <path d="M72 72L100 100" stroke="black" strokeWidth="4" strokeLinecap="round" />
-    </svg>,
+    </svg>
   ];
 
   return illustrations[index % illustrations.length];

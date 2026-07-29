@@ -455,18 +455,3 @@ iframe {
   min-height: 44px;
 }
 
-/* Solution section — refer-style frosted glass over color wash */
-.solution-liquid-glass {
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-}
-
-.solution-liquid-glass::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  opacity: 0.04;
-  background-image: radial-gradient(circle at 1px 1px, #fff 1px, transparent 0);
-  background-size: 18px 18px;
-  pointer-events: none;
-}
-
