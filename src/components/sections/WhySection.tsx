@@ -9,7 +9,7 @@ import { Linkedin, ArrowUpRight, Globe } from "lucide-react";
 const CREW = [
   {
     name: "Sri Pavan Tej",
-    role: "CO-FOUNDER — PRODUCT & TECHNOLOGY",
+    role: "Product, Technology, And Systems.",
     description:
       "Sees the company as a set of systems that should still make sense later.",
     accent: "bg-gaude-orange",
@@ -18,7 +18,7 @@ const CREW = [
   },
   {
     name: "Harsha Polina",
-    role: "CO-FOUNDER — STRATEGY & OPERATIONS",
+    role: "Strategy, Operations, And Technology.",
     description:
       "Builds the business together in a way that lets the creative work stay clear and true.",
     accent: "bg-gaude-green",
@@ -27,7 +27,7 @@ const CREW = [
   },
   {
     name: "Deepika Mundla",
-    role: "CO-FOUNDER — DESIGN & IDENTITY",
+    role: "Design, Identity, And Technology.",
     description:
       "Shapes how Editco appears and how every product we make feels to use.",
     accent: "bg-gaude-purple",
@@ -106,11 +106,13 @@ export function WhySection() {
                 <h3 className="font-archivo text-2xl font-black uppercase tracking-tighter text-gaude-black">
                   {member.name}
                 </h3>
+
                 <p
-                  className={`mt-2 inline-block border-2 border-gaude-black px-3 py-1 font-space-grotesk text-xs font-black uppercase tracking-widest text-gaude-black ${member.accent}`}
+                  className={`mt-2 inline-block border-2 border-gaude-black px-3 py-1.5 font-inter text-xs font-semibold leading-snug tracking-normal normal-case text-gaude-black ${member.accent}`}
                 >
                   {member.role}
                 </p>
+
                 <p className="mt-4 font-inter text-sm font-medium leading-relaxed text-gaude-black/70">
                   {member.description}
                 </p>

@@ -190,19 +190,19 @@ export const crew = {
   members: [
     {
       name: "Sri Pavan Tej",
-      role: "CO-FOUNDER — PRODUCT & TECHNOLOGY",
+      role: "Product, Technology, And Systems.",
       description:
         "Sees the company as a set of systems that should still make sense later.",
     },
     {
       name: "Harsha Polina",
-      role: "CO-FOUNDER — STRATEGY & OPERATIONS",
+      role: "Strategy, Operations, And Technology.",
       description:
         "Builds the business together in a way that lets the creative work stay clear and true.",
     },
     {
       name: "Deepika Mundla",
-      role: "CO-FOUNDER — DESIGN & IDENTITY",
+      role: "Design, Identity, And Technology.",
       description:
         "Shapes how Editco appears and how every product we make feels to use.",
     },
