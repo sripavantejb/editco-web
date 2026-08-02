@@ -1,31 +1,18 @@
 "use client";
 
-import { useParams, notFound } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
-import { getPost } from "@/content/blog";
-import { BlogFaqPanel } from "@/components/blog/BlogFaqPanel";
+import { getWork } from "@/content/landing";
 import { MagneticNav } from "@/components/motion/MagneticNav";
 import { FloatingBottomNav } from "@/components/motion/FloatingBottomNav";
 
-function formatDate(iso: string) {
-  try {
-    return new Intl.DateTimeFormat("en-IN", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
-}
-
-export default function BlogPostPage() {
+export default function WorkDetailPage() {
   const params = useParams();
   const slug = params.slug as string;
-  const post = getPost(slug);
+  const work = getWork(slug);
 
-  if (!post) return notFound();
+  if (!work) return notFound();
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
@@ -34,53 +21,76 @@ export default function BlogPostPage() {
 
       <article className="mx-auto max-w-3xl px-5 pb-28 pt-28 sm:px-8 md:px-6 md:pb-36 md:pt-36">
         <Link
-          href="/blog"
+          href="/work"
           className="mb-10 inline-flex items-center gap-2 font-archivo text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 transition-colors hover:text-gaude-orange"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Blogs
+          Work
         </Link>
 
         <header className="mb-12 border-b border-white/10 pb-10 md:mb-16 md:pb-12">
           <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">
             <span className="font-archivo text-[10px] font-bold uppercase tracking-[0.18em] text-gaude-orange">
-              {post.category}
+              {work.category}
             </span>
             <span className="font-inter text-[11px] text-white/30">
-              {formatDate(post.date)} · {post.readTime} read
+              {work.location}
             </span>
           </div>
           <h1 className="font-archivo text-3xl font-black uppercase leading-[1.05] tracking-tighter text-white sm:text-4xl md:text-5xl">
-            {post.title}
+            {work.title}
           </h1>
           <p className="mt-5 max-w-2xl font-inter text-base font-medium leading-relaxed text-white/50 md:text-lg">
-            {post.excerpt}
+            {work.problem}
           </p>
         </header>
 
-        <div className="prose prose-invert prose-base max-w-none break-words font-inter text-white/70 prose-headings:font-archivo prose-headings:uppercase prose-headings:tracking-tight prose-a:text-gaude-orange prose-strong:text-white sm:prose-lg [&_img]:max-w-full [&_pre]:overflow-x-auto [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto">
-          {post.content ? (
-            <div dangerouslySetInnerHTML={{ __html: post.content }} />
-          ) : (
-            <p className="italic text-white/40">
-              This article is being prepared. Stay tuned.
-            </p>
-          )}
-        </div>
+        <div className="space-y-12 font-inter text-base leading-relaxed text-white/70 sm:text-lg sm:leading-[1.7]">
+          <section>
+            <h2 className="mb-3 font-archivo text-xs font-bold uppercase tracking-[0.2em] text-white/35">
+              The problem
+            </h2>
+            <p>{work.problem}</p>
+          </section>
 
-        {!!post.faqs?.length && (
-          <div className="mt-16 border-t border-white/10 pt-10">
-            <BlogFaqPanel faqs={post.faqs} />
-          </div>
-        )}
+          <section>
+            <h2 className="mb-3 font-archivo text-xs font-bold uppercase tracking-[0.2em] text-white/35">
+              What we built
+            </h2>
+            <p>{work.approach}</p>
+          </section>
+
+          <section>
+            <h2 className="mb-3 font-archivo text-xs font-bold uppercase tracking-[0.2em] text-white/35">
+              The result
+            </h2>
+            <p>{work.outcome}</p>
+          </section>
+
+          <section>
+            <h2 className="mb-4 font-archivo text-xs font-bold uppercase tracking-[0.2em] text-white/35">
+              Focus
+            </h2>
+            <ul className="space-y-2">
+              {work.focus.map((item) => (
+                <li
+                  key={item}
+                  className="border-b border-white/10 pb-2 text-white/60"
+                >
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
 
         <div className="mt-16 flex flex-col gap-4 border-t border-white/10 pt-10 sm:flex-row sm:items-center sm:justify-between">
           <Link
-            href="/blog"
+            href="/work"
             className="inline-flex items-center gap-2 font-archivo text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 transition-colors hover:text-white"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            All blogs
+            All work
           </Link>
           <Link
             href="/#cta"

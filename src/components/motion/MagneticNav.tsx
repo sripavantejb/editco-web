@@ -215,11 +215,11 @@ export function MagneticNav() {
               clipPath: "polygon(100% 0, 100% 0, 100% 0, 100% 0)",
             }}
             transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-            className="fixed inset-0 z-[250] overflow-x-hidden overflow-y-auto bg-white text-black"
+            className="fixed inset-0 z-[250] h-dvh overflow-hidden bg-white text-black"
           >
-            <div className="mx-auto flex min-h-full w-full max-w-[1400px] flex-col px-5 py-5 sm:px-8 sm:py-8 md:px-12 md:py-10 lg:px-16">
+            <div className="mx-auto flex h-full w-full max-w-[1400px] flex-col px-5 py-5 sm:px-8 sm:py-8 md:px-12 md:py-10 lg:px-16">
               {/* Top row: brand + close */}
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex shrink-0 items-center justify-between gap-4">
                 <Link
                   href="/"
                   onClick={closeMenu}
@@ -259,24 +259,21 @@ export function MagneticNav() {
               </div>
 
               {/* Body: empty left / links + socials right (like reference) */}
-              <div className="mt-12 flex flex-1 flex-col gap-12 pb-8 sm:mt-16 md:mt-20 md:flex-row md:items-start md:justify-end md:gap-16 lg:gap-24">
+              <div className="mt-6 flex min-h-0 flex-1 flex-col gap-10 sm:mt-8 md:mt-10 md:flex-row md:items-start md:justify-end md:gap-16 lg:gap-24">
                 <nav className="flex flex-col items-start md:items-end">
-                  {navLinks.map((link, i) => {
+                  {navLinks.map((link) => {
                     const isReferral = link.href === "/refer";
                     return (
-                      <motion.a
+                      <a
                         key={link.href}
                         href={getActiveHref(link.href)}
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.28 + i * 0.035, duration: 0.4 }}
                         onClick={(e) => handleNavClick(e, link.href)}
-                        className={`font-inter text-[clamp(1.65rem,4.5vw,2.75rem)] font-medium leading-[1.15] tracking-[-0.02em] text-black transition-opacity hover:opacity-45 ${
+                        className={`font-inter text-[clamp(1.5rem,4.2vw,2.55rem)] font-medium leading-[1.12] tracking-[-0.02em] text-black transition-opacity hover:opacity-45 ${
                           isReferral ? "text-gaude-orange hover:opacity-80" : ""
                         }`}
                       >
                         {link.label}
-                      </motion.a>
+                      </a>
                     );
                   })}
                 </nav>

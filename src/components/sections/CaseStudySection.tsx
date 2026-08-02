@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import { caseStudy, works } from "@/content/landing";
 import { sectionFlow } from "@/lib/stickyStack";
 import MagicBento, { type MagicBentoCard } from "@/components/motion/MagicBento";
@@ -10,7 +12,6 @@ const bentoCards: MagicBentoCard[] = works.map((work) => ({
   description: work.location,
   label: work.category,
   image: work.image,
-  href: "url" in work ? work.url : undefined,
   wide: work.fullWidth,
   color: "#0a0a0a",
 }));
@@ -41,6 +42,16 @@ export function CaseStudySection() {
           particleCount={12}
           glowColor="255, 78, 0"
         />
+
+        <div className="mt-12 flex justify-center md:mt-16">
+          <Link
+            href="/work"
+            className="group inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/[0.03] px-7 py-3.5 font-archivo text-[11px] font-bold uppercase tracking-[0.22em] text-white transition-all hover:border-gaude-orange hover:bg-gaude-orange"
+          >
+            Know more
+            <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </Link>
+        </div>
       </div>
     </section>
   );

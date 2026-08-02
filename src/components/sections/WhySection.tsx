@@ -9,27 +9,27 @@ import { Linkedin, ArrowUpRight, Globe } from "lucide-react";
 const CREW = [
   {
     name: "Sri Pavan Tej",
-    role: "Founder",
+    role: "CO-FOUNDER — PRODUCT & TECHNOLOGY",
     description:
-      "Leading our creative vision with 8+ years in digital design and branding.",
+      "Sees the company as a set of systems that should still make sense later.",
     accent: "bg-gaude-orange",
     rotate: "rotate-[-1deg]",
     linkedin: "https://www.linkedin.com/in/sripavantejbalam/",
   },
   {
     name: "Harsha Polina",
-    role: "Co-Founder",
+    role: "CO-FOUNDER — STRATEGY & OPERATIONS",
     description:
-      "Ensuring client success and maintaining strong partnerships for long-term growth.",
+      "Builds the business together in a way that lets the creative work stay clear and true.",
     accent: "bg-gaude-green",
     rotate: "rotate-[-0.5deg]",
     linkedin: "https://www.linkedin.com/in/harsha-polina/",
   },
   {
     name: "Deepika Mundla",
-    role: "UI/UX Designer",
+    role: "CO-FOUNDER — DESIGN & IDENTITY",
     description:
-      "Crafting user experiences that delight and convert with data-driven design.",
+      "Shapes how Editco appears and how every product we make feels to use.",
     accent: "bg-gaude-purple",
     rotate: "rotate-[1deg]",
     linkedin: "https://www.linkedin.com/in/deepika-mundla/",

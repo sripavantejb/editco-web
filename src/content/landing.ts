@@ -187,6 +187,26 @@ export const whyEditco = {
 export const crew = {
   id: "crew" as const,
   heading: "The Crew Behind the Growth",
+  members: [
+    {
+      name: "Sri Pavan Tej",
+      role: "CO-FOUNDER — PRODUCT & TECHNOLOGY",
+      description:
+        "Sees the company as a set of systems that should still make sense later.",
+    },
+    {
+      name: "Harsha Polina",
+      role: "CO-FOUNDER — STRATEGY & OPERATIONS",
+      description:
+        "Builds the business together in a way that lets the creative work stay clear and true.",
+    },
+    {
+      name: "Deepika Mundla",
+      role: "CO-FOUNDER — DESIGN & IDENTITY",
+      description:
+        "Shapes how Editco appears and how every product we make feels to use.",
+    },
+  ],
 } as const;
 
 export const process = {
@@ -223,8 +243,14 @@ export const works = [
     location: "Hyderabad, India",
     category: "Website & Appointment Booking",
     image: "/works/dentin-oral-experts.png",
-    url: "https://www.dentinoralexperts.com/",
     fullWidth: true,
+    problem:
+      "Patients needed a clear path to book — not a brochure site. Calls and walk-ins were carrying too much of the load.",
+    approach:
+      "We built a calm, conversion-focused clinic site with online appointment booking, clear services, and trust signals that reduce hesitation.",
+    outcome:
+      "Visitors can understand the clinic, pick a slot, and book without chasing the front desk.",
+    focus: ["Clinic website", "Online booking", "Patient trust"],
   },
   {
     id: "saipreethi-clinic",
@@ -232,8 +258,14 @@ export const works = [
     location: "Chennai, India",
     category: "Website & Clinic Branding",
     image: "/works/saipreethi-clinic.png",
-    url: "https://www.saipreethiclinic.com/",
     fullWidth: false,
+    problem:
+      "A specialist dermatology practice needed a digital presence that felt as precise as the care — not generic clinic templates.",
+    approach:
+      "We shaped a diagnosis-first brand site: clinical clarity, aesthetic restraint, and structured paths to book a consultation.",
+    outcome:
+      "The clinic now presents specialised care with the same calm authority patients expect in the room.",
+    focus: ["Clinic branding", "Service architecture", "Consultation flow"],
   },
   {
     id: "lumaswitch",
@@ -241,8 +273,14 @@ export const works = [
     location: "Brooklyn, USA",
     category: "E-Commerce & Interactive Website",
     image: "/works/lumaswitch.png",
-    url: "https://lumaswitch.vercel.app/",
     fullWidth: false,
+    problem:
+      "Premium lighting is hard to sell online when buyers can't feel the light — static product grids fall flat.",
+    approach:
+      "We designed an interactive shop experience where fixtures can be explored in context, with a catalog built around material and mood.",
+    outcome:
+      "Shoppers experience the product before purchase — not just scroll past another image.",
+    focus: ["E-commerce", "Interactive catalog", "Product storytelling"],
   },
   {
     id: "easymove",
@@ -250,8 +288,14 @@ export const works = [
     location: "India",
     category: "Physiotherapy WebApp",
     image: "/works/easymove.png",
-    url: "https://easymove-alpha.vercel.app/",
     fullWidth: true,
+    problem:
+      "Physio clinics were wasting time explaining home exercise plans — apps and logins created friction for patients.",
+    approach:
+      "We built a workspace where therapists assemble routines and deliver them instantly via QR — no app download required.",
+    outcome:
+      "Patients scan once and start recovery. Clinics spend less time on software, more on care.",
+    focus: ["Clinical tool", "QR delivery", "Zero-friction UX"],
   },
   {
     id: "buildtrack",
@@ -259,10 +303,22 @@ export const works = [
     location: "India",
     category: "Construction SaaS & Project Management",
     image: "/works/buildtrack.png",
-    url: "https://buildtrack.editcomedia.com/",
     fullWidth: true,
+    problem:
+      "Real-estate and construction teams were losing clarity across projects — budgets, plans, and progress lived in scattered tools.",
+    approach:
+      "We built a project workspace: dashboards, planning views, and progress tracking in one system teams actually open.",
+    outcome:
+      "Projects stay visible. Teams manage work with clarity instead of chasing updates.",
+    focus: ["SaaS product", "Dashboards", "Project ops"],
   },
 ] as const;
+
+export type Work = (typeof works)[number];
+
+export function getWork(id: string): Work | undefined {
+  return works.find((w) => w.id === id);
+}
 
 export const caseStudy = {
   id: "case-study" as const,

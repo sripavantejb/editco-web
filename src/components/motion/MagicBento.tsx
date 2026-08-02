@@ -327,8 +327,15 @@ function ParticleCard({
   };
 
   if (href) {
+    const external = /^https?:\/\//i.test(href);
     return (
-      <a {...sharedProps} href={href} target="_blank" rel="noopener noreferrer">
+      <a
+        {...sharedProps}
+        href={href}
+        {...(external
+          ? { target: "_blank", rel: "noopener noreferrer" }
+          : {})}
+      >
         {children}
       </a>
     );
@@ -604,13 +611,16 @@ export default function MagicBento({
           }
 
           const Tag = card.href ? "a" : "div";
+          const external = card.href ? /^https?:\/\//i.test(card.href) : false;
           return (
             <Tag
               key={card.id ?? index}
               className={baseClassName}
               style={cardStyle}
               {...(card.href
-                ? { href: card.href, target: "_blank", rel: "noopener noreferrer" }
+                ? external
+                  ? { href: card.href, target: "_blank", rel: "noopener noreferrer" }
+                  : { href: card.href }
                 : {})}
             >
               {content}
