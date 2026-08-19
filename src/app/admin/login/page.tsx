@@ -2,14 +2,13 @@ export const dynamic = "force-dynamic";
 
 import { redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/session";
-import { isEGAAdminEmail } from "@/lib/admin";
 import { AdminLoginForm } from "@/components/referral/AdminLoginForm";
 import { Card, CardDescription, CardTitle } from "@/components/referral/ui/card";
 
 export default async function AdminLoginPage() {
   const session = await getAdminSession();
   if (session) {
-    redirect(isEGAAdminEmail(session.email) ? "/admin-ega" : "/admin");
+    redirect("/admin");
   }
 
   return (

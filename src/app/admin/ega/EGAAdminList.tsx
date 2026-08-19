@@ -134,7 +134,7 @@ export function EGAAdminList({
             {filtered.map((app) => (
               <li key={app.id}>
                 <Card className="transition hover:border-[var(--dash-accent)]/40">
-                  <Link href={`/admin-ega/${app.id}`} className="block">
+                  <Link href={`/admin/ega/${app.id}`} className="block">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
                         <h2 className="truncate font-archivo text-sm uppercase tracking-wide text-[var(--dash-text)]">
@@ -154,7 +154,7 @@ export function EGAAdminList({
                   <div className="mt-3 flex flex-wrap gap-2">
                     {app.status === "pending" ? (
                       <Link
-                        href={`/admin-ega/${app.id}`}
+                        href={`/admin/ega/${app.id}`}
                         className="text-xs text-[var(--dash-accent)] hover:underline"
                       >
                         Review
@@ -187,7 +187,7 @@ export function EGAAdminList({
                   <tr
                     key={app.id}
                     className="cursor-pointer border-b border-[var(--dash-border)]/60 last:border-0 hover:bg-white/[0.03]"
-                    onClick={() => router.push(`/admin-ega/${app.id}`)}
+                    onClick={() => router.push(`/admin/ega/${app.id}`)}
                   >
                     <td className="px-4 py-3">
                       <div className="font-medium text-[var(--dash-accent)] underline-offset-2 hover:underline">

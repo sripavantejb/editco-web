@@ -1,8 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import { redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/session";
-import { isEGAAdminEmail } from "@/lib/admin";
 import { AdminShell } from "@/components/referral/AdminShell";
 
 export default async function AdminLayout({
@@ -12,13 +10,7 @@ export default async function AdminLayout({
 }) {
   const session = await getAdminSession();
 
-  if (session && isEGAAdminEmail(session.email)) {
-    redirect("/admin-ega");
-  }
-
   return (
-    <AdminShell email={session?.email ?? null} egaOnly={false}>
-      {children}
-    </AdminShell>
+    <AdminShell email={session?.email ?? null}>{children}</AdminShell>
   );
 }

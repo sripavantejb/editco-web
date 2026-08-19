@@ -149,15 +149,11 @@ export async function adminLogin(
     return { error: "Enter a valid admin email" };
   }
 
-  if (isEGAAdminEmail(email)) {
-    if (password !== EGA_ADMIN_PASSWORD) {
-      return { error: "Invalid email or password" };
-    }
-    await createAdminSession(email);
-    redirect("/admin-ega");
-  }
+  const passwordOk = isEGAAdminEmail(email)
+    ? password === EGA_ADMIN_PASSWORD
+    : password === ADMIN_PASSWORD;
 
-  if (password !== ADMIN_PASSWORD) {
+  if (!passwordOk) {
     return { error: "Invalid email or password" };
   }
 

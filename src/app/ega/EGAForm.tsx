@@ -4,19 +4,8 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { submitEGAApplication } from "@/actions/ega";
 import type { ActionState } from "@/actions/auth";
 import SideRays from "@/components/referral/SideRays";
-import {
-  AGREEMENT_ITEMS,
-  DURATION_OPTIONS,
-  INDUSTRY_OPTIONS,
-  INTEREST_OPTIONS,
-  NETWORK_SIZE_OPTIONS,
-  NETWORK_SOURCE_OPTIONS,
-  PERFORMANCE_OPTIONS,
-  SERVICE_OPTIONS,
-  SPECIALIZATION_OPTIONS,
-  WEEKLY_HOURS_OPTIONS,
-  YEAR_OPTIONS,
-} from "@/lib/ega";
+import { AGREEMENT_ITEMS } from "@/lib/ega";
+import type { EGAFormConfigData, EGAQuestion } from "@/lib/ega-form";
 
 const EDITCO_LOGO =
   "https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png";
@@ -109,12 +98,16 @@ function clearDraft() {
   sessionStorage.removeItem(DRAFT_KEY);
 }
 
-function collectValues(form: HTMLFormElement | null): DraftValues {
+function collectValues(
+  form: HTMLFormElement | null,
+  extraMulti: Set<string> = new Set()
+): DraftValues {
   if (!form) return {};
   const fd = new FormData(form);
   const values: DraftValues = {};
   for (const key of new Set(fd.keys())) {
-    if (MULTI_FIELDS.has(key)) values[key] = fd.getAll(key).map(String);
+    if (MULTI_FIELDS.has(key) || extraMulti.has(key))
+      values[key] = fd.getAll(key).map(String);
     else values[key] = String(fd.get(key) || "");
   }
   return values;
@@ -156,7 +149,7 @@ function Shell({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function EGAForm() {
+export function EGAForm({ config }: { config: EGAFormConfigData }) {
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
     submitEGAApplication,
     {}
@@ -172,6 +165,11 @@ export function EGAForm() {
   const [values, setValues] = useState<DraftValues>({});
   const formRef = useRef<HTMLFormElement>(null);
   const skipScroll = useRef(true);
+  const multiNames = new Set(
+    config.questions
+      .filter((q) => q.type === "multi_checkbox")
+      .map((q) => q.name)
+  );
 
   useEffect(() => {
     const saved = readDraft();
@@ -215,7 +213,7 @@ export function EGAForm() {
   ) => {
     const nextValues = {
       ...values,
-      ...collectValues(formRef.current),
+      ...collectValues(formRef.current, multiNames),
     };
     setValues(nextValues);
     writeDraft({
@@ -296,7 +294,10 @@ export function EGAForm() {
     setStep(next);
   };
 
-  const copy = STEP_COPY[step];
+  const copy = {
+    kicker: `${step} / ${TOTAL_SECTIONS}`,
+    title: config.copy.sectionTitles[step as 1 | 2 | 3 | 4 | 5] || STEP_COPY[step]?.title || "",
+  };
 
   return (
     <Shell>
@@ -310,23 +311,21 @@ export function EGAForm() {
             />
           </div>
           <p className="mt-5 font-archivo text-[10px] uppercase tracking-[0.22em] text-[var(--careers-accent)]">
-            Growth Associate
+            {config.copy.introKicker}
           </p>
           <h1 className="mt-3 font-archivo text-[clamp(1.65rem,5vw,2.35rem)] leading-tight tracking-tight text-white">
-            Join the program
+            {config.copy.introTitle}
           </h1>
           <p className="mx-auto mt-3 inline-flex rounded-full border border-white/15 bg-black/30 px-3 py-1 text-[11px] text-white/60">
-            About 8–10 minutes · 5 sections
+            {config.copy.introMinutes}
           </p>
           <p className="mx-auto mt-5 max-w-lg text-left font-inter text-sm leading-relaxed text-white/65">
-            Editco builds digital products for businesses. Growth Associates
-            find companies that need that work, start the conversation, and
-            bring opportunities to our team.
+            {config.copy.introBody}
           </p>
           <ul className="mx-auto mt-4 max-w-lg space-y-2 text-left font-inter text-sm leading-relaxed text-white/70">
-            <li>Real business development and sales — not a certificate.</li>
-            <li>You open doors. Editco handles strategy, design, and build.</li>
-            <li>Performance-based earnings, with training and onboarding.</li>
+            {config.copy.introBullets.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
           </ul>
           <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-4">
             <HowItWorks
@@ -400,257 +399,28 @@ export function EGAForm() {
         }}
         className={step === 0 ? "hidden" : "space-y-5"}
       >
-        <SectionCard step={1} active={step === 1}>
-          <Field
-            label="Full Name"
-            name="fullName"
-            required
-            defaultValue={strVal(values, "fullName")}
-          />
-          <Field
-            label="Email Address"
-            name="email"
-            type="email"
-            required
-            defaultValue={strVal(values, "email")}
-          />
-          <Field
-            label="Phone / WhatsApp Number"
-            name="phone"
-            type="tel"
-            required
-            defaultValue={strVal(values, "phone")}
-          />
-          <Field
-            label="College / University"
-            name="college"
-            required
-            defaultValue={strVal(values, "college")}
-          />
-          <SelectField
-            label="Current year of study"
-            name="yearOfStudy"
-            options={YEAR_OPTIONS}
-            required
-            defaultValue={strVal(values, "yearOfStudy")}
-          />
-          <SelectField
-            label="BBA specialization"
-            name="specialization"
-            options={SPECIALIZATION_OPTIONS}
-            required
-            defaultValue={strVal(values, "specialization")}
-          />
-          <Field
-            label="City"
-            name="city"
-            defaultValue={strVal(values, "city")}
-          />
-          <Area
-            label="Tell us about yourself in 3–5 lines."
-            name="about"
-            required
-            defaultValue={strVal(values, "about")}
-            hintMin={FIELD_MIN.about.min}
-          />
-          <PillGroup
-            label="What interests you the most?"
-            name="interests"
-            options={INTEREST_OPTIONS}
-            multiple
-            required
-            max={3}
-            hint="Pick up to 3"
-            selected={listVal(values, "interests").slice(0, 3)}
-          />
-        </SectionCard>
-
-        <SectionCard step={2} active={step === 2}>
-          <RadioGroup
-            label="Do you personally know any business owners or professionals?"
-            name="knowsOwners"
-            options={["Yes", "No"]}
-            required
-            selected={strVal(values, "knowsOwners")}
-          />
-          <RadioGroup
-            label="How many can you reach directly?"
-            name="networkSize"
-            options={NETWORK_SIZE_OPTIONS}
-            required
-            selected={strVal(values, "networkSize")}
-          />
-          <PillGroup
-            label="Which industries can you connect us with?"
-            name="industries"
-            options={INDUSTRY_OPTIONS}
-            multiple
-            required
-            selected={listVal(values, "industries")}
-          />
-          <PillGroup
-            label="Where does your strongest network come from?"
-            name="networkSources"
-            options={NETWORK_SOURCE_OPTIONS}
-            multiple
-            required
-            selected={listVal(values, "networkSources")}
-          />
-        </SectionCard>
-
-        <SectionCard step={3} active={step === 3}>
-          <RadioGroup
-            label="Have you ever sold a product or service?"
-            name="soldBefore"
-            options={["Yes", "No"]}
-            required
-            selected={soldBefore || strVal(values, "soldBefore")}
-            onChange={(value) => {
-              setSoldBefore(value);
-              persist(step, { soldBefore: value });
-            }}
-          />
-          {soldBefore === "Yes" ? (
-            <Area
-              label="Tell us briefly about your sales experience."
-              name="salesExperience"
-              required
-              defaultValue={strVal(values, "salesExperience")}
-              hintMin={FIELD_MIN.salesExperience.min}
-            />
-          ) : null}
-          <Scale
-            label="How comfortable are you approaching someone you've never spoken to before?"
-            name="comfortApproach"
-            low="Very uncomfortable"
-            high="Very comfortable"
-            selected={strVal(values, "comfortApproach")}
-          />
-          <Scale
-            label="How comfortable are you with cold calling?"
-            name="comfortColdCall"
-            low="Not comfortable"
-            high="Very comfortable"
-            selected={strVal(values, "comfortColdCall")}
-          />
-          <Scale
-            label="How comfortable are you with LinkedIn / Instagram outreach?"
-            name="comfortOutreach"
-            low="Not comfortable"
-            high="Very comfortable"
-            selected={strVal(values, "comfortOutreach")}
-          />
-        </SectionCard>
-
-        <SectionCard step={4} active={step === 4}>
-          <Area
-            label='They say: "We already have a website." How do you respond?'
-            name="websiteObjection"
-            required
-            defaultValue={strVal(values, "websiteObjection")}
-            hintMin={FIELD_MIN.websiteObjection.min}
-            placeholder="A website is a start — I’d ask how they get leads, follow up, and close…"
-          />
-          <Area
-            label="You contacted 20 businesses. 17 said no. What next?"
-            name="rejectionResponse"
-            required
-            defaultValue={strVal(values, "rejectionResponse")}
-            hintMin={FIELD_MIN.rejectionResponse.min}
-            placeholder="I’d review what I said, tighten the pitch, and keep going with the next 20…"
-          />
-        </SectionCard>
-
-        <SectionCard step={5} active={step === 5}>
-          <PillGroup
-            label="Which Editco services interest you the most?"
-            name="services"
-            options={SERVICE_OPTIONS}
-            multiple
-            required
-            selected={listVal(values, "services")}
-          />
-          <p className="-mt-2 text-xs text-[var(--careers-faint)]">
-            Not sure yet? Choose that chip — we train you.
-          </p>
-          <div className="space-y-3">
-            <p className={labelCls}>
-              Name one business that could benefit from Editco, and why.
-            </p>
-            <p className="-mt-1 text-xs text-[var(--careers-faint)]">
-              Do not include private contact details.
-            </p>
-            <label className="flex w-fit cursor-pointer items-center gap-2.5 text-sm text-white/75">
-              <input
-                type="checkbox"
-                name="noExampleYet"
-                value="yes"
-                checked={noExampleYet}
-                onChange={(e) => {
-                  const checked = e.target.checked;
-                  setNoExampleYet(checked);
-                  persist(step, { noExampleYet: checked });
-                }}
-                className="sr-only"
-              />
-              <CheckMark checked={noExampleYet} />
-              <span>I don’t have a specific example yet.</span>
-            </label>
-            {!noExampleYet ? (
-              <Area
-                name="exampleBusiness"
-                required
-                defaultValue={strVal(values, "exampleBusiness")}
-                placeholder="A local clinic still booking on WhatsApp…"
-              />
-            ) : null}
-          </div>
-          <RadioGroup
-            label="Hours you can realistically give each week"
-            name="weeklyHours"
-            options={WEEKLY_HOURS_OPTIONS}
-            required
-            selected={strVal(values, "weeklyHours")}
-          />
-          <RadioGroup
-            label="Comfortable with performance-based earnings?"
-            name="performanceBased"
-            options={PERFORMANCE_OPTIONS}
-            required
-            selected={strVal(values, "performanceBased")}
-          />
-          <RadioGroup
-            label="Willing to join training and onboarding?"
-            name="training"
-            options={["Yes", "No"]}
-            required
-            selected={strVal(values, "training")}
-          />
-          <RadioGroup
-            label="How long do you see yourself with Editco?"
-            name="duration"
-            options={DURATION_OPTIONS}
-            required
-            selected={strVal(values, "duration")}
-          />
-          <Area
-            label="Why should Editco select you?"
-            name="whySelect"
-            required
-            defaultValue={strVal(values, "whySelect")}
-            hintMin={FIELD_MIN.whySelect.min}
-          />
-          <Field
-            label="LinkedIn Profile"
-            name="linkedin"
-            placeholder="https://linkedin.com/in/…"
-            defaultValue={strVal(values, "linkedin")}
-          />
-          <Area
-            label="Anything else you’d like us to know?"
-            name="anythingElse"
-            defaultValue={strVal(values, "anythingElse")}
-          />
+        {([1, 2, 3, 4, 5] as const).map((n) => (
+          <SectionCard key={n} step={n} active={step === n}>
+            {config.questions
+              .filter((q) => q.section === n)
+              .map((q) => (
+                <DynamicQuestion
+                  key={q.name}
+                  q={q}
+                  values={values}
+                  soldBefore={soldBefore}
+                  onSoldBefore={(value) => {
+                    setSoldBefore(value);
+                    persist(step, { soldBefore: value });
+                  }}
+                  noExampleYet={noExampleYet}
+                  onNoExampleYet={(checked) => {
+                    setNoExampleYet(checked);
+                    persist(step, { noExampleYet: checked });
+                  }}
+                />
+              ))}
+            {n === 5 ? (
           <div className="border-t border-white/10 pt-5">
             <p className="font-archivo text-[10px] uppercase tracking-[0.2em] text-[var(--careers-accent)]">
               Terms and Conditions
@@ -714,7 +484,9 @@ export function EGAForm() {
               ) : null}
             </div>
           </div>
-        </SectionCard>
+            ) : null}
+          </SectionCard>
+        ))}
 
         {stepError ? (
           <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-center text-sm text-red-200">
@@ -895,6 +667,146 @@ function SectionCard({
       {children}
     </section>
   );
+}
+
+function DynamicQuestion({
+  q,
+  values,
+  soldBefore,
+  onSoldBefore,
+  noExampleYet,
+  onNoExampleYet,
+}: {
+  q: EGAQuestion;
+  values: DraftValues;
+  soldBefore: string;
+  onSoldBefore: (value: string) => void;
+  noExampleYet: boolean;
+  onNoExampleYet: (checked: boolean) => void;
+}) {
+  if (q.name === "salesExperience" && soldBefore !== "Yes") return null;
+
+  const options = q.options || [];
+  const required = q.required;
+
+  if (q.name === "exampleBusiness") {
+    return (
+      <div className="space-y-3">
+        <p className={labelCls}>
+          {q.label}
+          {required ? (
+            <span className="text-[var(--careers-accent)]"> *</span>
+          ) : null}
+        </p>
+        {q.helpText ? (
+          <p className="-mt-1 text-xs text-[var(--careers-faint)]">{q.helpText}</p>
+        ) : null}
+        <label className="flex w-fit cursor-pointer items-center gap-2.5 text-sm text-white/75">
+          <input
+            type="checkbox"
+            name="noExampleYet"
+            value="yes"
+            checked={noExampleYet}
+            onChange={(e) => onNoExampleYet(e.target.checked)}
+            className="sr-only"
+          />
+          <CheckMark checked={noExampleYet} />
+          <span>I don’t have a specific example yet.</span>
+        </label>
+        {!noExampleYet ? (
+          <Area
+            name={q.name}
+            required={required}
+            defaultValue={strVal(values, q.name)}
+            placeholder={q.placeholder}
+          />
+        ) : null}
+      </div>
+    );
+  }
+
+  if (q.type === "short_text" || q.type === "email" || q.type === "phone") {
+    return (
+      <Field
+        label={q.label}
+        name={q.name}
+        type={q.type === "phone" ? "tel" : q.type === "email" ? "email" : "text"}
+        required={required}
+        placeholder={q.placeholder}
+        defaultValue={strVal(values, q.name)}
+      />
+    );
+  }
+  if (q.type === "long_text") {
+    return (
+      <div>
+        {q.helpText ? (
+          <p className="mb-1 text-xs text-[var(--careers-faint)]">{q.helpText}</p>
+        ) : null}
+        <Area
+          label={q.label}
+          name={q.name}
+          required={required || (q.name === "salesExperience" && soldBefore === "Yes")}
+          defaultValue={strVal(values, q.name)}
+          hintMin={FIELD_MIN[q.name]?.min}
+          placeholder={q.placeholder}
+        />
+      </div>
+    );
+  }
+  if (q.type === "select") {
+    return (
+      <SelectField
+        label={q.label}
+        name={q.name}
+        options={options}
+        required={required}
+        defaultValue={strVal(values, q.name)}
+      />
+    );
+  }
+  if (q.type === "radio") {
+    return (
+      <RadioGroup
+        label={q.label}
+        name={q.name}
+        options={options}
+        required={required}
+        selected={
+          q.name === "soldBefore"
+            ? soldBefore || strVal(values, q.name)
+            : strVal(values, q.name)
+        }
+        onChange={q.name === "soldBefore" ? onSoldBefore : undefined}
+      />
+    );
+  }
+  if (q.type === "multi_checkbox") {
+    return (
+      <PillGroup
+        label={q.label}
+        name={q.name}
+        options={options}
+        multiple
+        required={required}
+        max={q.max}
+        hint={q.helpText}
+        selected={listVal(values, q.name)}
+      />
+    );
+  }
+  if (q.type === "scale") {
+    return (
+      <Scale
+        label={q.label}
+        name={q.name}
+        low={q.scaleLow || "Low"}
+        high={q.scaleHigh || "High"}
+        selected={strVal(values, q.name)}
+      />
+    );
+  }
+  return null;
 }
 
 function Field({

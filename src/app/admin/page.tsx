@@ -23,8 +23,8 @@ export default async function AdminOverviewPage() {
   startOfMonth.setHours(0, 0, 0, 0);
 
   const [referrers, referrals, monthReferrals] = await Promise.all([
-    Referrer.find().sort({ createdAt: -1 }).lean(),
-    Referral.find().sort({ updatedAt: -1 }).lean(),
+    Referrer.find({}).sort({ createdAt: -1 }).lean(),
+    Referral.find({}).sort({ updatedAt: -1 }).lean(),
     Referral.find({ createdAt: { $gte: startOfMonth } }).lean(),
   ]);
 
@@ -53,7 +53,7 @@ export default async function AdminOverviewPage() {
     id: String(r._id),
     fullName: r.fullName,
     email: r.email,
-    tier: r.tier as Tier,
+    tier: (r.tier || "standard") as Tier,
     successfulReferralCount: r.successfulReferralCount || 0,
     totalRewardEarned: r.totalRewardEarned || 0,
     totalRewardPaid: r.totalRewardPaid || 0,

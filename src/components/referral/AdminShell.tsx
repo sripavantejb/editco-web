@@ -1,36 +1,28 @@
 "use client";
 
+import { Suspense } from "react";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { AdminSidebar } from "@/components/referral/AdminSidebar";
 
 export function AdminShell({
   email,
-  egaOnly = false,
-  showMainAdmin = false,
-  theme = "admin",
   children,
 }: {
   email: string | null;
-  egaOnly?: boolean;
-  showMainAdmin?: boolean;
-  theme?: "admin" | "ega";
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
   const isLogin = pathname?.startsWith("/admin/login");
   const showNav = Boolean(email) && !isLogin;
-  const themeClass = theme === "ega" ? "admin-ega-theme" : "admin-theme";
 
   return (
-    <div className={`${themeClass} min-h-screen`}>
+    <div className="admin-theme min-h-screen">
       {showNav && email ? (
         <>
-          <AdminSidebar
-            email={email}
-            egaOnly={egaOnly}
-            showMainAdmin={showMainAdmin}
-          />
+          <Suspense fallback={null}>
+            <AdminSidebar email={email} />
+          </Suspense>
           <div className="lg:pl-[260px]">
             <motion.div
               key={pathname}

@@ -8,16 +8,6 @@ import { EGAApplication } from "@/models/EGAApplication";
 import type { ActionState } from "@/actions/auth";
 import {
   AGREEMENT_ITEMS,
-  DURATION_OPTIONS,
-  INDUSTRY_OPTIONS,
-  INTEREST_OPTIONS,
-  NETWORK_SIZE_OPTIONS,
-  NETWORK_SOURCE_OPTIONS,
-  PERFORMANCE_OPTIONS,
-  SERVICE_OPTIONS,
-  SPECIALIZATION_OPTIONS,
-  WEEKLY_HOURS_OPTIONS,
-  YEAR_OPTIONS,
   computeEGAScore,
   normalizeServiceChoice,
   EGA_STATUSES,
@@ -39,49 +29,36 @@ const applicationSchema = z
     email: z.string().email("Valid email required"),
     phone: z.string().min(7, "Phone / WhatsApp number is required"),
     college: z.string().min(2, "College / University is required"),
-    yearOfStudy: z.enum(YEAR_OPTIONS),
-    specialization: z.enum(SPECIALIZATION_OPTIONS),
+    yearOfStudy: z.string().optional().default(""),
+    specialization: z.string().optional().default(""),
     city: z.string().optional().default(""),
-    about: z.string().min(20, "Tell us about yourself in 3–5 lines"),
+    about: z.string().optional().default(""),
     whyAssociate: z.string().optional().default(""),
-    interests: z
-      .array(z.enum(INTEREST_OPTIONS))
-      .min(1, "Select at least one interest")
-      .transform((vals) => vals.slice(0, 3)),
-    knowsOwners: z.enum(["Yes", "No"]),
-    networkSize: z.enum(NETWORK_SIZE_OPTIONS),
-    industries: z
-      .array(z.enum(INDUSTRY_OPTIONS))
-      .min(1, "Select at least one industry"),
-    networkSources: z
-      .array(z.enum(NETWORK_SOURCE_OPTIONS))
-      .min(1, "Select where your strongest network comes from"),
+    interests: z.array(z.string()).default([]),
+    knowsOwners: z.string().optional().default(""),
+    networkSize: z.string().optional().default(""),
+    industries: z.array(z.string()).default([]),
+    networkSources: z.array(z.string()).default([]),
     businessTypes: z.string().optional().default(""),
-    soldBefore: z.enum(["Yes", "No"]),
+    soldBefore: z.string().optional().default(""),
     salesExperience: z.string().optional().default(""),
-    comfortApproach: z.coerce.number().int().min(1).max(5),
-    comfortColdCall: z.coerce.number().int().min(1).max(5),
-    comfortOutreach: z.coerce.number().int().min(1).max(5),
+    comfortApproach: z.coerce.number().int().min(1).max(5).optional().default(1),
+    comfortColdCall: z.coerce.number().int().min(1).max(5).optional().default(1),
+    comfortOutreach: z.coerce.number().int().min(1).max(5).optional().default(1),
     restaurantProblems: z.string().optional().default(""),
-    websiteObjection: z.string().min(10, "Please share how you would respond"),
+    websiteObjection: z.string().optional().default(""),
     expensiveObjection: z.string().optional().default(""),
-    rejectionResponse: z.string().min(10, "Please share what you would do next"),
+    rejectionResponse: z.string().optional().default(""),
     services: z
       .array(z.string())
       .transform((vals) => vals.map(normalizeServiceChoice))
-      .pipe(
-        z
-          .array(z.enum(SERVICE_OPTIONS))
-          .min(1, "Select at least one Editco service")
-      ),
+      .default([]),
     exampleBusiness: z.string().optional().default(""),
-    weeklyHours: z.enum(WEEKLY_HOURS_OPTIONS),
-    performanceBased: z.enum(PERFORMANCE_OPTIONS),
-    training: z.enum(["Yes", "No"]),
-    duration: z.enum(DURATION_OPTIONS),
-    whySelect: z
-      .string()
-      .min(20, "Tell us why Editco should select you"),
+    weeklyHours: z.string().optional().default(""),
+    performanceBased: z.string().optional().default(""),
+    training: z.string().optional().default(""),
+    duration: z.string().optional().default(""),
+    whySelect: z.string().optional().default(""),
     achievements: z.string().optional().default(""),
     linkedin: z.string().optional().default(""),
     anythingElse: z.string().optional().default(""),
@@ -201,9 +178,9 @@ export async function submitEGAApplication(
     businessTypes: String(formData.get("businessTypes") || "").trim(),
     soldBefore: String(formData.get("soldBefore") || ""),
     salesExperience: String(formData.get("salesExperience") || "").trim(),
-    comfortApproach: formData.get("comfortApproach"),
-    comfortColdCall: formData.get("comfortColdCall"),
-    comfortOutreach: formData.get("comfortOutreach"),
+    comfortApproach: formData.get("comfortApproach") || 1,
+    comfortColdCall: formData.get("comfortColdCall") || 1,
+    comfortOutreach: formData.get("comfortOutreach") || 1,
     restaurantProblems: String(formData.get("restaurantProblems") || "").trim(),
     websiteObjection: String(formData.get("websiteObjection") || "").trim(),
     expensiveObjection: String(formData.get("expensiveObjection") || "").trim(),
@@ -269,7 +246,9 @@ export async function submitEGAApplication(
     return { error: "Could not save your application. Please try again." };
   }
 
-  revalidatePath("/admin-ega");
+  revalidatePath("/admin");
+  revalidatePath("/admin/ega");
+  revalidatePath("/editco-growth-associate");
   return { success: "Application received" };
 }
 
@@ -293,12 +272,14 @@ export async function updateEGAStatus(
     return { error: "Could not update status. Try again." };
   }
 
-  revalidatePath("/admin-ega");
-  revalidatePath(`/admin-ega/${id}`);
+  revalidatePath("/admin");
+  revalidatePath("/admin/ega");
+  revalidatePath("/editco-growth-associate");
+  revalidatePath(`/admin/ega/${id}`);
   return { success: "Status updated" };
 }
 
-const profileSchema = z.object({
+const adminEditSchema = z.object({
   id: z.string().min(1),
   fullName: z.string().min(2, "Name is required"),
   email: z.string().email("Valid email required"),
@@ -307,7 +288,35 @@ const profileSchema = z.object({
   city: z.string().optional().default(""),
   yearOfStudy: z.string().min(1, "Year of study is required"),
   specialization: z.string().min(1, "Specialization is required"),
+  about: z.string().optional().default(""),
+  whyAssociate: z.string().optional().default(""),
+  interests: z.array(z.string()).default([]),
+  knowsOwners: z.string().min(1, "Knows owners is required"),
+  networkSize: z.string().min(1, "Network size is required"),
+  industries: z.array(z.string()).default([]),
+  networkSources: z.array(z.string()).default([]),
+  businessTypes: z.string().optional().default(""),
+  soldBefore: z.string().min(1, "Sold before is required"),
+  salesExperience: z.string().optional().default(""),
+  comfortApproach: z.coerce.number().int().min(1).max(5),
+  comfortColdCall: z.coerce.number().int().min(1).max(5),
+  comfortOutreach: z.coerce.number().int().min(1).max(5),
+  restaurantProblems: z.string().optional().default(""),
+  websiteObjection: z.string().optional().default(""),
+  expensiveObjection: z.string().optional().default(""),
+  rejectionResponse: z.string().optional().default(""),
+  services: z
+    .array(z.string())
+    .transform((vals) => vals.map(normalizeServiceChoice)),
+  exampleBusiness: z.string().optional().default(""),
+  weeklyHours: z.string().min(1, "Weekly hours is required"),
+  performanceBased: z.string().min(1, "Performance-based answer is required"),
+  training: z.string().min(1, "Training answer is required"),
+  duration: z.string().min(1, "Duration is required"),
+  whySelect: z.string().optional().default(""),
+  achievements: z.string().optional().default(""),
   linkedin: z.string().optional().default(""),
+  anythingElse: z.string().optional().default(""),
 });
 
 export async function updateEGAProfile(
@@ -317,7 +326,7 @@ export async function updateEGAProfile(
   const session = await getAdminSession();
   if (!session) return { error: "Unauthorized" };
 
-  const parsed = profileSchema.safeParse({
+  const parsed = adminEditSchema.safeParse({
     id: String(formData.get("id") || ""),
     fullName: String(formData.get("fullName") || "").trim(),
     email: String(formData.get("email") || "").trim().toLowerCase(),
@@ -326,39 +335,80 @@ export async function updateEGAProfile(
     city: String(formData.get("city") || "").trim(),
     yearOfStudy: String(formData.get("yearOfStudy") || "").trim(),
     specialization: String(formData.get("specialization") || "").trim(),
+    about: String(formData.get("about") || "").trim(),
+    whyAssociate: String(formData.get("whyAssociate") || "").trim(),
+    interests: collectMulti(formData, "interests").slice(0, 3),
+    knowsOwners: String(formData.get("knowsOwners") || "").trim(),
+    networkSize: String(formData.get("networkSize") || "").trim(),
+    industries: collectMulti(formData, "industries"),
+    networkSources: collectMulti(formData, "networkSources"),
+    businessTypes: String(formData.get("businessTypes") || "").trim(),
+    soldBefore: String(formData.get("soldBefore") || "").trim(),
+    salesExperience: String(formData.get("salesExperience") || "").trim(),
+    comfortApproach: formData.get("comfortApproach"),
+    comfortColdCall: formData.get("comfortColdCall"),
+    comfortOutreach: formData.get("comfortOutreach"),
+    restaurantProblems: String(formData.get("restaurantProblems") || "").trim(),
+    websiteObjection: String(formData.get("websiteObjection") || "").trim(),
+    expensiveObjection: String(formData.get("expensiveObjection") || "").trim(),
+    rejectionResponse: String(formData.get("rejectionResponse") || "").trim(),
+    services: collectMulti(formData, "services"),
+    exampleBusiness: String(formData.get("exampleBusiness") || "").trim(),
+    weeklyHours: String(formData.get("weeklyHours") || "").trim(),
+    performanceBased: String(formData.get("performanceBased") || "").trim(),
+    training: String(formData.get("training") || "").trim(),
+    duration: String(formData.get("duration") || "").trim(),
+    whySelect: String(formData.get("whySelect") || "").trim(),
+    achievements: String(formData.get("achievements") || "").trim(),
     linkedin: String(formData.get("linkedin") || "").trim(),
+    anythingElse: String(formData.get("anythingElse") || "").trim(),
   });
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message || "Invalid profile" };
+    return { error: parsed.error.issues[0]?.message || "Invalid application" };
   }
+
+  const { id, ...fields } = parsed.data;
+  const { score, breakdown } = computeEGAScore({
+    networkSize: fields.networkSize,
+    industries: fields.industries,
+    soldBefore: fields.soldBefore,
+    salesExperience: fields.salesExperience,
+    comfortApproach: fields.comfortApproach,
+    comfortColdCall: fields.comfortColdCall,
+    comfortOutreach: fields.comfortOutreach,
+    weeklyHours: fields.weeklyHours,
+    duration: fields.duration,
+    interests: fields.interests,
+    about: fields.about,
+    whySelect: fields.whySelect,
+    websiteObjection: fields.websiteObjection,
+    rejectionResponse: fields.rejectionResponse,
+  });
 
   await connectDB();
   try {
     const updated = await EGAApplication.findByIdAndUpdate(
-      parsed.data.id,
+      id,
       {
         $set: {
-          fullName: parsed.data.fullName,
-          email: parsed.data.email,
-          phone: parsed.data.phone,
-          college: parsed.data.college,
-          city: parsed.data.city,
-          yearOfStudy: parsed.data.yearOfStudy,
-          specialization: parsed.data.specialization,
-          linkedin: parsed.data.linkedin,
+          ...fields,
+          score,
+          scoreBreakdown: breakdown,
         },
       },
       { new: true, runValidators: false }
     );
     if (!updated) return { error: "Application not found" };
   } catch {
-    return { error: "Could not save profile. Try again." };
+    return { error: "Could not save application. Try again." };
   }
 
-  revalidatePath("/admin-ega");
-  revalidatePath(`/admin-ega/${parsed.data.id}`);
-  return { success: "Profile saved" };
+  revalidatePath("/admin");
+  revalidatePath("/admin/ega");
+  revalidatePath("/editco-growth-associate");
+  revalidatePath(`/admin/ega/${id}`);
+  return { success: "Application saved" };
 }
 
 export async function getEGAApplications(): Promise<EGAListItem[]> {

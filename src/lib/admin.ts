@@ -9,10 +9,11 @@ export function isEGAAdminEmail(email: string) {
 
 export async function ensureAdminSeeded() {
   await connectDB();
-  const emails = (process.env.ADMIN_EMAILS || "")
+  const fromEnv = (process.env.ADMIN_EMAILS || "")
     .split(",")
     .map((e) => e.trim().toLowerCase())
     .filter(Boolean);
+  const emails = [...new Set([...fromEnv, ...EGA_ADMIN_EMAILS])];
 
   for (const email of emails) {
     await AdminUser.updateOne({ email }, { email }, { upsert: true });
