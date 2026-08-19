@@ -6,20 +6,31 @@ import { AdminSidebar } from "@/components/referral/AdminSidebar";
 
 export function AdminShell({
   email,
+  egaOnly = false,
+  showMainAdmin = false,
+  theme = "admin",
   children,
 }: {
   email: string | null;
+  egaOnly?: boolean;
+  showMainAdmin?: boolean;
+  theme?: "admin" | "ega";
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
   const isLogin = pathname?.startsWith("/admin/login");
   const showNav = Boolean(email) && !isLogin;
+  const themeClass = theme === "ega" ? "admin-ega-theme" : "admin-theme";
 
   return (
-    <div className="admin-theme min-h-screen">
+    <div className={`${themeClass} min-h-screen`}>
       {showNav && email ? (
         <>
-          <AdminSidebar email={email} />
+          <AdminSidebar
+            email={email}
+            egaOnly={egaOnly}
+            showMainAdmin={showMainAdmin}
+          />
           <div className="lg:pl-[260px]">
             <motion.div
               key={pathname}

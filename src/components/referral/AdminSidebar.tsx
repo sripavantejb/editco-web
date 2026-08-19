@@ -14,6 +14,7 @@ import {
   X,
   Gift,
   Sparkles,
+  Users,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -76,6 +77,20 @@ const sections: NavSection[] = [
   },
 ];
 
+const egaSection: NavSection = {
+  id: "ega",
+  label: "Growth Associates",
+  icon: Users,
+  items: [
+    {
+      href: "/admin-ega",
+      label: "EGA Applications",
+      icon: Users,
+      match: (p) => p.startsWith("/admin-ega"),
+    },
+  ],
+};
+
 const LOGO_SRC =
   "https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png";
 
@@ -110,10 +125,16 @@ function NavLink({
 function SidebarBody({
   email,
   pathname,
+  sections: navSections,
+  showMainAdmin = false,
+  egaOnly = false,
   onNavigate,
 }: {
   email: string;
   pathname: string;
+  sections: NavSection[];
+  showMainAdmin?: boolean;
+  egaOnly?: boolean;
   onNavigate?: () => void;
 }) {
   const initial = (email?.[0] || "A").toUpperCase();
@@ -132,16 +153,16 @@ function SidebarBody({
         </Link>
         <div className="min-w-0">
           <p className="font-archivo text-[11px] uppercase tracking-[0.16em] text-[var(--dash-accent)]">
-            Admin
+            {egaOnly ? "EGA" : "Admin"}
           </p>
           <p className="truncate font-inter text-sm text-[var(--dash-text)]">
-            Editco panel
+            {egaOnly ? "Growth Associates" : "Editco panel"}
           </p>
         </div>
       </div>
 
       <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-5">
-        {sections.map((section) => {
+        {navSections.map((section) => {
           const SectionIcon = section.icon;
           return (
             <div key={section.id}>
@@ -178,6 +199,15 @@ function SidebarBody({
             {email}
           </span>
         </div>
+        {showMainAdmin ? (
+          <Link
+            href="/admin"
+            onClick={onNavigate}
+            className="mb-1 inline-flex min-h-11 w-full items-center gap-2 rounded-xl px-3 py-2.5 font-inter text-[13px] font-medium text-[var(--dash-muted)] transition hover:bg-[var(--dash-hover)] hover:text-[var(--dash-text)]"
+          >
+            Main admin
+          </Link>
+        ) : null}
         <form action={logoutAdmin}>
           <button
             type="submit"
@@ -192,9 +222,18 @@ function SidebarBody({
   );
 }
 
-export function AdminSidebar({ email }: { email: string }) {
+export function AdminSidebar({
+  email,
+  egaOnly = false,
+  showMainAdmin = false,
+}: {
+  email: string;
+  egaOnly?: boolean;
+  showMainAdmin?: boolean;
+}) {
   const pathname = usePathname() || "";
   const [open, setOpen] = useState(false);
+  const navSections = egaOnly ? [egaSection] : sections;
 
   useEffect(() => {
     setOpen(false);
@@ -214,7 +253,7 @@ export function AdminSidebar({ email }: { email: string }) {
   }, [open]);
 
   const currentLabel =
-    sections
+    navSections
       .flatMap((s) => s.items)
       .find((i) => i.match(pathname))?.label || "Admin";
 
@@ -222,7 +261,13 @@ export function AdminSidebar({ email }: { email: string }) {
     <>
       {/* Desktop sidebar */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-[260px] border-r border-[var(--dash-border)] bg-[var(--dash-bg)] lg:block">
-        <SidebarBody email={email} pathname={pathname} />
+        <SidebarBody
+          email={email}
+          pathname={pathname}
+          sections={navSections}
+          egaOnly={egaOnly}
+          showMainAdmin={showMainAdmin}
+        />
       </aside>
 
       {/* Mobile top bar */}
@@ -237,7 +282,7 @@ export function AdminSidebar({ email }: { email: string }) {
         </button>
         <div className="min-w-0 flex-1">
           <p className="font-archivo text-[10px] uppercase tracking-[0.16em] text-[var(--dash-accent)]">
-            Admin
+            {egaOnly ? "EGA" : "Admin"}
           </p>
           <p className="truncate font-inter text-sm text-[var(--dash-text)]">
             {currentLabel}
@@ -275,6 +320,9 @@ export function AdminSidebar({ email }: { email: string }) {
               <SidebarBody
                 email={email}
                 pathname={pathname}
+                sections={navSections}
+                egaOnly={egaOnly}
+                showMainAdmin={showMainAdmin}
                 onNavigate={() => setOpen(false)}
               />
             </motion.aside>

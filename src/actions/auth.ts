@@ -12,7 +12,7 @@ import {
   createReferrerSession,
 } from "@/lib/session";
 import { sendWelcomeEmail } from "@/lib/email";
-import { isAdminEmail } from "@/lib/admin";
+import { isAdminEmail, isEGAAdminEmail } from "@/lib/admin";
 
 const joinSchema = z.object({
   fullName: z.string().min(2, "Name is required"),
@@ -134,6 +134,7 @@ export async function logoutReferrer() {
 }
 
 const ADMIN_PASSWORD = "editcomedia@DHT";
+const EGA_ADMIN_PASSWORD = "abc@123";
 
 export async function adminLogin(
   _prev: ActionState,
@@ -146,6 +147,14 @@ export async function adminLogin(
 
   if (!email || !email.includes("@")) {
     return { error: "Enter a valid admin email" };
+  }
+
+  if (isEGAAdminEmail(email)) {
+    if (password !== EGA_ADMIN_PASSWORD) {
+      return { error: "Invalid email or password" };
+    }
+    await createAdminSession(email);
+    redirect("/admin-ega");
   }
 
   if (password !== ADMIN_PASSWORD) {

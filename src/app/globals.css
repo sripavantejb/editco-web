@@ -421,8 +421,32 @@ iframe {
   color: var(--dash-on-accent);
 }
 
+/* EGA admin — same violet as /ega public form, not referral lime */
+.admin-ega-theme {
+  --color-gaude-orange: #c3a4f6;
+  --dash-accent: #c3a4f6;
+  --dash-on-accent: #0a0a0a;
+  --dash-accent-soft: rgba(195, 164, 246, 0.16);
+  --dash-muted: rgba(245, 245, 245, 0.55);
+  --dash-text: #f5f5f5;
+  --dash-faint: rgba(245, 245, 245, 0.36);
+  --dash-border: rgba(255, 255, 255, 0.1);
+  --dash-surface: rgba(255, 255, 255, 0.05);
+  --dash-hover: rgba(255, 255, 255, 0.06);
+  --dash-bg: #050505;
+  --dash-input: rgba(0, 0, 0, 0.35);
+  background-color: #050505;
+  color: #f5f5f5;
+}
+
+.admin-ega-theme .dash-pill-active {
+  background-color: var(--dash-accent);
+  color: var(--dash-on-accent);
+}
+
 /* Careers public pages — soft violet accent (refer-style tokens) */
 .careers-theme {
+  color-scheme: dark;
   --careers-accent: #c3a4f6;
   --careers-accent-hover: #b18eef;
   --careers-on-accent: #0a0a0a;
@@ -453,5 +477,28 @@ iframe {
 .careers-theme textarea,
 .careers-theme select {
   min-height: 44px;
+}
+
+.ega-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at 50% 28%, black 18%, transparent 72%);
+}
+
+@keyframes ega-check-pop {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.ega-check-pop {
+  animation: ega-check-pop 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 

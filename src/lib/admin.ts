@@ -1,6 +1,12 @@
 import { connectDB } from "@/lib/db";
 import { AdminUser } from "@/models/AdminUser";
 
+export const EGA_ADMIN_EMAILS = ["deepikamundla54@gmail.com"];
+
+export function isEGAAdminEmail(email: string) {
+  return EGA_ADMIN_EMAILS.includes(email.toLowerCase().trim());
+}
+
 export async function ensureAdminSeeded() {
   await connectDB();
   const emails = (process.env.ADMIN_EMAILS || "")
