@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import {
   ArrowLeft,
   Building2,
@@ -9,14 +9,16 @@ import {
   Link2,
   MapPin,
 } from "lucide-react";
-import { connectDB } from "@/lib/db";
-import { getAdminSession } from "@/lib/session";
+import { requireLegacyPage } from "@/lib/os/page";
 import { Referral } from "@/models/Referral";
 import { Referrer } from "@/models/Referrer";
 import { ReferralActivity } from "@/models/ReferralActivity";
 import { AdminStageForm, AdminEditReferralForm, AdminDeleteReferralButton, AdminEditReferrerForm } from "@/components/referral/AdminForms";
 import { STAGE_LABELS, type Stage } from "@/lib/constants";
 import { formatCurrencyINR, formatDateTime } from "@/lib/utils";
+import { Lead } from "@/models/os/Lead";
+import { Conversion } from "@/models/os/Conversion";
+import { promoteReferralToLead } from "@/actions/os/referral-bridge";
 
 function AttrTile({
   label,
@@ -103,22 +105,24 @@ export default async function AdminReferralDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const session = await getAdminSession();
-  if (!session) redirect("/admin/login");
+  await requireLegacyPage();
 
   const { id } = await params;
-  await connectDB();
   const referral = await Referral.findById(id).lean();
   if (!referral) notFound();
 
-  const [referrer, activity] = await Promise.all([
+  const [referrer, activity, crmLead] = await Promise.all([
     Referrer.findById(referral.referrerId).lean(),
     ReferralActivity.find({ referralId: referral._id })
       .sort({ createdAt: -1 })
       .lean(),
+    Lead.findOne({ referralId: referral._id }).lean(),
   ]);
 
   const stage = referral.stage as Stage;
+  const conversion = crmLead?.conversionId
+    ? await Conversion.findById(crmLead.conversionId).lean()
+    : null;
   const sourceLabel =
     referral.source === "manual_submission" ? "Manual" : "Link click";
   const referrerInitial = (referrer?.fullName?.[0] || "R").toUpperCase();
@@ -191,6 +195,21 @@ export default async function AdminReferralDetailPage({
         </div>
       </div>
 
+      <div className="mb-5 rounded-2xl border border-white/10 bg-white/[0.02] p-4 font-inter text-sm">
+        {crmLead ? (
+          <Link href={`/admin/os/leads/${crmLead._id}`} className="text-gaude-orange">
+            Open CRM lead ({crmLead.status})
+          </Link>
+        ) : (
+          <form action={promoteReferralToLead}>
+            <input type="hidden" name="referralId" value={String(referral._id)} />
+            <button type="submit" className="text-gaude-orange">
+              Promote to OS lead
+            </button>
+          </form>
+        )}
+      </div>
+
       {/* Equal card grid */}
       <div className="grid gap-5 lg:grid-cols-2">
         <SectionCard eyebrow="Lead" title="Edit contact & details">
@@ -224,6 +243,34 @@ export default async function AdminReferralDetailPage({
             referralId={String(referral._id)}
             currentStage={stage}
           />
+        </SectionCard>
+
+        <SectionCard
+          eyebrow="Conversion"
+          title="Client relationship"
+          action={
+            conversion ? (
+              <Link
+                href={`/admin/os/c/${conversion.publicCode}`}
+                className="font-archivo text-[10px] uppercase tracking-widest text-gaude-orange"
+              >
+                Open
+              </Link>
+            ) : null
+          }
+        >
+          <div className="space-y-2 font-inter text-sm">
+            {conversion ? (
+              <p className="text-white/70">
+                {conversion.publicCode}{" "}
+                <span className="text-white/40">
+                  · UUID {conversion.conversionUuid}
+                </span>
+              </p>
+            ) : (
+              <p className="text-white/40">No OS conversion yet.</p>
+            )}
+          </div>
         </SectionCard>
 
         {referrer && (

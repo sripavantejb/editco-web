@@ -1,8 +1,7 @@
 export const dynamic = "force-dynamic";
 
-import { notFound, redirect } from "next/navigation";
-import { connectDB } from "@/lib/db";
-import { getAdminSession } from "@/lib/session";
+import { notFound } from "next/navigation";
+import { requireLegacyPage } from "@/lib/os/page";
 import { Job } from "@/models/Job";
 import { JobApplication } from "@/models/JobApplication";
 import { JobEditor } from "@/components/careers/admin/JobEditor";
@@ -14,11 +13,9 @@ export default async function AdminEditJobPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const session = await getAdminSession();
-  if (!session) redirect("/admin/login");
+  await requireLegacyPage();
 
   const { id } = await params;
-  await connectDB();
   const job = await Job.findById(id).lean();
   if (!job) notFound();
 

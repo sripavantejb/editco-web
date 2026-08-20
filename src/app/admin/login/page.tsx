@@ -8,7 +8,7 @@ import { Card, CardDescription, CardTitle } from "@/components/referral/ui/card"
 export default async function AdminLoginPage() {
   const session = await getAdminSession();
   if (session) {
-    redirect("/admin");
+    redirect("/admin/os");
   }
 
   return (

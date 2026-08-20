@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { logoutAdmin } from "@/actions/auth";
 import {
@@ -13,18 +13,21 @@ import {
   Menu,
   X,
   Gift,
-  Sparkles,
   Users,
   ChevronRight,
   ListChecks,
+  Search,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { osNavSections, type OsNavItem, type OsNavSection } from "@/lib/os/nav";
+import { canAccessLegacyAdmin, hasPermission } from "@/lib/os/permissions";
+import type { StaffRole } from "@/lib/os/constants";
 
 type NavItem = {
   href: string;
   label: string;
   icon: typeof LayoutDashboard;
-  match: (pathname: string, isEgaTab: boolean) => boolean;
+  match: (pathname: string, isEgaTab: boolean, search: string) => boolean;
 };
 
 type NavSection = {
@@ -34,79 +37,114 @@ type NavSection = {
   items: NavItem[];
 };
 
-const sections: NavSection[] = [
-  {
-    id: "refer",
-    label: "Refer & Earn",
-    icon: Gift,
-    items: [
-      {
-        href: "/admin",
-        label: "Overview",
-        icon: LayoutDashboard,
-        match: (p) =>
-          p === "/admin" || p.startsWith("/admin/referrals"),
-      },
-      {
-        href: "/admin/rewards",
-        label: "Rewards",
-        icon: Wallet,
-        match: (p) => p.startsWith("/admin/rewards"),
-      },
-    ],
-  },
-  {
-    id: "careers",
-    label: "Careers",
-    icon: Sparkles,
-    items: [
-      {
-        href: "/admin/jobs",
-        label: "Jobs",
-        icon: Briefcase,
-        match: (p) =>
-          p.startsWith("/admin/jobs") && !p.includes("/applications"),
-      },
-      {
-        href: "/admin/applications",
-        label: "Applications",
-        icon: Inbox,
-        match: (p) =>
-          p.startsWith("/admin/applications") ||
-          (p.startsWith("/admin/jobs") && p.includes("/applications")),
-      },
-    ],
-  },
-  {
-    id: "ega",
-    label: "Growth Associates",
-    icon: Users,
-    items: [
-      {
-        href: "/admin/ega",
-        label: "EGA Applications",
-        icon: Users,
-        match: (p) =>
-          (p.startsWith("/admin/ega") && !p.startsWith("/admin/ega/form")) ||
-          p.startsWith("/admin-ega"),
-      },
-      {
-        href: "/admin/ega/form",
-        label: "Form questions",
-        icon: ListChecks,
-        match: (p) => p.startsWith("/admin/ega/form"),
-      },
-    ],
-  },
-];
+const growthSection: NavSection = {
+  id: "growth",
+  label: "Growth",
+  icon: Gift,
+  items: [
+    {
+      href: "/admin",
+      label: "Refer & Earn",
+      icon: LayoutDashboard,
+      match: (p) => p === "/admin" || p.startsWith("/admin/referrals"),
+    },
+    {
+      href: "/admin/rewards",
+      label: "Rewards",
+      icon: Wallet,
+      match: (p) => p.startsWith("/admin/rewards"),
+    },
+    {
+      href: "/admin/jobs",
+      label: "Jobs",
+      icon: Briefcase,
+      match: (p) =>
+        p.startsWith("/admin/jobs") && !p.includes("/applications"),
+    },
+    {
+      href: "/admin/applications",
+      label: "Applications",
+      icon: Inbox,
+      match: (p) =>
+        p.startsWith("/admin/applications") ||
+        (p.startsWith("/admin/jobs") && p.includes("/applications")),
+    },
+    {
+      href: "/admin/ega",
+      label: "EGA",
+      icon: Users,
+      match: (p) =>
+        (p.startsWith("/admin/ega") && !p.startsWith("/admin/ega/form")) ||
+        p.startsWith("/admin-ega"),
+    },
+    {
+      href: "/admin/ega/form",
+      label: "EGA form",
+      icon: ListChecks,
+      match: (p) => p.startsWith("/admin/ega/form"),
+    },
+  ],
+};
+
+function mapOsItem(item: OsNavItem): NavItem {
+  return {
+    href: item.href,
+    label: item.label,
+    icon: item.icon,
+    match: (p, _ega, search) => {
+      if (item.href.includes("?filter=")) {
+        const filter = item.href.split("filter=")[1];
+        return (
+          p === "/admin/os/projects" &&
+          new URLSearchParams(search.startsWith("?") ? search.slice(1) : search).get(
+            "filter"
+          ) === filter
+        );
+      }
+      // "All projects" must not light up when a filter query is active
+      if (item.href === "/admin/os/projects") {
+        const filter = new URLSearchParams(
+          search.startsWith("?") ? search.slice(1) : search
+        ).get("filter");
+        if (filter) return p.startsWith("/admin/os/projects/");
+        return p === "/admin/os/projects" || p.startsWith("/admin/os/projects/");
+      }
+      return item.match(p);
+    },
+  };
+}
+
+function buildSections(permissions: string[], role?: StaffRole): NavSection[] {
+  const os: NavSection[] = osNavSections
+    .map((section: OsNavSection) => ({
+      id: section.id,
+      label: section.label,
+      icon: section.icon,
+      items: section.items
+        .filter((item) => hasPermission(permissions, item.permission))
+        .map(mapOsItem),
+    }))
+    .filter((s) => s.items.length > 0);
+
+  if (role && canAccessLegacyAdmin(role)) {
+    return [...os, growthSection];
+  }
+  if (!role) return [...os, growthSection];
+  return os.length ? os : [growthSection];
+}
 
 const LOGO_SRC =
   "https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png";
 
-function activeSectionId(pathname: string, isEgaTab: boolean) {
+function activeSectionId(
+  sections: NavSection[],
+  pathname: string,
+  isEgaTab: boolean,
+  search: string
+) {
   return (
     sections.find((s) =>
-      s.items.some((item) => item.match(pathname, isEgaTab))
+      s.items.some((item) => item.match(pathname, isEgaTab, search))
     )?.id ?? null
   );
 }
@@ -115,14 +153,16 @@ function NavLink({
   item,
   pathname,
   isEgaTab,
+  search,
   onNavigate,
 }: {
   item: NavItem;
   pathname: string;
   isEgaTab: boolean;
+  search: string;
   onNavigate?: () => void;
 }) {
-  const active = item.match(pathname, isEgaTab);
+  const active = item.match(pathname, isEgaTab, search);
   const Icon = item.icon;
   return (
     <Link
@@ -145,47 +185,68 @@ function SidebarBody({
   email,
   pathname,
   isEgaTab,
+  search,
+  sections,
   openIds,
   onToggle,
   onNavigate,
+  showSearch,
 }: {
   email: string;
   pathname: string;
   isEgaTab: boolean;
+  search: string;
+  sections: NavSection[];
   openIds: Set<string>;
   onToggle: (id: string) => void;
   onNavigate?: () => void;
+  showSearch: boolean;
 }) {
   const initial = (email?.[0] || "A").toUpperCase();
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-3 border-b border-[var(--dash-border)] px-4 py-4">
-        <Link
-          href="/"
-          aria-label="Editco home"
+      <div className="flex items-center gap-2.5 border-b border-[var(--dash-border)] px-4 py-3">
+        <a
+          href="https://editcomedia.com"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Editco Media"
           onClick={onNavigate}
-          className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--dash-border)] bg-[var(--dash-surface)]"
+          className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[var(--dash-border)] bg-[var(--dash-surface)]"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={LOGO_SRC} alt="Editco" className="h-7 w-7 object-contain" />
-        </Link>
+          <img src={LOGO_SRC} alt="Editco" className="h-5 w-5 object-contain" />
+        </a>
         <div className="min-w-0">
-          <p className="font-archivo text-[11px] uppercase tracking-[0.16em] text-[var(--dash-accent)]">
+          <p className="font-archivo text-[10px] uppercase tracking-[0.16em] text-[var(--dash-accent)]">
             Admin
           </p>
-          <p className="truncate font-inter text-sm text-[var(--dash-text)]">
+          <p className="truncate font-inter text-xs text-[var(--dash-text)]">
             Editco panel
           </p>
         </div>
       </div>
+
+      {showSearch ? (
+        <form action="/admin/os/search" className="border-b border-[var(--dash-border)] px-3 py-3">
+          <label className="relative block">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--dash-faint)]" />
+            <input
+              name="q"
+              placeholder="EC-2026-… / company / invoice"
+              className="h-10 w-full rounded-lg border border-[var(--dash-border)] bg-[var(--dash-input)] pl-9 pr-3 font-inter text-xs text-[var(--dash-text)] placeholder:text-[var(--dash-faint)]"
+            />
+          </label>
+        </form>
+      ) : null}
 
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
         {sections.map((section) => {
           const SectionIcon = section.icon;
           const expanded = openIds.has(section.id);
           const sectionActive = section.items.some((item) =>
-            item.match(pathname, isEgaTab)
+            item.match(pathname, isEgaTab, search)
           );
 
           return (
@@ -230,6 +291,7 @@ function SidebarBody({
                           item={item}
                           pathname={pathname}
                           isEgaTab={isEgaTab}
+                          search={search}
                           onNavigate={onNavigate}
                         />
                       ))}
@@ -265,18 +327,31 @@ function SidebarBody({
   );
 }
 
-export function AdminSidebar({ email }: { email: string }) {
+export function AdminSidebar({
+  email,
+  role,
+  permissions = ["*"],
+}: {
+  email: string;
+  role?: StaffRole;
+  permissions?: string[];
+}) {
   const pathname = usePathname() || "";
   const searchParams = useSearchParams();
   const isEgaTab = searchParams.get("tab") === "ega";
+  const search = searchParams.toString();
+  const sections = useMemo(
+    () => buildSections(permissions, role),
+    [permissions, role]
+  );
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [openIds, setOpenIds] = useState<Set<string>>(() => {
-    const active = activeSectionId(pathname, isEgaTab);
-    return new Set(active ? [active] : ["refer"]);
+    const active = activeSectionId(sections, pathname, isEgaTab, search);
+    return new Set(active ? [active] : ["os-dash", "refer"]);
   });
 
   useEffect(() => {
-    const active = activeSectionId(pathname, isEgaTab);
+    const active = activeSectionId(sections, pathname, isEgaTab, search);
     if (!active) return;
     setOpenIds((prev) => {
       if (prev.has(active)) return prev;
@@ -284,7 +359,7 @@ export function AdminSidebar({ email }: { email: string }) {
       next.add(active);
       return next;
     });
-  }, [pathname, isEgaTab]);
+  }, [pathname, isEgaTab, search, sections]);
 
   useEffect(() => {
     setDrawerOpen(false);
@@ -315,18 +390,24 @@ export function AdminSidebar({ email }: { email: string }) {
   const currentLabel =
     sections
       .flatMap((s) => s.items)
-      .find((i) => i.match(pathname, isEgaTab))?.label || "Admin";
+      .find((i) => i.match(pathname, isEgaTab, search))?.label || "Admin";
+
+  const showSearch = hasPermission(permissions, "search:read");
+  const bodyProps = {
+    email,
+    pathname,
+    isEgaTab,
+    search,
+    sections,
+    openIds,
+    onToggle: toggleSection,
+    showSearch,
+  };
 
   return (
     <>
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-[260px] border-r border-[var(--dash-border)] bg-[var(--dash-bg)] lg:block">
-        <SidebarBody
-          email={email}
-          pathname={pathname}
-          isEgaTab={isEgaTab}
-          openIds={openIds}
-          onToggle={toggleSection}
-        />
+        <SidebarBody {...bodyProps} />
       </aside>
 
       <header className="sticky top-0 z-40 flex items-center gap-3 border-b border-[var(--dash-border)] bg-gaude-black/90 px-4 py-3 backdrop-blur-xl lg:hidden">
@@ -375,11 +456,7 @@ export function AdminSidebar({ email }: { email: string }) {
               className="fixed inset-y-0 left-0 z-50 w-[min(280px,88vw)] border-r border-[var(--dash-border)] bg-[var(--dash-bg)] lg:hidden"
             >
               <SidebarBody
-                email={email}
-                pathname={pathname}
-                isEgaTab={isEgaTab}
-                openIds={openIds}
-                onToggle={toggleSection}
+                {...bodyProps}
                 onNavigate={() => setDrawerOpen(false)}
               />
             </motion.aside>

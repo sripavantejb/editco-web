@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
-import { notFound, redirect } from "next/navigation";
-import { getAdminSession } from "@/lib/session";
+import { notFound } from "next/navigation";
+import { requireLegacyPage } from "@/lib/os/page";
 import { getEGAApplication } from "@/actions/ega";
 import { EGAAdminDetail } from "./EGAAdminDetail";
 
@@ -10,8 +10,7 @@ export default async function AdminEGADetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const session = await getAdminSession();
-  if (!session) redirect("/admin/login");
+  await requireLegacyPage();
 
   const { id } = await params;
   const app = await getEGAApplication(id);

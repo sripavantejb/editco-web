@@ -1,8 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import { redirect } from "next/navigation";
-import { connectDB } from "@/lib/db";
-import { getAdminSession } from "@/lib/session";
+import { requireLegacyPage } from "@/lib/os/page";
 import { JobApplication } from "@/models/JobApplication";
 import {
   ApplicationsTracker,
@@ -11,10 +9,7 @@ import {
 import type { ApplicationStatus } from "@/lib/constants";
 
 export default async function AdminApplicationsPage() {
-  const session = await getAdminSession();
-  if (!session) redirect("/admin/login");
-
-  await connectDB();
+  await requireLegacyPage();
   const apps = await JobApplication.find()
     .sort({ createdAt: -1 })
     .select(

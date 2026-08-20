@@ -13,6 +13,14 @@ import {
 } from "@/lib/session";
 import { sendWelcomeEmail } from "@/lib/email";
 import { isAdminEmail, isEGAAdminEmail } from "@/lib/admin";
+import {
+  ensureOsSeeded,
+  LEGACY_ADMIN_PASSWORD,
+  LEGACY_EGA_PASSWORD,
+  loadStaffByEmail,
+} from "@/lib/os/staff";
+import { StaffUser } from "@/models/os/StaffUser";
+import { hashPassword, verifyPassword } from "@/lib/os/password";
 
 const joinSchema = z.object({
   fullName: z.string().min(2, "Name is required"),
@@ -30,9 +38,14 @@ export type ActionState = {
 };
 
 async function routeAdminIfAllowed(email: string) {
+  const staff = await loadStaffByEmail(email);
+  if (staff) {
+    await createAdminSession(email, { userId: staff.userId, role: staff.role });
+    redirect("/admin/os");
+  }
   if (await isAdminEmail(email)) {
     await createAdminSession(email);
-    redirect("/admin");
+    redirect("/admin/os");
   }
 }
 
@@ -133,9 +146,6 @@ export async function logoutReferrer() {
   redirect("/refer");
 }
 
-const ADMIN_PASSWORD = "editcomedia@DHT";
-const EGA_ADMIN_PASSWORD = "abc@123";
-
 export async function adminLogin(
   _prev: ActionState,
   formData: FormData
@@ -149,21 +159,50 @@ export async function adminLogin(
     return { error: "Enter a valid admin email" };
   }
 
+  await ensureOsSeeded();
+  const staff = await StaffUser.findOne({ email, isActive: true });
+
+  if (staff?.passwordHash) {
+    if (!verifyPassword(password, staff.passwordHash)) {
+      return { error: "Invalid email or password" };
+    }
+    staff.lastLoginAt = new Date();
+    await staff.save();
+    await createAdminSession(email, {
+      userId: staff._id.toString(),
+      role: staff.role,
+    });
+    redirect("/admin/os");
+  }
+
   const passwordOk = isEGAAdminEmail(email)
-    ? password === EGA_ADMIN_PASSWORD
-    : password === ADMIN_PASSWORD;
+    ? password === LEGACY_EGA_PASSWORD
+    : password === LEGACY_ADMIN_PASSWORD;
 
   if (!passwordOk) {
     return { error: "Invalid email or password" };
   }
 
-  const allowed = await isAdminEmail(email);
+  const allowed = Boolean(staff) || (await isAdminEmail(email));
   if (!allowed) {
     return { error: "Invalid email or password" };
   }
 
-  await createAdminSession(email);
-  redirect("/admin");
+  if (staff && !staff.passwordHash) {
+    staff.passwordHash = hashPassword(password);
+    staff.lastLoginAt = new Date();
+    await staff.save();
+  } else if (staff) {
+    staff.lastLoginAt = new Date();
+    await staff.save();
+  }
+
+  const ctx = await loadStaffByEmail(email);
+  await createAdminSession(email, {
+    userId: ctx?.userId,
+    role: ctx?.role,
+  });
+  redirect("/admin/os");
 }
 
 export async function logoutAdmin() {

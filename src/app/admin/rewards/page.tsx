@@ -1,8 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import { redirect } from "next/navigation";
-import { connectDB } from "@/lib/db";
-import { getAdminSession } from "@/lib/session";
+import { requireLegacyPage } from "@/lib/os/page";
 import { Referral } from "@/models/Referral";
 import { Referrer } from "@/models/Referrer";
 import { MarkPaidButton } from "@/components/referral/AdminForms";
@@ -11,10 +9,7 @@ import { Card, CardDescription, CardTitle } from "@/components/referral/ui/card"
 import { formatCurrencyINR } from "@/lib/utils";
 
 export default async function AdminRewardsPage() {
-  const session = await getAdminSession();
-  if (!session) redirect("/admin/login");
-
-  await connectDB();
+  await requireLegacyPage();
   const pending = await Referral.find({
     stage: "won",
     rewardStatus: "pending",

@@ -32,6 +32,7 @@ export async function connectDB() {
     cached.promise = mongoose.connect(getMongoUri(), {
       bufferCommands: false,
       serverSelectionTimeoutMS: 10000,
+      retryWrites: false,
     });
   }
 

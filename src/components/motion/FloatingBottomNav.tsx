@@ -10,7 +10,9 @@ export function FloatingBottomNav() {
   const pathname = usePathname();
   const [isVisible, setIsVisible] = useState(false);
   const hideOnAppRoutes =
-    pathname?.startsWith("/dashboard") || pathname?.startsWith("/admin");
+    pathname?.startsWith("/dashboard") ||
+    pathname?.startsWith("/admin") ||
+    pathname?.startsWith("/client");
 
   useEffect(() => {
     if (hideOnAppRoutes) return;

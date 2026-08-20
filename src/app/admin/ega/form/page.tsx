@@ -1,13 +1,11 @@
 export const dynamic = "force-dynamic";
 
-import { redirect } from "next/navigation";
-import { getAdminSession } from "@/lib/session";
+import { requireLegacyPage } from "@/lib/os/page";
 import { getEGAFormConfig } from "@/actions/ega-form";
 import { EGAFormEditor } from "./EGAFormEditor";
 
 export default async function AdminEGAFormPage() {
-  const session = await getAdminSession();
-  if (!session) redirect("/admin/login");
+  await requireLegacyPage();
 
   const config = await getEGAFormConfig();
 

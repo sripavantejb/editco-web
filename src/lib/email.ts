@@ -173,6 +173,28 @@ export async function sendRewardPaidEmail(params: {
   return send(params.to, "Your Editco referral reward was paid", html);
 }
 
+export async function sendInvoicePortalEmail(params: {
+  to: string;
+  clientName: string;
+  invoiceNumber: string;
+  total: number;
+  portalUrl: string;
+}) {
+  const first = params.clientName.split(" ")[0] || "there";
+  const html = shell(
+    `Invoice ${params.invoiceNumber}`,
+    `<p>Hi ${first},</p>
+     <p>Your invoice <strong style="color:#fff;">${params.invoiceNumber}</strong> for <strong style="color:#fff;">${formatCurrencyINR(params.total)}</strong> is ready to view in your client portal.</p>
+     <p>You can open it anytime to track status and download a PDF.</p>
+     ${cta(params.portalUrl, "View invoice")}`
+  );
+  return send(
+    params.to,
+    `Invoice ${params.invoiceNumber} from Editco Media`,
+    html
+  );
+}
+
 export async function sendTierUpgradeEmail(params: {
   to: string;
   referrerName: string;

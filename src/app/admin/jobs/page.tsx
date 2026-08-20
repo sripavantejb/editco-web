@@ -1,18 +1,13 @@
 export const dynamic = "force-dynamic";
 
-import { redirect } from "next/navigation";
-import { connectDB } from "@/lib/db";
-import { getAdminSession } from "@/lib/session";
+import { requireLegacyPage } from "@/lib/os/page";
 import { Job } from "@/models/Job";
 import { JobApplication } from "@/models/JobApplication";
 import { JobsList, type JobsListItem } from "@/components/careers/admin/JobsList";
 import type { EmploymentType, JobStatus } from "@/lib/constants";
 
 export default async function AdminJobsPage() {
-  const session = await getAdminSession();
-  if (!session) redirect("/admin/login");
-
-  await connectDB();
+  await requireLegacyPage();
   const jobs = await Job.find().sort({ updatedAt: -1 }).lean();
   const counts = await JobApplication.aggregate<{
     _id: unknown;

@@ -265,7 +265,7 @@ export async function updateEGAStatus(
     const updated = await EGAApplication.findByIdAndUpdate(
       id,
       { $set: { status } },
-      { new: true, runValidators: false }
+      { returnDocument: "after", runValidators: false }
     );
     if (!updated) return { error: "Application not found" };
   } catch {
@@ -397,7 +397,7 @@ export async function updateEGAProfile(
           scoreBreakdown: breakdown,
         },
       },
-      { new: true, runValidators: false }
+      { returnDocument: "after", runValidators: false }
     );
     if (!updated) return { error: "Application not found" };
   } catch {

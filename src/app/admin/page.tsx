@@ -1,8 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import { redirect } from "next/navigation";
-import { connectDB } from "@/lib/db";
-import { getAdminSession } from "@/lib/session";
+import { requireLegacyPage } from "@/lib/os/page";
 import { Referrer } from "@/models/Referrer";
 import { Referral } from "@/models/Referral";
 import {
@@ -14,10 +12,7 @@ import type { Stage, Tier } from "@/lib/constants";
 import { formatCurrencyINR } from "@/lib/utils";
 
 export default async function AdminOverviewPage() {
-  const session = await getAdminSession();
-  if (!session) redirect("/admin/login");
-
-  await connectDB();
+  await requireLegacyPage();
   const startOfMonth = new Date();
   startOfMonth.setDate(1);
   startOfMonth.setHours(0, 0, 0, 0);

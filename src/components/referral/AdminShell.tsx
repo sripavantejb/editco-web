@@ -7,9 +7,13 @@ import { AdminSidebar } from "@/components/referral/AdminSidebar";
 
 export function AdminShell({
   email,
+  role,
+  permissions,
   children,
 }: {
   email: string | null;
+  role?: import("@/lib/os/constants").StaffRole;
+  permissions?: string[];
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -21,7 +25,7 @@ export function AdminShell({
       {showNav && email ? (
         <>
           <Suspense fallback={null}>
-            <AdminSidebar email={email} />
+            <AdminSidebar email={email} role={role} permissions={permissions} />
           </Suspense>
           <div className="lg:pl-[260px]">
             <motion.div

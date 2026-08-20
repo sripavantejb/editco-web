@@ -12,7 +12,9 @@ export function MagneticNav() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const hideOnAppRoutes =
-    pathname?.startsWith("/dashboard") || pathname?.startsWith("/admin");
+    pathname?.startsWith("/dashboard") ||
+    pathname?.startsWith("/admin") ||
+    pathname?.startsWith("/client");
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = useCallback(() => setIsOpen(false), []);

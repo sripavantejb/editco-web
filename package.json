@@ -7,6 +7,8 @@
     "build": "node scripts/run-next.mjs build",
     "start": "node scripts/run-next.mjs start",
     "lint": "oxlint",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "postinstall": "node scripts/ensure-oxide-wasm.mjs && node scripts/generate-tw-sources.mjs",
     "tw:sources": "node scripts/generate-tw-sources.mjs"
   },
@@ -16,7 +18,9 @@
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.12",
     "gsap": "^3.15.0",
+    "html2canvas": "^1.4.1",
     "jose": "^6.2.3",
+    "jspdf": "^4.2.1",
     "lucide-react": "^0.542.0",
     "matter-js": "^0.20.0",
     "mongoose": "^9.8.0",
@@ -38,6 +42,7 @@
     "@types/react-dom": "^19.2.3",
     "oxlint": "^1.71.0",
     "tailwindcss": "^4.1.12",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "vitest": "^4.1.11"
   }
 }
