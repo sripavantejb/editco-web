@@ -92,3 +92,17 @@ export async function updateEditcoTrackerRowStatus(_prev: ActionState, formData:
   revalidatePath("/admin/os/editco");
   return { success: "Status updated." };
 }
+
+export async function deleteEditcoTrackerRow(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const gate = await requireStaff("*");
+  if (!gate.ok) return { error: gate.error };
+
+  const rowId = String(formData.get("rowId") || "");
+  if (!rowId) return { error: "Invalid row" };
+
+  await connectDB();
+  await EditcoTrackerRow.findByIdAndDelete(rowId);
+
+  revalidatePath("/admin/os/editco");
+  return { success: "Row deleted." };
+}

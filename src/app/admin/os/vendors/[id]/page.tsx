@@ -8,7 +8,7 @@ import { Conversion } from "@/models/os/Conversion";
 import { Project } from "@/models/os/Project";
 import { PortalAccess } from "@/models/os/PortalAccess";
 import { conversionRollup } from "@/lib/os/rollups";
-import { updateVendor } from "@/actions/os/vendors";
+import { updateVendor, deleteVendor } from "@/actions/os/vendors";
 import { OsActionForm } from "@/components/os/OsActionForm";
 import { Field, OsLink, OsPage, osInputClass, osTextareaClass } from "@/components/os/ui";
 import { OsSelect } from "@/components/os/OsSelect";
@@ -18,6 +18,11 @@ import { CopyPortalUrl } from "@/components/os/CopyPortalUrl";
 import { hasPermission } from "@/lib/os/permissions";
 import { revokeClientPortal } from "@/actions/os/portal";
 import Link from "next/link";
+
+async function deleteVendorForm(formData: FormData) {
+  "use server";
+  await deleteVendor({}, formData);
+}
 
 function appOrigin(host: string | null, proto: string | null) {
   const fromEnv = process.env.NEXT_PUBLIC_APP_URL;
@@ -190,6 +195,18 @@ export default async function VendorDetailPage({
             </Field>
           </div>
         </OsActionForm>
+      ) : null}
+
+      {canWrite ? (
+        <form action={deleteVendorForm} className="mb-10">
+          <input type="hidden" name="id" value={id} />
+          <button
+            type="submit"
+            className="font-inter text-xs text-red-400 hover:underline"
+          >
+            Delete client
+          </button>
+        </form>
       ) : null}
 
       {canWrite ? (

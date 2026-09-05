@@ -135,3 +135,32 @@ export async function updateSalesEmployeeStatus(_prev: ActionState, formData: Fo
   revalidatePath(`/sales/admin/team/${parsed.data.employeeId}`);
   return { success: "Status updated." };
 }
+
+export async function deleteSalesEmployee(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const gate = await requireSalesAdminAction();
+  if (!gate.ok) return { error: gate.error };
+
+  const employeeId = String(formData.get("employeeId") || "");
+  if (!employeeId) return { error: "Invalid employee" };
+
+  await connectDB();
+  const employee = await SalesEmployee.findById(employeeId);
+  if (!employee) return { error: "Employee not found" };
+  if (String(employee._id) === gate.employee.employeeId) {
+    return { error: "You can't delete your own account" };
+  }
+
+  await StaffUser.updateOne({ _id: employee.staffUserId }, { $set: { isActive: false } });
+  await SalesEmployee.deleteOne({ _id: employee._id });
+
+  await writeSalesAudit({
+    action: "employee_deleted",
+    entityType: "SalesEmployee",
+    entityId: employeeId,
+    oldValue: employee.employeeCode,
+    actorEmail: gate.employee.email,
+  });
+
+  revalidatePath("/sales/admin/team");
+  return { success: "Employee removed." };
+}

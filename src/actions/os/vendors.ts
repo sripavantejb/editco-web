@@ -349,3 +349,28 @@ export async function updateVendor(
   revalidatePath("/admin/os", "layout");
   return { success: "Client saved" };
 }
+
+export async function deleteVendor(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const gate = await requireStaff("vendors:write");
+  if (!gate.ok) return { error: gate.error };
+  await connectDB();
+  const vendor = await Vendor.findById(str(formData, "id"));
+  if (!vendor) return { error: "Client not found" };
+
+  vendor.recordStatus = "archived";
+  vendor.updatedBy = gate.staff.email;
+  await vendor.save();
+
+  await logActivity({
+    title: "Client deleted",
+    detail: vendor.companyName,
+    createdBy: gate.staff.email,
+    conversionUuid: vendor.conversionUuid,
+    vendorId: vendor._id.toString(),
+    entityType: "vendor",
+    entityId: vendor._id.toString(),
+  });
+
+  revalidatePath("/admin/os", "layout");
+  redirect("/admin/os/vendors");
+}

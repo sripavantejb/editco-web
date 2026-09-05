@@ -2,16 +2,22 @@ export const dynamic = "force-dynamic";
 
 import { requireOsPage } from "@/lib/os/page";
 import { EditcoTrackerRow, EDITCO_TRACKER_STATUSES, EDITCO_TRACKER_STATUS_LABELS, EDITCO_TRACKER_STATUS_CLASSES, EDITCO_TEAM_NAMES, type EditcoTrackerStatus } from "@/models/os/EditcoTrackerRow";
-import { createEditcoTrackerRow, updateEditcoTrackerRowStatus } from "@/actions/os/editco-tracker";
+import { createEditcoTrackerRow, updateEditcoTrackerRowStatus, deleteEditcoTrackerRow } from "@/actions/os/editco-tracker";
 import { OsActionForm } from "@/components/os/OsActionForm";
 import { SalesModal } from "@/components/sales/SalesModal";
 import { Field, OsPage, OsTable, Td, Th, osInputClass, osTextareaClass } from "@/components/os/ui";
 import { OsSelect } from "@/components/os/OsSelect";
 import { cn, formatDate } from "@/lib/utils";
+import { Trash2 } from "lucide-react";
 
 async function updateStatusForm(formData: FormData) {
   "use server";
   await updateEditcoTrackerRowStatus({}, formData);
+}
+
+async function deleteRowForm(formData: FormData) {
+  "use server";
+  await deleteEditcoTrackerRow({}, formData);
 }
 
 export default async function EditcoTrackerPage() {
@@ -85,6 +91,7 @@ export default async function EditcoTrackerPage() {
             <Th>POC</Th>
             <Th>Status</Th>
             <Th>Remarks</Th>
+            <Th>{null}</Th>
           </tr>
         </thead>
         <tbody>
@@ -131,6 +138,18 @@ export default async function EditcoTrackerPage() {
                 </details>
               </Td>
               <Td className="max-w-xs">{r.remarks || "—"}</Td>
+              <Td>
+                <form action={deleteRowForm}>
+                  <input type="hidden" name="rowId" value={String(r._id)} />
+                  <button
+                    type="submit"
+                    aria-label="Delete row"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--dash-muted)] transition-colors hover:bg-red-500/10 hover:text-red-400"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </form>
+              </Td>
             </tr>
           ))}
         </tbody>

@@ -4,13 +4,19 @@ import Link from "next/link";
 import { requireSalesAdminPage } from "@/lib/sales/page";
 import { SalesEmployee } from "@/models/sales/SalesEmployee";
 import { StaffUser } from "@/models/os/StaffUser";
-import { createSalesEmployee } from "@/actions/sales/employees";
+import { createSalesEmployee, deleteSalesEmployee } from "@/actions/sales/employees";
 import { OsActionForm } from "@/components/os/OsActionForm";
 import { SalesModal } from "@/components/sales/SalesModal";
 import { OsSelect } from "@/components/os/OsSelect";
 import { Field, OsBadge, OsPage, OsTable, Td, Th, osInputClass } from "@/components/os/ui";
 import { SALES_EMPLOYEE_STATUS_LABELS } from "@/lib/sales/constants";
 import { formatDateTime } from "@/lib/utils";
+import { Trash2 } from "lucide-react";
+
+async function deleteEmployeeForm(formData: FormData) {
+  "use server";
+  await deleteSalesEmployee({}, formData);
+}
 
 export default async function SalesTeamPage({
   searchParams,
@@ -105,6 +111,7 @@ export default async function SalesTeamPage({
             <Th>Status</Th>
             <Th>Last active</Th>
             <Th>Access</Th>
+            <Th>{null}</Th>
           </tr>
         </thead>
         <tbody>
@@ -138,6 +145,18 @@ export default async function SalesTeamPage({
                       Manage permissions
                     </Link>
                   )}
+                </Td>
+                <Td>
+                  <form action={deleteEmployeeForm}>
+                    <input type="hidden" name="employeeId" value={String(e._id)} />
+                    <button
+                      type="submit"
+                      aria-label="Delete employee"
+                      className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--dash-muted)] transition-colors hover:bg-red-500/10 hover:text-red-400"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </form>
                 </Td>
               </tr>
             );
