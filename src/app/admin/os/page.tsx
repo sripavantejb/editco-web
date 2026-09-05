@@ -12,6 +12,8 @@ import { OsNotification } from "@/models/os/Notification";
 import { OsTask } from "@/models/os/Task";
 import { StaffUser } from "@/models/os/StaffUser";
 import { ProjectMember } from "@/models/os/ProjectMember";
+import { Referrer } from "@/models/Referrer";
+import { SalesCustomer } from "@/models/sales/SalesCustomer";
 import {
   ACTIVE_PROJECT_STATUSES,
   LEAD_PIPELINE,
@@ -19,11 +21,12 @@ import {
 } from "@/lib/os/constants";
 import { displayInvoiceStatus, outstandingOf } from "@/lib/os/money";
 import { formatCurrencyINR, formatDate } from "@/lib/utils";
-import { OsPage, OsStat, OsLink } from "@/components/os/ui";
+import { OsBadge, OsPage, OsStat, OsLink, OsTable, Td, Th } from "@/components/os/ui";
 import { resolveActorNames, actorKey } from "@/lib/os/activity";
 import { staffCanManageAllProjects } from "@/lib/os/project-access";
 import { migrateTaskStatuses } from "@/actions/os/tasks";
 import Link from "next/link";
+import "@/models/sales/register";
 
 export default async function OsDashboardPage() {
   const staff = await requireOsPage("dashboard:read");
@@ -55,6 +58,8 @@ export default async function OsDashboardPage() {
     allOpenTasks,
     activeStaff,
     myMemberships,
+    salesCustomers,
+    referrerCount,
   ] = await Promise.all([
     Lead.find({ recordStatus: "active" }).lean(),
     Conversion.find({ recordStatus: "active" }).lean(),
@@ -103,6 +108,8 @@ export default async function OsDashboardPage() {
       .lean(),
     StaffUser.find({ isActive: true }).select("name email").lean(),
     ProjectMember.find({ userId: staff.userId }).select("projectId").lean(),
+    SalesCustomer.find({ recordStatus: "active" }).select("name company customerSince").lean(),
+    Referrer.countDocuments({}),
   ]);
 
   const actorNames = await resolveActorNames(activity);
@@ -173,6 +180,25 @@ export default async function OsDashboardPage() {
     };
   });
 
+  type ClientRow = { id: string; name: string; source: "Editco OS" | "Sales CRM"; owner: string; since: Date };
+  const clientRows: ClientRow[] = [
+    ...vendors.map((v) => ({
+      id: String(v._id),
+      name: v.companyName,
+      source: "Editco OS" as const,
+      owner: v.accountOwner || "—",
+      since: v.createdAt,
+    })),
+    ...salesCustomers.map((c) => ({
+      id: String(c._id),
+      name: c.company || c.name,
+      source: "Sales CRM" as const,
+      owner: "—",
+      since: c.customerSince,
+    })),
+  ].sort((a, b) => new Date(b.since).getTime() - new Date(a.since).getTime());
+  const totalClients = vendors.length + salesCustomers.length;
+
   return (
     <OsPage
       title="Dashboard"
@@ -189,6 +215,20 @@ export default async function OsDashboardPage() {
         <OsStat label="Today" value={String(todayTasks.length)} />
         <OsStat label="Overdue" value={String(overdueTasks.length)} />
         <OsStat label="Blocked" value={String(blockedTasks.length)} />
+      </div>
+
+      <div className="mb-8 grid gap-4 sm:grid-cols-3">
+        <Link href="/admin/referrals" className="block rounded-[20px] border border-[var(--dash-border)] p-5 transition-colors hover:border-[var(--dash-accent)]">
+          <p className="font-inter text-[11px] uppercase tracking-[0.14em] text-[var(--dash-faint)]">Referrals</p>
+          <p className="mt-2 font-archivo text-2xl text-[var(--dash-text)]">{referrerCount}</p>
+          <p className="mt-1 font-inter text-xs text-[var(--dash-accent)]">View referrals →</p>
+        </Link>
+        <Link href="/admin/os/vendors" className="block rounded-[20px] border border-[var(--dash-border)] p-5 transition-colors hover:border-[var(--dash-accent)]">
+          <p className="font-inter text-[11px] uppercase tracking-[0.14em] text-[var(--dash-faint)]">Total clients (all sources)</p>
+          <p className="mt-2 font-archivo text-2xl text-[var(--dash-text)]">{totalClients}</p>
+          <p className="mt-1 font-inter text-xs text-[var(--dash-accent)]">Editco OS clients →</p>
+        </Link>
+        <OsStat label="Sales CRM customers" value={String(salesCustomers.length)} />
       </div>
 
       <div className="mb-8 grid gap-6 lg:grid-cols-2">
@@ -332,6 +372,30 @@ export default async function OsDashboardPage() {
           </ul>
         </section>
       </div>
+      <section className="mt-8">
+        <h2 className="mb-3 font-archivo text-sm uppercase tracking-wide">
+          All clients — past and present
+        </h2>
+        <OsTable>
+          <thead>
+            <tr><Th>Client</Th><Th>Source</Th><Th>Owner</Th><Th>Client since</Th></tr>
+          </thead>
+          <tbody>
+            {clientRows.map((r) => (
+              <tr key={`${r.source}-${r.id}`}>
+                <Td>{r.name}</Td>
+                <Td><OsBadge tone={r.source === "Editco OS" ? "accent" : "ok"}>{r.source}</OsBadge></Td>
+                <Td>{r.owner}</Td>
+                <Td>{formatDate(r.since)}</Td>
+              </tr>
+            ))}
+          </tbody>
+        </OsTable>
+        {clientRows.length === 0 ? (
+          <p className="mt-3 font-inter text-sm text-[var(--dash-muted)]">No clients recorded yet, from either system.</p>
+        ) : null}
+      </section>
+
       <section className="mt-8">
         <h2 className="mb-3 font-archivo text-sm uppercase tracking-wide">
           Latest activity

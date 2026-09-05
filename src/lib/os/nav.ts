@@ -16,11 +16,9 @@ import {
   BarChart3,
   Settings,
   UserCog,
-  Search,
   Archive,
-  BookOpen,
-  Globe2,
   Table,
+  TrendingUp,
 } from "lucide-react";
 
 export type OsNavItem = {
@@ -50,34 +48,6 @@ export const osNavSections: OsNavSection[] = [
         icon: LayoutDashboard,
         permission: "dashboard:read",
         match: (p) => p === "/admin/os",
-      },
-      {
-        href: "/admin/os/company",
-        label: "Company Overview",
-        icon: Globe2,
-        permission: "*",
-        match: (p) => p.startsWith("/admin/os/company"),
-      },
-      {
-        href: "/admin/os/how-it-works",
-        label: "How it works",
-        icon: BookOpen,
-        permission: "dashboard:read",
-        match: (p) => p.startsWith("/admin/os/how-it-works"),
-      },
-      {
-        href: "/admin/os/notifications",
-        label: "Notifications",
-        icon: AlertCircle,
-        permission: "notifications:read",
-        match: (p) => p.startsWith("/admin/os/notifications"),
-      },
-      {
-        href: "/admin/os/search",
-        label: "Search",
-        icon: Search,
-        permission: "search:read",
-        match: (p) => p.startsWith("/admin/os/search"),
       },
     ],
   },
@@ -236,6 +206,13 @@ export const osNavSections: OsNavSection[] = [
     label: "Finance",
     icon: Wallet,
     items: [
+      {
+        href: "/admin/os/revenue",
+        label: "Revenue Overview",
+        icon: TrendingUp,
+        permission: "finance:read",
+        match: (p) => p.startsWith("/admin/os/revenue"),
+      },
       {
         href: "/admin/os/invoices",
         label: "Invoices",
