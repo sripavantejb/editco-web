@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { requireOsPage } from "@/lib/os/page";
-import { EditcoTrackerRow, EDITCO_TRACKER_STATUSES, EDITCO_TRACKER_STATUS_LABELS, EDITCO_TRACKER_STATUS_CLASSES, type EditcoTrackerStatus } from "@/models/os/EditcoTrackerRow";
+import { EditcoTrackerRow, EDITCO_TRACKER_STATUSES, EDITCO_TRACKER_STATUS_LABELS, EDITCO_TRACKER_STATUS_CLASSES, EDITCO_TEAM_NAMES, type EditcoTrackerStatus } from "@/models/os/EditcoTrackerRow";
 import { createEditcoTrackerRow, updateEditcoTrackerRowStatus } from "@/actions/os/editco-tracker";
 import { OsActionForm } from "@/components/os/OsActionForm";
 import { SalesModal } from "@/components/sales/SalesModal";
@@ -32,7 +32,12 @@ export default async function EditcoTrackerPage() {
                 <input name="date" type="date" required className={osInputClass()} />
               </Field>
               <Field label="POC">
-                <input name="poc" placeholder="e.g. Harsha" className={osInputClass()} />
+                <OsSelect
+                  name="poc"
+                  defaultValue=""
+                  placeholder="Select POC"
+                  options={EDITCO_TEAM_NAMES.map((n) => ({ value: n, label: n }))}
+                />
               </Field>
             </div>
             <Field label="Project name">
@@ -41,8 +46,20 @@ export default async function EditcoTrackerPage() {
             <Field label="Task name">
               <input name="taskName" required className={osInputClass()} />
             </Field>
-            <Field label="Dependency (comma-separated names)">
-              <input name="dependency" placeholder="e.g. Harsha, Deepika" className={osInputClass()} />
+            <Field label="Dependency">
+              <div className="flex flex-wrap gap-4 pt-1">
+                {EDITCO_TEAM_NAMES.map((n) => (
+                  <label key={n} className="flex items-center gap-1.5 font-inter text-xs text-[var(--dash-text)]">
+                    <input
+                      type="checkbox"
+                      name="dependency"
+                      value={n}
+                      className="h-3.5 w-3.5 rounded border-[var(--dash-border)] bg-[var(--dash-input)] accent-[var(--dash-accent)]"
+                    />
+                    {n}
+                  </label>
+                ))}
+              </div>
             </Field>
             <Field label="Status">
               <OsSelect

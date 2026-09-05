@@ -11,7 +11,7 @@ const createSchema = z.object({
   date: z.string().min(1, "Date is required"),
   projectName: z.string().min(1, "Project name is required"),
   taskName: z.string().min(1, "Task name is required"),
-  dependency: z.string().optional(),
+  dependency: z.array(z.string()).optional(),
   poc: z.string().optional(),
   status: z.enum(EDITCO_TRACKER_STATUSES).optional(),
   remarks: z.string().optional(),
@@ -25,7 +25,7 @@ export async function createEditcoTrackerRow(_prev: ActionState, formData: FormD
     date: formData.get("date"),
     projectName: formData.get("projectName"),
     taskName: formData.get("taskName"),
-    dependency: formData.get("dependency") || undefined,
+    dependency: formData.getAll("dependency").filter(Boolean),
     poc: formData.get("poc") || undefined,
     status: formData.get("status") || undefined,
     remarks: formData.get("remarks") || undefined,
@@ -37,9 +37,7 @@ export async function createEditcoTrackerRow(_prev: ActionState, formData: FormD
     date: new Date(parsed.data.date),
     projectName: parsed.data.projectName,
     taskName: parsed.data.taskName,
-    dependency: parsed.data.dependency
-      ? parsed.data.dependency.split(",").map((s) => s.trim()).filter(Boolean)
-      : [],
+    dependency: parsed.data.dependency ?? [],
     poc: parsed.data.poc || "",
     status: parsed.data.status || "not_yet_started",
     remarks: parsed.data.remarks || "",
