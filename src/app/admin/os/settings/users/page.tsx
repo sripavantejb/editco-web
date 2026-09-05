@@ -8,6 +8,7 @@ import { createStaffUser, updateStaffUser } from "@/actions/os/staff";
 import { OsActionForm } from "@/components/os/OsActionForm";
 import { Field, OsPage, osInputClass } from "@/components/os/ui";
 import { OsSelect } from "@/components/os/OsSelect";
+import { OsPasswordInput } from "@/components/os/OsPasswordInput";
 import { STAFF_ROLES, STAFF_ROLE_LABELS } from "@/lib/os/constants";
 import { formatDateTime } from "@/lib/utils";
 
@@ -57,7 +58,7 @@ export default async function UsersSettingsPage() {
           <input name="email" type="email" required className={osInputClass()} />
         </Field>
         <Field label="Password">
-          <input name="password" type="password" required className={osInputClass()} />
+          <OsPasswordInput name="password" required />
         </Field>
         <Field label="Role">
           <OsSelect
@@ -97,7 +98,7 @@ export default async function UsersSettingsPage() {
                 />
               </Field>
               <Field label="New password (optional)">
-                <input name="password" type="password" className={osInputClass()} />
+                <OsPasswordInput name="password" />
               </Field>
               <Field label="Active">
                 <OsSelect

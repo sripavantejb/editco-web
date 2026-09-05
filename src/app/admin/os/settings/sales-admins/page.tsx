@@ -6,6 +6,7 @@ import { StaffUser } from "@/models/os/StaffUser";
 import { createSalesAdminAccount } from "@/actions/os/sales-admins";
 import { OsActionForm } from "@/components/os/OsActionForm";
 import { Field, OsBadge, OsPage, osInputClass } from "@/components/os/ui";
+import { OsPasswordInput } from "@/components/os/OsPasswordInput";
 import "@/models/sales/register";
 
 export default async function SalesAdminsSettingsPage() {
@@ -32,7 +33,7 @@ export default async function SalesAdminsSettingsPage() {
           <input name="email" type="email" required className={osInputClass()} />
         </Field>
         <Field label="Password (leave blank for default)">
-          <input name="password" type="password" className={osInputClass()} />
+          <OsPasswordInput name="password" />
         </Field>
         <Field label="Department">
           <input name="department" defaultValue="Sales" className={osInputClass()} />
