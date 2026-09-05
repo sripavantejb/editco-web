@@ -6,7 +6,7 @@ import { requireOsPage } from "@/lib/os/page";
 import { Vendor, VENDOR_ACTIVE_STATUS_CLASSES, VENDOR_ACTIVE_STATUS_LABELS, type VendorActiveStatus } from "@/models/os/Vendor";
 import { Conversion } from "@/models/os/Conversion";
 import { PortalAccess } from "@/models/os/PortalAccess";
-import { conversionRollup } from "@/lib/os/rollups";
+import { conversionRollupsFor } from "@/lib/os/rollups";
 import { formatCurrencyINR, cn } from "@/lib/utils";
 import { OsLink, OsPage, OsTable, Td, Th } from "@/components/os/ui";
 import { CopyPortalUrl } from "@/components/os/CopyPortalUrl";
@@ -40,9 +40,7 @@ export default async function VendorsPage() {
   const portalByUuid = Object.fromEntries(
     portals.map((p) => [p.conversionUuid, p])
   );
-  const rollups = await Promise.all(
-    vendors.map((v) => conversionRollup(v.conversionUuid))
-  );
+  const rollupByUuid = await conversionRollupsFor(vendors.map((v) => v.conversionUuid));
 
   return (
     <OsPage
@@ -69,12 +67,13 @@ export default async function VendorsPage() {
           </tr>
         </thead>
         <tbody>
-          {vendors.map((v, i) => {
+          {vendors.map((v) => {
             const portal = portalByUuid[v.conversionUuid];
             const portalUrl =
               portal?.isActive
                 ? `${origin}/client-portal/${v.conversionUuid}`
                 : null;
+            const rollup = rollupByUuid.get(v.conversionUuid);
             return (
               <tr key={String(v._id)}>
                 <Td>
@@ -103,8 +102,8 @@ export default async function VendorsPage() {
                   </Link>
                 </Td>
                 <Td>{v.accountOwner || "—"}</Td>
-                <Td>{formatCurrencyINR(rollups[i].received)}</Td>
-                <Td>{formatCurrencyINR(rollups[i].outstanding)}</Td>
+                <Td>{formatCurrencyINR(rollup?.received || 0)}</Td>
+                <Td>{formatCurrencyINR(rollup?.outstanding || 0)}</Td>
                 <Td>
                   {portalUrl ? (
                     <CopyPortalUrl url={portalUrl} />

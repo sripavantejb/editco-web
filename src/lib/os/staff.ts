@@ -32,7 +32,18 @@ export type StaffContext = {
   name: string;
 };
 
+/**
+ * This does a full pass of admin/staff/service-catalog upserts (several DB round trips,
+ * including writes) — idempotent, but far too expensive to redo on every single request.
+ * loadStaffByEmail() calls this at the top of EVERY OS page/action, so without this guard
+ * every navigation in Super Admin was paying for the whole reseed before its own queries
+ * even started. Only actually run it once per warm server instance.
+ */
+let seededOnce = false;
+
 export async function ensureOsSeeded() {
+  if (seededOnce) return;
+  seededOnce = true;
   await ensureAdminSeeded();
   await connectDB();
 

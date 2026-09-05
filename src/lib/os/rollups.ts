@@ -66,6 +66,59 @@ export async function conversionRollup(conversionUuid: string) {
   };
 }
 
+/** Batched version of conversionRollup — 2 queries total instead of 2 per conversion. */
+export async function conversionRollupsFor(
+  conversionUuids: string[]
+): Promise<Map<string, ReturnType<typeof emptyConversionRollup>>> {
+  const uuids = [...new Set(conversionUuids)];
+  const map = new Map<string, ReturnType<typeof emptyConversionRollup>>();
+  if (uuids.length === 0) return map;
+
+  const [projects, invoices] = await Promise.all([
+    Project.find({ conversionUuid: { $in: uuids }, recordStatus: "active" }).lean(),
+    Invoice.find({
+      conversionUuid: { $in: uuids },
+      recordStatus: "active",
+      status: { $ne: "cancelled" },
+    }).lean(),
+  ]);
+
+  for (const uuid of uuids) map.set(uuid, emptyConversionRollup());
+
+  for (const p of projects) {
+    const r = map.get(p.conversionUuid);
+    if (!r) continue;
+    r.contract += p.budget || 0;
+    r.projectCount += 1;
+    const status = normalizeProjectStatus(p.status);
+    if (ACTIVE_PROJECT_STATUSES.includes(status)) r.activeProjects += 1;
+    if (status === "completed") r.completedProjects += 1;
+  }
+  for (const i of invoices) {
+    const r = map.get(i.conversionUuid);
+    if (!r) continue;
+    if (i.status !== "draft") r.invoiced += i.total || 0;
+    r.received += i.amountPaid || 0;
+  }
+  for (const r of map.values()) {
+    r.outstanding = outstandingOf(r.invoiced, r.received);
+  }
+
+  return map;
+}
+
+function emptyConversionRollup() {
+  return {
+    contract: 0,
+    invoiced: 0,
+    received: 0,
+    outstanding: 0,
+    activeProjects: 0,
+    completedProjects: 0,
+    projectCount: 0,
+  };
+}
+
 export function withDisplayStatus<
   T extends {
     status: InvoiceStatus;
