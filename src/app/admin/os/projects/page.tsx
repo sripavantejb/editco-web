@@ -29,12 +29,14 @@ export default async function ProjectsPage({
   let projects =
     scoped === "all"
       ? await Project.find({ recordStatus: "active" }).sort({ updatedAt: -1 }).lean()
-      : await Project.find({
-          recordStatus: "active",
-          _id: { $in: scoped.length ? scoped : ["__none__"] },
-        })
-          .sort({ updatedAt: -1 })
-          .lean();
+      : scoped.length === 0
+        ? []
+        : await Project.find({
+            recordStatus: "active",
+            _id: { $in: scoped },
+          })
+            .sort({ updatedAt: -1 })
+            .lean();
 
   if (filter === "active") {
     projects = projects.filter((p) =>

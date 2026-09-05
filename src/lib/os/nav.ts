@@ -263,6 +263,13 @@ export const osNavSections: OsNavSection[] = [
     icon: Settings,
     items: [
       {
+        href: "/admin/os/settings",
+        label: "Settings",
+        icon: Settings,
+        permission: "*",
+        match: (p) => p === "/admin/os/settings",
+      },
+      {
         href: "/admin/os/settings/users",
         label: "Users & roles",
         icon: UserCog,

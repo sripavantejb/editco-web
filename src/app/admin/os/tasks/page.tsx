@@ -56,7 +56,7 @@ export default async function TasksPage({
   const projectFilter =
     scopedIds === "all"
       ? {}
-      : { projectId: { $in: scopedIds.length ? scopedIds : ["__none__"] } };
+      : { projectId: { $in: scopedIds.length ? scopedIds : ["000000000000000000000000"] } };
 
   let query: Record<string, unknown> = {
     recordStatus: "active",
