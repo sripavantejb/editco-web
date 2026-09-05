@@ -30,3 +30,4 @@ import "@/models/os/AuditLog";
 import "@/models/os/VaultProject";
 import "@/models/os/VaultProjectMessage";
 import "@/models/os/LeadProjectPitch";
+import "@/models/os/EditcoTrackerRow";

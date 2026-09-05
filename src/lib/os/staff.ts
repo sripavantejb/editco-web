@@ -3,7 +3,7 @@ import { AdminUser } from "@/models/AdminUser";
 import { StaffUser } from "@/models/os/StaffUser";
 import { ServiceCatalog } from "@/models/os/ServiceCatalog";
 import { EGA_ADMIN_EMAILS, ensureAdminSeeded } from "@/lib/admin";
-import { DEFAULT_SERVICES, STAFF_ROLES, type StaffRole } from "@/lib/os/constants";
+import { DEFAULT_SERVICES, type StaffRole } from "@/lib/os/constants";
 import { hashPassword } from "@/lib/os/password";
 import { permissionsForRole } from "@/lib/os/permissions";
 
@@ -15,12 +15,12 @@ export const SEEDED_TEAM_MEMBERS: { name: string; email: string; role: StaffRole
   {
     name: "Harsha",
     email: "harshapolina1@gmail.com",
-    role: "team_member",
+    role: "super_admin",
   },
   {
     name: "Tej",
     email: "bsripavantej@gmail.com",
-    role: "team_member",
+    role: "super_admin",
   },
 ];
 
@@ -80,9 +80,9 @@ export async function ensureOsSeeded() {
       const existing = await StaffUser.findOne({ email });
       if (existing) {
         if (!existing.name) existing.name = member.name;
-        if (!existing.role || !(STAFF_ROLES as readonly string[]).includes(existing.role)) {
-          existing.role = member.role;
-        }
+        // SEEDED_TEAM_MEMBERS is the source of truth for these specific owner
+        // accounts, so always sync — not just when the stored role is invalid.
+        existing.role = member.role;
         if (!existing.passwordHash || existing.passwordHash === "") {
           existing.passwordHash = hashPassword(teamPassword);
         }

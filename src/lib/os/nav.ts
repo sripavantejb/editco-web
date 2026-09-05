@@ -19,6 +19,8 @@ import {
   Search,
   Archive,
   BookOpen,
+  Globe2,
+  Table,
 } from "lucide-react";
 
 export type OsNavItem = {
@@ -50,6 +52,13 @@ export const osNavSections: OsNavSection[] = [
         match: (p) => p === "/admin/os",
       },
       {
+        href: "/admin/os/company",
+        label: "Company Overview",
+        icon: Globe2,
+        permission: "*",
+        match: (p) => p.startsWith("/admin/os/company"),
+      },
+      {
         href: "/admin/os/how-it-works",
         label: "How it works",
         icon: BookOpen,
@@ -69,6 +78,20 @@ export const osNavSections: OsNavSection[] = [
         icon: Search,
         permission: "search:read",
         match: (p) => p.startsWith("/admin/os/search"),
+      },
+    ],
+  },
+  {
+    id: "editco",
+    label: "Editco",
+    icon: Table,
+    items: [
+      {
+        href: "/admin/os/editco",
+        label: "Master Tracker",
+        icon: Table,
+        permission: "*",
+        match: (p) => p.startsWith("/admin/os/editco"),
       },
     ],
   },
