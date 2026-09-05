@@ -3,11 +3,11 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { requireOsPage } from "@/lib/os/page";
-import { Vendor } from "@/models/os/Vendor";
+import { Vendor, VENDOR_ACTIVE_STATUS_CLASSES, VENDOR_ACTIVE_STATUS_LABELS, type VendorActiveStatus } from "@/models/os/Vendor";
 import { Conversion } from "@/models/os/Conversion";
 import { PortalAccess } from "@/models/os/PortalAccess";
 import { conversionRollup } from "@/lib/os/rollups";
-import { formatCurrencyINR } from "@/lib/utils";
+import { formatCurrencyINR, cn } from "@/lib/utils";
 import { OsLink, OsPage, OsTable, Td, Th } from "@/components/os/ui";
 import { CopyPortalUrl } from "@/components/os/CopyPortalUrl";
 import { hasPermission } from "@/lib/os/permissions";
@@ -58,6 +58,9 @@ export default async function VendorsPage() {
         <thead>
           <tr>
             <Th>Company</Th>
+            <Th>Contact</Th>
+            <Th>Location</Th>
+            <Th>Active Status</Th>
             <Th>Conversion</Th>
             <Th>Owner</Th>
             <Th>Received</Th>
@@ -81,6 +84,18 @@ export default async function VendorsPage() {
                   >
                     {v.companyName}
                   </Link>
+                </Td>
+                <Td>{v.contactPerson || "—"}</Td>
+                <Td>{v.location || "—"}</Td>
+                <Td>
+                  <span
+                    className={cn(
+                      "inline-flex rounded-full px-2.5 py-1 font-inter text-[11px] font-medium",
+                      VENDOR_ACTIVE_STATUS_CLASSES[(v.activeStatus as VendorActiveStatus) || "active"]
+                    )}
+                  >
+                    {VENDOR_ACTIVE_STATUS_LABELS[(v.activeStatus as VendorActiveStatus) || "active"]}
+                  </span>
                 </Td>
                 <Td>
                   <Link href={`/admin/os/c/${codeByUuid[v.conversionUuid]}`}>

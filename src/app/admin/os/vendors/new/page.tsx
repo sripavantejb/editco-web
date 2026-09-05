@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { requireOsPage } from "@/lib/os/page";
 import { ServiceCatalog } from "@/models/os/ServiceCatalog";
+import { VENDOR_ACTIVE_STATUSES, VENDOR_ACTIVE_STATUS_LABELS } from "@/models/os/Vendor";
 import { createClient } from "@/actions/os/vendors";
 import { OsActionForm } from "@/components/os/OsActionForm";
 import {
@@ -10,6 +11,7 @@ import {
   osInputClass,
   osTextareaClass,
 } from "@/components/os/ui";
+import { OsSelect } from "@/components/os/OsSelect";
 import { OsDateInput } from "@/components/os/OsDateInput";
 import { hasPermission } from "@/lib/os/permissions";
 import { redirect } from "next/navigation";
@@ -45,6 +47,16 @@ export default async function NewClientPage() {
       </Field>
       <Field label="Phone">
       <input name="phone" className={osInputClass()} />
+      </Field>
+      <Field label="Location">
+      <input name="location" className={osInputClass()} />
+      </Field>
+      <Field label="Active status">
+      <OsSelect
+        name="activeStatus"
+        defaultValue="active"
+        options={VENDOR_ACTIVE_STATUSES.map((s) => ({ value: s, label: VENDOR_ACTIVE_STATUS_LABELS[s] }))}
+      />
       </Field>
       <Field label="Industry">
       <input name="industry" className={osInputClass()} />

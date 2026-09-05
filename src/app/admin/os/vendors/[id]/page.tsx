@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { requireOsPage } from "@/lib/os/page";
-import { Vendor } from "@/models/os/Vendor";
+import { Vendor, VENDOR_ACTIVE_STATUSES, VENDOR_ACTIVE_STATUS_LABELS } from "@/models/os/Vendor";
 import { Conversion } from "@/models/os/Conversion";
 import { Project } from "@/models/os/Project";
 import { PortalAccess } from "@/models/os/PortalAccess";
@@ -11,6 +11,7 @@ import { conversionRollup } from "@/lib/os/rollups";
 import { updateVendor } from "@/actions/os/vendors";
 import { OsActionForm } from "@/components/os/OsActionForm";
 import { Field, OsLink, OsPage, osInputClass, osTextareaClass } from "@/components/os/ui";
+import { OsSelect } from "@/components/os/OsSelect";
 import { formatCurrencyINR } from "@/lib/utils";
 import { GeneratePortalForm } from "@/components/os/OsForms";
 import { CopyPortalUrl } from "@/components/os/CopyPortalUrl";
@@ -126,6 +127,20 @@ export default async function VendorDetailPage({
               name="phone"
               defaultValue={vendor.phone}
               className={osInputClass()}
+            />
+          </Field>
+          <Field label="Location">
+            <input
+              name="location"
+              defaultValue={vendor.location}
+              className={osInputClass()}
+            />
+          </Field>
+          <Field label="Active status">
+            <OsSelect
+              name="activeStatus"
+              defaultValue={vendor.activeStatus || "active"}
+              options={VENDOR_ACTIVE_STATUSES.map((s) => ({ value: s, label: VENDOR_ACTIVE_STATUS_LABELS[s] }))}
             />
           </Field>
           <Field label="Industry">

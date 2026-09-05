@@ -12,7 +12,7 @@ import { findConversionDuplicates } from "@/lib/os/services/company-service";
 import { Company } from "@/models/os/Company";
 import { Contact } from "@/models/os/Contact";
 import { Conversion } from "@/models/os/Conversion";
-import { Vendor } from "@/models/os/Vendor";
+import { Vendor, VENDOR_ACTIVE_STATUSES, type VendorActiveStatus } from "@/models/os/Vendor";
 import { Project } from "@/models/os/Project";
 import type { ActionState } from "@/actions/auth";
 
@@ -151,10 +151,17 @@ export async function createClient(
   const email = str(formData, "email").toLowerCase();
   const phone = str(formData, "phone");
   const address = str(formData, "address");
+  const location = str(formData, "location");
   const industry = str(formData, "industry");
   const gstNumber = str(formData, "gstNumber");
   const website = str(formData, "website");
   const owner = str(formData, "accountOwner") || gate.staff.name;
+  const activeStatusRaw = str(formData, "activeStatus");
+  const activeStatus: VendorActiveStatus = VENDOR_ACTIVE_STATUSES.includes(
+    activeStatusRaw as VendorActiveStatus
+  )
+    ? (activeStatusRaw as VendorActiveStatus)
+    : "active";
   const conversionValue = num(formData, "conversionValue");
   const services = formData.getAll("services").map(String).filter(Boolean);
   const expectedStart = optDate(formData, "expectedStart");
@@ -220,11 +227,13 @@ export async function createClient(
       email,
       phone,
       address,
+      location,
       industry,
       gstNumber,
       website,
       accountOwner: owner,
       source: "direct",
+      activeStatus,
       onboardedAt: new Date(),
       createdBy: gate.staff.email,
       updatedBy: gate.staff.email,
@@ -314,11 +323,16 @@ export async function updateVendor(
   vendor.email = str(formData, "email");
   vendor.phone = str(formData, "phone");
   vendor.address = str(formData, "address");
+  vendor.location = str(formData, "location");
   vendor.industry = str(formData, "industry");
   vendor.gstNumber = str(formData, "gstNumber");
   vendor.website = str(formData, "website");
   vendor.socialLinks = str(formData, "socialLinks");
   vendor.accountOwner = str(formData, "accountOwner") || vendor.accountOwner;
+  const activeStatusRaw = str(formData, "activeStatus");
+  if (VENDOR_ACTIVE_STATUSES.includes(activeStatusRaw as VendorActiveStatus)) {
+    vendor.activeStatus = activeStatusRaw as VendorActiveStatus;
+  }
   vendor.updatedBy = gate.staff.email;
   await vendor.save();
 
