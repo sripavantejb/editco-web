@@ -3,6 +3,7 @@ import { ActivityEvent } from "@/models/os/ActivityEvent";
 import { OsNotification } from "@/models/os/Notification";
 import { AuditLog } from "@/models/os/AuditLog";
 import { StaffUser } from "@/models/os/StaffUser";
+import { sendNotificationEmail } from "@/lib/mail";
 import type { ActivityActionType, StaffRole } from "@/lib/os/constants";
 import type { Types } from "mongoose";
 
@@ -52,6 +53,8 @@ export async function notifyStaff(input: {
   recipientRole?: string;
 }) {
   await connectDB();
+  const emailFields = { title: input.title, body: input.body, href: input.href, eyebrow: "Editco OS" };
+
   if (input.recipientEmail) {
     await OsNotification.create({
       recipientEmail: input.recipientEmail.toLowerCase(),
@@ -61,6 +64,7 @@ export async function notifyStaff(input: {
       href: input.href || "",
       conversionUuid: input.conversionUuid,
     });
+    await sendNotificationEmail({ to: input.recipientEmail, ...emailFields });
     return;
   }
   if (input.recipientRole) {
@@ -80,6 +84,7 @@ export async function notifyStaff(input: {
         conversionUuid: input.conversionUuid,
       }))
     );
+    await Promise.all(users.map((u) => sendNotificationEmail({ to: u.email, ...emailFields })));
     return;
   }
   const users = await StaffUser.find({ isActive: true }).lean();
@@ -94,6 +99,7 @@ export async function notifyStaff(input: {
       conversionUuid: input.conversionUuid,
     }))
   );
+  await Promise.all(users.map((u) => sendNotificationEmail({ to: u.email, ...emailFields })));
 }
 
 export async function writeAudit(input: {

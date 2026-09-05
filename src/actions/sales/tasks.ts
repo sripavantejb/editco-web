@@ -4,9 +4,8 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { connectDB } from "@/lib/db";
 import { SalesTask } from "@/models/sales/SalesTask";
-import { SalesNotification } from "@/models/sales/SalesNotification";
 import { requireSalesAction, requireSalesAdminAction } from "@/lib/sales/guard";
-import { logSalesActivity } from "@/lib/sales/activity";
+import { logSalesActivity, notifySalesEmployee } from "@/lib/sales/activity";
 import { SALES_LEAD_PRIORITIES } from "@/lib/sales/constants";
 import type { ActionState } from "@/actions/auth";
 
@@ -85,8 +84,8 @@ export async function assignSalesTask(_prev: ActionState, formData: FormData): P
     createdBy: gate.employee.email,
   });
 
-  await SalesNotification.create({
-    recipientEmployeeId: parsed.data.employeeId,
+  await notifySalesEmployee({
+    employeeId: parsed.data.employeeId,
     type: "task_assigned",
     title: "New task assigned",
     body: parsed.data.title,

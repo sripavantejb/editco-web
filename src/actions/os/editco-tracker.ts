@@ -3,8 +3,9 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { connectDB } from "@/lib/db";
-import { EditcoTrackerRow, EDITCO_TRACKER_STATUSES } from "@/models/os/EditcoTrackerRow";
+import { EditcoTrackerRow, EDITCO_TRACKER_STATUSES, EDITCO_TEAM_EMAILS, type EditcoTeamName } from "@/models/os/EditcoTrackerRow";
 import { requireStaff } from "@/lib/os/guard";
+import { notifyStaff } from "@/lib/os/activity";
 import type { ActionState } from "@/actions/auth";
 
 const createSchema = z.object({
@@ -33,16 +34,38 @@ export async function createEditcoTrackerRow(_prev: ActionState, formData: FormD
   if (!parsed.success) return { error: parsed.error.issues[0]?.message || "Invalid input" };
 
   await connectDB();
+  const dependency = parsed.data.dependency ?? [];
+  const poc = parsed.data.poc || "";
   await EditcoTrackerRow.create({
     date: new Date(parsed.data.date),
     projectName: parsed.data.projectName,
     taskName: parsed.data.taskName,
-    dependency: parsed.data.dependency ?? [],
-    poc: parsed.data.poc || "",
+    dependency,
+    poc,
     status: parsed.data.status || "not_yet_started",
     remarks: parsed.data.remarks || "",
     createdBy: gate.staff.email,
   });
+
+  const notifyNames = new Set<string>();
+  if (poc) notifyNames.add(poc);
+  for (const name of dependency) notifyNames.add(name);
+  await Promise.all(
+    [...notifyNames].map((name) => {
+      const email = EDITCO_TEAM_EMAILS[name as EditcoTeamName];
+      if (!email) return Promise.resolve();
+      const isPoc = name === poc;
+      return notifyStaff({
+        type: "editco_tracker",
+        title: isPoc
+          ? `You're the POC on "${parsed.data.projectName}"`
+          : `You're a dependency on "${parsed.data.projectName}"`,
+        body: parsed.data.taskName,
+        href: "/admin/os/editco",
+        recipientEmail: email,
+      });
+    })
+  );
 
   revalidatePath("/admin/os/editco");
   return { success: "Row added." };

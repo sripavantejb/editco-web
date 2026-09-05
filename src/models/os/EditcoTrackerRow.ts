@@ -2,6 +2,13 @@ import { Schema, models, model, type InferSchemaType, Types } from "mongoose";
 
 /** The only 3 people who own rows in the master tracker — used for the POC / Dependency pickers. */
 export const EDITCO_TEAM_NAMES = ["Harsha", "Tej", "Deepika"] as const;
+export type EditcoTeamName = (typeof EDITCO_TEAM_NAMES)[number];
+
+export const EDITCO_TEAM_EMAILS: Record<EditcoTeamName, string> = {
+  Harsha: "harshapolina1@gmail.com",
+  Tej: "sripavantejb@gmail.com",
+  Deepika: "deepikamundla54@gmail.com",
+};
 
 export const EDITCO_TRACKER_STATUSES = [
   "started",
