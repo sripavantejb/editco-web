@@ -21,6 +21,8 @@ import {
 } from "@/lib/os/staff";
 import { StaffUser } from "@/models/os/StaffUser";
 import { hashPassword, verifyPassword } from "@/lib/os/password";
+import { getSalesLandingPath } from "@/lib/sales/page";
+import { ensureSalesDemoSeeded } from "@/lib/sales/seed";
 
 const joinSchema = z.object({
   fullName: z.string().min(2, "Name is required"),
@@ -41,11 +43,11 @@ async function routeAdminIfAllowed(email: string) {
   const staff = await loadStaffByEmail(email);
   if (staff) {
     await createAdminSession(email, { userId: staff.userId, role: staff.role });
-    redirect("/admin/os");
+    redirect((await getSalesLandingPath(email)) || "/admin/os");
   }
   if (await isAdminEmail(email)) {
     await createAdminSession(email);
-    redirect("/admin/os");
+    redirect((await getSalesLandingPath(email)) || "/admin/os");
   }
 }
 
@@ -160,6 +162,7 @@ export async function adminLogin(
   }
 
   await ensureOsSeeded();
+  await ensureSalesDemoSeeded();
   const staff = await StaffUser.findOne({ email, isActive: true });
 
   if (staff?.passwordHash) {
@@ -172,7 +175,7 @@ export async function adminLogin(
       userId: staff._id.toString(),
       role: staff.role,
     });
-    redirect("/admin/os");
+    redirect((await getSalesLandingPath(email)) || "/admin/os");
   }
 
   const passwordOk = isEGAAdminEmail(email)
@@ -202,7 +205,7 @@ export async function adminLogin(
     userId: ctx?.userId,
     role: ctx?.role,
   });
-  redirect("/admin/os");
+  redirect((await getSalesLandingPath(email)) || "/admin/os");
 }
 
 export async function logoutAdmin() {

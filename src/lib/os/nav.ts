@@ -276,6 +276,13 @@ export const osNavSections: OsNavSection[] = [
         permission: "*",
         match: (p) => p.startsWith("/admin/os/settings/services"),
       },
+      {
+        href: "/admin/os/settings/sales-admins",
+        label: "Sales CRM admins",
+        icon: UserCog,
+        permission: "*",
+        match: (p) => p.startsWith("/admin/os/settings/sales-admins"),
+      },
     ],
   },
 ];

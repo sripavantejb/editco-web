@@ -9,9 +9,9 @@ export async function middleware(request: NextRequest) {
   const authed = token ? await verifyAdminSessionToken(token) : false;
 
   if (pathname === "/admin/login") {
-    if (authed) {
-      return NextResponse.redirect(new URL("/admin/os", request.url));
-    }
+    // Authed-but-wrong-area routing (Editco OS vs Sales CRM) needs a DB lookup,
+    // which isn't available at the edge — the login page itself handles that
+    // redirect once authed, so middleware just lets the request through.
     return NextResponse.next();
   }
 
@@ -25,5 +25,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/sales/:path*"],
 };
