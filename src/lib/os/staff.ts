@@ -42,10 +42,13 @@ export type StaffContext = {
 let seededOnce = false;
 
 export async function ensureOsSeeded() {
+  // connectDB() must be awaited by every caller regardless of the guard below — it's cheap
+  // once the connection promise is cached, but skipping it on a concurrent cold-start request
+  // means that request's very first query runs before the connection is actually ready.
+  await connectDB();
   if (seededOnce) return;
   seededOnce = true;
   await ensureAdminSeeded();
-  await connectDB();
 
   const fromEnv = (process.env.ADMIN_EMAILS || "")
     .split(",")
