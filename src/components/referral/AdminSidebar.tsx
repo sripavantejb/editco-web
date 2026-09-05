@@ -187,7 +187,7 @@ function SidebarBody({
   isEgaTab,
   search,
   sections,
-  openIds,
+  openId,
   onToggle,
   onNavigate,
   showSearch,
@@ -197,7 +197,7 @@ function SidebarBody({
   isEgaTab: boolean;
   search: string;
   sections: NavSection[];
-  openIds: Set<string>;
+  openId: string | null;
   onToggle: (id: string) => void;
   onNavigate?: () => void;
   showSearch: boolean;
@@ -244,10 +244,24 @@ function SidebarBody({
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
         {sections.map((section) => {
           const SectionIcon = section.icon;
-          const expanded = openIds.has(section.id);
           const sectionActive = section.items.some((item) =>
             item.match(pathname, isEgaTab, search)
           );
+
+          if (section.items.length === 1) {
+            return (
+              <NavLink
+                key={section.id}
+                item={section.items[0]}
+                pathname={pathname}
+                isEgaTab={isEgaTab}
+                search={search}
+                onNavigate={onNavigate}
+              />
+            );
+          }
+
+          const expanded = openId === section.id;
 
           return (
             <div key={section.id}>
@@ -345,20 +359,13 @@ export function AdminSidebar({
     [permissions, role]
   );
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [openIds, setOpenIds] = useState<Set<string>>(() => {
-    const active = activeSectionId(sections, pathname, isEgaTab, search);
-    return new Set(active ? [active] : ["os-dash", "refer"]);
-  });
+  const [openId, setOpenId] = useState<string | null>(() =>
+    activeSectionId(sections, pathname, isEgaTab, search)
+  );
 
   useEffect(() => {
     const active = activeSectionId(sections, pathname, isEgaTab, search);
-    if (!active) return;
-    setOpenIds((prev) => {
-      if (prev.has(active)) return prev;
-      const next = new Set(prev);
-      next.add(active);
-      return next;
-    });
+    if (active) setOpenId(active);
   }, [pathname, isEgaTab, search, sections]);
 
   useEffect(() => {
@@ -379,12 +386,7 @@ export function AdminSidebar({
   }, [drawerOpen]);
 
   const toggleSection = (id: string) => {
-    setOpenIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+    setOpenId((prev) => (prev === id ? null : id));
   };
 
   const currentLabel =
@@ -399,7 +401,7 @@ export function AdminSidebar({
     isEgaTab,
     search,
     sections,
-    openIds,
+    openId,
     onToggle: toggleSection,
     showSearch,
   };
