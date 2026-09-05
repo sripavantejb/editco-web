@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { useFormStatus } from "react-dom";
+import { toast } from "sonner";
 import { Button } from "@/components/referral/ui/button";
 import type { ActionState } from "@/actions/auth";
 
@@ -30,6 +31,13 @@ export function OsActionForm({
   showSubmit?: boolean;
 }) {
   const [state, formAction] = useActionState(action, initial);
+  const lastState = useRef<ActionState>(initial);
+  useEffect(() => {
+    if (state === lastState.current) return;
+    lastState.current = state;
+    if (state.error) toast.error(state.error);
+    else if (state.success) toast.success(state.success);
+  }, [state]);
   return (
     <form action={formAction} className={className}>
       {children}

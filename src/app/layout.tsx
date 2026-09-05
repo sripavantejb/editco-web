@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Syne, Archivo_Black, Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "sonner";
 import { LandingLoadOverlay } from "@/components/motion/LandingLoadOverlay";
 import { MagneticNav } from "@/components/motion/MagneticNav";
 import { FloatingBottomNav } from "@/components/motion/FloatingBottomNav";
@@ -97,6 +98,18 @@ export default function RootLayout({
         <FloatingBottomNav />
         {children}
         <PublicSiteScripts />
+        <Toaster
+          position="top-right"
+          richColors
+          closeButton
+          toastOptions={{
+            style: {
+              background: "#121212",
+              border: "1px solid rgba(255,255,255,0.12)",
+              color: "#f5f5f5",
+            },
+          }}
+        />
       </body>
     </html>
   );
