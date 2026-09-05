@@ -1,9 +1,10 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useContext, useEffect, useRef } from "react";
 import { useFormStatus } from "react-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/referral/ui/button";
+import { SalesModalContext } from "@/components/sales/SalesModal";
 import type { ActionState } from "@/actions/auth";
 
 const initial: ActionState = {};
@@ -32,12 +33,16 @@ export function OsActionForm({
 }) {
   const [state, formAction] = useActionState(action, initial);
   const lastState = useRef<ActionState>(initial);
+  const modal = useContext(SalesModalContext);
   useEffect(() => {
     if (state === lastState.current) return;
     lastState.current = state;
     if (state.error) toast.error(state.error);
-    else if (state.success) toast.success(state.success);
-  }, [state]);
+    else if (state.success) {
+      toast.success(state.success);
+      modal?.close();
+    }
+  }, [state, modal]);
   return (
     <form action={formAction} className={className}>
       {children}

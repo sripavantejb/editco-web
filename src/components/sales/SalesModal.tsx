@@ -1,9 +1,12 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { createContext, useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
+
+/** Lets a form rendered inside a SalesModal close it on submit success — see OsActionForm. */
+export const SalesModalContext = createContext<{ close: () => void } | null>(null);
 
 export function SalesModal({
   triggerLabel,
@@ -73,7 +76,9 @@ export function SalesModal({
                     <X className="h-4 w-4" />
                   </button>
                 </div>
-                {children}
+                <SalesModalContext.Provider value={{ close: () => setOpen(false) }}>
+                  {children}
+                </SalesModalContext.Provider>
               </motion.div>
             </motion.div>
           </AnimatePresence>,
