@@ -6,8 +6,9 @@ import { Meeting } from "@/models/os/Meeting";
 import { Conversion } from "@/models/os/Conversion";
 import { updateMeeting } from "@/actions/os/meetings";
 import { OsActionForm } from "@/components/os/OsActionForm";
-import { Field, OsLink, OsPage, osInputClass, osSelectClass, osTextareaClass } from "@/components/os/ui";
+import { Field, OsLink, OsPage, osInputClass, osTextareaClass } from "@/components/os/ui";
 import { OsDateInput } from "@/components/os/OsDateInput";
+import { OsSelect } from "@/components/os/OsSelect";
 import { MEETING_TYPES } from "@/lib/os/constants";
 import { formatDateTime } from "@/lib/utils";
 import { hasPermission } from "@/lib/os/permissions";
@@ -43,9 +44,7 @@ export default async function MeetingDetailPage({
         <OsDateInput name="startsAt" type="datetime-local" defaultValue={localValue} />
       </Field>
       <Field label="Type">
-      <select name="meetingType" defaultValue={meeting.meetingType} className={osSelectClass()}>
-              {MEETING_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-            </select>
+      <OsSelect name="meetingType" options={MEETING_TYPES.map((t) => ({ value: t, label: t }))} defaultValue={meeting.meetingType} />
       </Field>
       <Field label="Participants"><input name="participants" defaultValue={meeting.participants} className={osInputClass()} /></Field>
       <Field label="Discussion"><textarea name="discussion" defaultValue={meeting.discussion} className={osTextareaClass()} /></Field>

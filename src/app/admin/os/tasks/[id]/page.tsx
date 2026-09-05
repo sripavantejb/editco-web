@@ -38,9 +38,9 @@ import {
   OsBadge,
   OsPage,
   osInputClass,
-  osSelectClass,
   osTextareaClass,
 } from "@/components/os/ui";
+import { OsSelect } from "@/components/os/OsSelect";
 import { OsDateInput } from "@/components/os/OsDateInput";
 import { formatDateTime } from "@/lib/utils";
 import {
@@ -214,13 +214,7 @@ export default async function TaskDetailPage({
               className="grid gap-2"
             >
               <input type="hidden" name="id" value={id} />
-              <select name="status" defaultValue={status} className={osSelectClass()}>
-                {TASK_STATUSES.map((s) => (
-                  <option key={s} value={s}>
-                    {TASK_STATUS_LABELS[s]}
-                  </option>
-                ))}
-              </select>
+              <OsSelect name="status" defaultValue={status} options={TASK_STATUSES.map((s) => ({ value: s, label: TASK_STATUS_LABELS[s] }))} />
               <label className="flex items-center gap-2 font-inter text-xs">
                 <input type="checkbox" name="overrideDeps" value="true" />
                 Override incomplete dependencies
@@ -243,30 +237,18 @@ export default async function TaskDetailPage({
             <input name="title" defaultValue={task.title} className={osInputClass()} />
           </Field>
           <Field label="Assignee">
-            <select
+            <OsSelect
               name="assignedToId"
               defaultValue={task.assignedToId ? String(task.assignedToId) : ""}
-              className={osSelectClass()}
-            >
-              {assignable.map((u) => (
-                <option key={String(u._id)} value={String(u._id)}>
-                  {u.name || u.email}
-                </option>
-              ))}
-            </select>
+              options={assignable.map((u) => ({ value: String(u._id), label: u.name || u.email }))}
+            />
           </Field>
           <Field label="Priority">
-            <select
+            <OsSelect
               name="priority"
               defaultValue={task.priority || "medium"}
-              className={osSelectClass()}
-            >
-              {TASK_PRIORITIES.map((p) => (
-                <option key={p} value={p}>
-                  {TASK_PRIORITY_LABELS[p]}
-                </option>
-              ))}
-            </select>
+              options={TASK_PRIORITIES.map((p) => ({ value: p, label: TASK_PRIORITY_LABELS[p] }))}
+            />
           </Field>
           <Field label="Due date">
             <OsDateInput
@@ -364,14 +346,13 @@ export default async function TaskDetailPage({
               className="flex flex-wrap gap-2"
             >
               <input type="hidden" name="taskId" value={id} />
-              <select name="dependsOnTaskId" required className={osSelectClass()}>
-                <option value="">Depends on…</option>
-                {projectTasks.map((t) => (
-                  <option key={String(t._id)} value={String(t._id)}>
-                    {t.title}
-                  </option>
-                ))}
-              </select>
+              <OsSelect
+                name="dependsOnTaskId"
+                required
+                defaultValue=""
+                placeholder="Depends on…"
+                options={projectTasks.map((t) => ({ value: String(t._id), label: t.title }))}
+              />
             </OsActionForm>
           ) : null}
         </div>

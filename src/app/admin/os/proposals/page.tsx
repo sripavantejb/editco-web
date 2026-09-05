@@ -11,8 +11,9 @@ import {
   OsTable,
   Td,
   Th,
-  osInputClass, osSelectClass,
+  osInputClass,
 } from "@/components/os/ui";
+import { OsSelect } from "@/components/os/OsSelect";
 import { PROPOSAL_STATUSES, PROPOSAL_STATUS_LABELS, type ProposalStatus } from "@/lib/os/constants";
 import { formatDateTime } from "@/lib/utils";
 import { hasPermission } from "@/lib/os/permissions";
@@ -79,13 +80,7 @@ export default async function ProposalsPage() {
                   {canWrite ? (
                     <OsActionForm action={updateProposalStatus} submitLabel="Update" className="space-y-2">
       <input type="hidden" name="id" value={String(p._id)} />
-      <select name="status" defaultValue={p.status} className={osSelectClass()}>
-                        {PROPOSAL_STATUSES.map((s) => (
-                          <option key={s} value={s}>
-                            {PROPOSAL_STATUS_LABELS[s]}
-                          </option>
-                        ))}
-                      </select>
+      <OsSelect name="status" options={PROPOSAL_STATUSES.map((s) => ({ value: s, label: PROPOSAL_STATUS_LABELS[s] }))} defaultValue={p.status} />
       <input name="reason" required className={osInputClass()} placeholder="Reason / note" />
       </OsActionForm>
                   ) : (

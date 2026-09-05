@@ -34,10 +34,11 @@ import {
   OsBadge,
   OsLink,
   OsPage,
-  osInputClass, osSelectClass,
+  osInputClass,
   osTextareaClass,
   projectTone,
 } from "@/components/os/ui";
+import { OsSelect } from "@/components/os/OsSelect";
 import { OsDateInput } from "@/components/os/OsDateInput";
 import {
   ProjectWorkspaceTabs,
@@ -301,45 +302,29 @@ export default async function ProjectWorkspacePage({
                 <input name="service" defaultValue={project.service} className={osInputClass()} />
               </Field>
               <Field label="Status">
-                <select name="status" defaultValue={status} className={osSelectClass()}>
-                  {statusOptions.map((s) => (
-                    <option key={s} value={s}>
-                      {PROJECT_STATUS_LABELS[s as ProjectStatus]}
-                    </option>
-                  ))}
-                </select>
+                <OsSelect
+                  name="status"
+                  defaultValue={status}
+                  options={statusOptions.map((s) => ({ value: s, label: PROJECT_STATUS_LABELS[s as ProjectStatus] }))}
+                />
               </Field>
               <Field label="Status reason (required for blocked/cancelled)">
                 <input name="statusReason" className={osInputClass()} placeholder="Optional unless blocked/cancelled" />
               </Field>
               <Field label="Priority">
-                <select
+                <OsSelect
                   name="priority"
                   defaultValue={project.priority || "medium"}
-                  className={osSelectClass()}
-                >
-                  {PROJECT_PRIORITIES.map((p) => (
-                    <option key={p} value={p}>
-                      {p}
-                    </option>
-                  ))}
-                </select>
+                  options={PROJECT_PRIORITIES.map((p) => ({ value: p, label: p }))}
+                />
               </Field>
               <Field label="Primary POC">
-                <select
+                <OsSelect
                   name="primaryPocUserId"
-                  defaultValue={
-                    project.primaryPocUserId ? String(project.primaryPocUserId) : ""
-                  }
-                  className={osSelectClass()}
-                >
-                  <option value="">Select POC</option>
-                  {activeStaff.map((u) => (
-                    <option key={String(u._id)} value={String(u._id)}>
-                      {u.name || u.email}
-                    </option>
-                  ))}
-                </select>
+                  defaultValue={project.primaryPocUserId ? String(project.primaryPocUserId) : ""}
+                  placeholder="Select POC"
+                  options={activeStaff.map((u) => ({ value: String(u._id), label: u.name || u.email }))}
+                />
               </Field>
               {milestones.length === 0 ? (
                 <Field label="Progress % (manual — add milestones to auto-calculate)">
@@ -417,20 +402,17 @@ export default async function ProjectWorkspacePage({
                     >
                       <input type="hidden" name="projectId" value={id} />
                       <input type="hidden" name="userId" value={String(u!._id)} />
-                      <select name="taskDisposition" className={osSelectClass()}>
-                        <option value="keep">Keep task assignments</option>
-                        <option value="reassign">Reassign open tasks</option>
-                      </select>
-                      <select name="reassignToUserId" className={osSelectClass()}>
-                        <option value="">Reassign to…</option>
-                        {assignable
-                          .filter((a) => String(a._id) !== String(u!._id))
-                          .map((a) => (
-                            <option key={String(a._id)} value={String(a._id)}>
-                              {a.name || a.email}
-                            </option>
-                          ))}
-                      </select>
+                      <OsSelect
+                        name="taskDisposition"
+                        defaultValue="keep"
+                        options={[{ value: "keep", label: "Keep task assignments" }, { value: "reassign", label: "Reassign open tasks" }]}
+                      />
+                      <OsSelect
+                        name="reassignToUserId"
+                        defaultValue=""
+                        placeholder="Reassign to…"
+                        options={assignable.filter((a) => String(a._id) !== String(u!._id)).map((a) => ({ value: String(a._id), label: a.name || a.email }))}
+                      />
                     </OsActionForm>
                   </li>
                 ))}
@@ -442,16 +424,13 @@ export default async function ProjectWorkspacePage({
               >
                 <input type="hidden" name="projectId" value={id} />
                 <Field label="Add member">
-                  <select name="userId" required className={osSelectClass()}>
-                    <option value="">Select user</option>
-                    {activeStaff
-                      .filter((u) => !memberIds.has(String(u._id)))
-                      .map((u) => (
-                        <option key={String(u._id)} value={String(u._id)}>
-                          {u.name || u.email}
-                        </option>
-                      ))}
-                  </select>
+                  <OsSelect
+                    name="userId"
+                    required
+                    defaultValue=""
+                    placeholder="Select user"
+                    options={activeStaff.filter((u) => !memberIds.has(String(u._id))).map((u) => ({ value: String(u._id), label: u.name || u.email }))}
+                  />
                 </Field>
               </OsActionForm>
             </div>
@@ -521,17 +500,11 @@ export default async function ProjectWorkspacePage({
                           className="flex flex-wrap items-end gap-2"
                         >
       <input type="hidden" name="id" value={String(m._id)} />
-      <select
-                            name="status"
-                            defaultValue={m.status}
-                            className={osSelectClass()}
-                          >
-                            {MILESTONE_STATUSES.map((s) => (
-                              <option key={s} value={s}>
-                                {MILESTONE_STATUS_LABELS[s]}
-                              </option>
-                            ))}
-                          </select>
+      <OsSelect
+        name="status"
+        defaultValue={m.status}
+        options={MILESTONE_STATUSES.map((s) => ({ value: s, label: MILESTONE_STATUS_LABELS[s] }))}
+      />
       </OsActionForm>
                       ) : null}
                     </li>
@@ -552,13 +525,11 @@ export default async function ProjectWorkspacePage({
       <input type="hidden" name="publish" value="true" />
       <input name="title" required placeholder="Update title" className={osInputClass()} />
       <textarea name="body" placeholder="What changed…" className={osTextareaClass()} />
-      <select name="visibility" defaultValue="client_visible" className={osSelectClass()}>
-                  {VISIBILITY_LEVELS.map((v) => (
-                    <option key={v} value={v}>
-                      {VISIBILITY_LEVEL_LABELS[v]}
-                    </option>
-                  ))}
-                </select>
+      <OsSelect
+        name="visibility"
+        defaultValue="client_visible"
+        options={VISIBILITY_LEVELS.map((v) => ({ value: v, label: VISIBILITY_LEVEL_LABELS[v] }))}
+      />
       </OsActionForm>
             ) : null}
             <ul className="space-y-2 font-inter text-sm">
@@ -638,13 +609,11 @@ export default async function ProjectWorkspacePage({
                       className="flex items-end gap-2"
                     >
       <input type="hidden" name="id" value={String(m._id)} />
-      <select name="status" defaultValue={m.status} className={osSelectClass()}>
-                        {MILESTONE_STATUSES.map((s) => (
-                          <option key={s} value={s}>
-                            {MILESTONE_STATUS_LABELS[s]}
-                          </option>
-                        ))}
-                      </select>
+      <OsSelect
+        name="status"
+        defaultValue={m.status}
+        options={MILESTONE_STATUSES.map((s) => ({ value: s, label: MILESTONE_STATUS_LABELS[s] }))}
+      />
       </OsActionForm>
       </div>
                 ) : null}
@@ -677,25 +646,23 @@ export default async function ProjectWorkspacePage({
             <OsActionForm action={createTask} submitLabel="Add task" className="grid max-w-xl gap-2">
               <input type="hidden" name="projectId" value={id} />
               <input name="title" required placeholder="Task title" className={osInputClass()} />
-              <select name="assignedToId" required className={osSelectClass()}>
-                <option value="">Assign to…</option>
-                {assignable.map((u) => (
-                  <option key={String(u._id)} value={String(u._id)}>
-                    {u.name || u.email}
-                  </option>
-                ))}
-              </select>
-              <select name="priority" defaultValue="medium" className={osSelectClass()}>
-                {TASK_PRIORITIES.map((p) => (
-                  <option key={p} value={p}>
-                    {TASK_PRIORITY_LABELS[p]}
-                  </option>
-                ))}
-              </select>
-              <select name="ownerSide" className={osSelectClass()}>
-                <option value="editco">Editco</option>
-                <option value="client">Client</option>
-              </select>
+              <OsSelect
+                name="assignedToId"
+                required
+                defaultValue=""
+                placeholder="Assign to…"
+                options={assignable.map((u) => ({ value: String(u._id), label: u.name || u.email }))}
+              />
+              <OsSelect
+                name="priority"
+                defaultValue="medium"
+                options={TASK_PRIORITIES.map((p) => ({ value: p, label: TASK_PRIORITY_LABELS[p] }))}
+              />
+              <OsSelect
+                name="ownerSide"
+                defaultValue="editco"
+                options={[{ value: "editco", label: "Editco" }, { value: "client", label: "Client" }]}
+              />
               <label className="flex items-center gap-2 font-inter text-sm">
                 <input type="checkbox" name="visibleToClient" /> Visible to client
               </label>
@@ -722,13 +689,11 @@ export default async function ProjectWorkspacePage({
                     className="flex items-end gap-2 px-1"
                   >
                     <input type="hidden" name="id" value={String(t._id)} />
-                    <select name="status" defaultValue={t.status === "pending" ? "todo" : t.status} className={osSelectClass()}>
-                      {TASK_STATUSES.map((s) => (
-                        <option key={s} value={s}>
-                          {TASK_STATUS_LABELS[s]}
-                        </option>
-                      ))}
-                    </select>
+                    <OsSelect
+                      name="status"
+                      defaultValue={t.status === "pending" ? "todo" : t.status}
+                      options={TASK_STATUSES.map((s) => ({ value: s, label: TASK_STATUS_LABELS[s] }))}
+                    />
                   </OsActionForm>
                 ) : null}
               </div>
@@ -898,17 +863,11 @@ export default async function ProjectWorkspacePage({
                       className="flex items-end gap-2"
                     >
       <input type="hidden" name="id" value={String(u._id)} />
-      <select
-                        name="visibility"
-                        defaultValue={u.visibility}
-                        className={osSelectClass()}
-                      >
-                        {VISIBILITY_LEVELS.map((v) => (
-                          <option key={v} value={v}>
-                            {VISIBILITY_LEVEL_LABELS[v]}
-                          </option>
-                        ))}
-                      </select>
+      <OsSelect
+        name="visibility"
+        defaultValue={u.visibility}
+        options={VISIBILITY_LEVELS.map((v) => ({ value: v, label: VISIBILITY_LEVEL_LABELS[v] }))}
+      />
       </OsActionForm>
                   ) : null}
                 </li>

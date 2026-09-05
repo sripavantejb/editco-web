@@ -4,8 +4,9 @@ import { requireOsPage } from "@/lib/os/page";
 import { Project } from "@/models/os/Project";
 import { createMeeting } from "@/actions/os/meetings";
 import { OsActionForm } from "@/components/os/OsActionForm";
-import { Field, OsPage, osInputClass, osSelectClass, osTextareaClass } from "@/components/os/ui";
+import { Field, OsPage, osInputClass, osTextareaClass } from "@/components/os/ui";
 import { OsDateInput } from "@/components/os/OsDateInput";
+import { OsSelect } from "@/components/os/OsSelect";
 import { MEETING_TYPES } from "@/lib/os/constants";
 
 export default async function NewMeetingPage({
@@ -22,21 +23,20 @@ export default async function NewMeetingPage({
       backLabel="Back to meetings">
       <OsActionForm action={createMeeting} submitLabel="Save meeting" className="grid max-w-2xl gap-4">
       <Field label="Project">
-      <select name="projectId" defaultValue={projectId} required className={osSelectClass()}>
-      <option value="">Select</option>
-            {projects.map((p) => (
-              <option key={String(p._id)} value={String(p._id)}>{p.name}</option>
-            ))}
-          </select>
+      <OsSelect
+        name="projectId"
+        required
+        defaultValue={projectId || ""}
+        placeholder="Select"
+        options={projects.map((p) => ({ value: String(p._id), label: p.name }))}
+      />
       </Field>
       <Field label="Title"><input name="title" required className={osInputClass()} /></Field>
       <Field label="Date and time">
         <OsDateInput name="startsAt" type="datetime-local" required />
       </Field>
       <Field label="Type">
-      <select name="meetingType" className={osSelectClass()}>
-            {MEETING_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-          </select>
+      <OsSelect name="meetingType" options={MEETING_TYPES.map((t) => ({ value: t, label: t }))} defaultValue={MEETING_TYPES[0]} />
       </Field>
       <Field label="Participants"><input name="participants" placeholder="Editco Team, Client Team" className={osInputClass()} /></Field>
       <Field label="Discussion"><textarea name="discussion" className={osTextareaClass()} /></Field>

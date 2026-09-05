@@ -4,8 +4,9 @@ import { requireOsPage } from "@/lib/os/page";
 import { Lead } from "@/models/os/Lead";
 import { OsActionForm } from "@/components/os/OsActionForm";
 import { createCall } from "@/actions/os/calls";
-import { OsPage, OsTable, Td, Th, OsBadge, leadTone, osInputClass, osSelectClass } from "@/components/os/ui";
+import { OsPage, OsTable, Td, Th, OsBadge, leadTone, osInputClass } from "@/components/os/ui";
 import { OsDateInput } from "@/components/os/OsDateInput";
+import { OsSelect } from "@/components/os/OsSelect";
 import {
   CALL_OUTCOMES,
   LEAD_STATUS_LABELS,
@@ -81,13 +82,7 @@ export default async function CallingPage() {
       <div className="grid gap-3 sm:grid-cols-2">
       <label className="space-y-1.5 sm:col-span-2">
       <span className="font-inter text-xs text-[var(--dash-muted)]">Outcome</span>
-      <select name="outcome" defaultValue={"connected"} className={osSelectClass()}>
-                          {CALL_OUTCOMES.map((o) => (
-                            <option key={o} value={o}>
-                              {o}
-                            </option>
-                          ))}
-                        </select>
+      <OsSelect name="outcome" options={CALL_OUTCOMES.map((o) => ({ value: o, label: o }))} defaultValue="connected" />
       </label>
       <label className="space-y-1.5">
       <span className="font-inter text-xs text-[var(--dash-muted)]">Started</span>

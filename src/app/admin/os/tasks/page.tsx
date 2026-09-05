@@ -11,7 +11,8 @@ import { TaskWorkSession } from "@/models/os/TaskWorkSession";
 import { createTask, migrateTaskStatuses } from "@/actions/os/tasks";
 import { OsActionForm } from "@/components/os/OsActionForm";
 import { TaskCard } from "@/components/os/TaskCard";
-import { Field, OsPage, OsLink, osInputClass, osSelectClass } from "@/components/os/ui";
+import { Field, OsPage, OsLink, osInputClass } from "@/components/os/ui";
+import { OsSelect } from "@/components/os/OsSelect";
 import {
   TASK_STATUSES,
   TASK_STATUS_LABELS,
@@ -194,38 +195,34 @@ export default async function TasksPage({
 
       <form className="mb-6 flex flex-wrap gap-2" method="get">
         <input type="hidden" name="view" value={view} />
-        <select name="projectId" defaultValue={sp.projectId || ""} className={osSelectClass()}>
-          <option value="">All projects</option>
-          {allProjects.map((p) => (
-            <option key={String(p._id)} value={String(p._id)}>
-              {p.name}
-            </option>
-          ))}
-        </select>
-        <select name="assignee" defaultValue={sp.assignee || ""} className={osSelectClass()}>
-          <option value="">All assignees</option>
-          {staffUsers.map((u) => (
-            <option key={String(u._id)} value={String(u._id)}>
-              {u.name || u.email}
-            </option>
-          ))}
-        </select>
-        <select name="status" defaultValue={sp.status || ""} className={osSelectClass()}>
-          <option value="">All statuses</option>
-          {TASK_STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {TASK_STATUS_LABELS[s]}
-            </option>
-          ))}
-        </select>
-        <select name="priority" defaultValue={sp.priority || ""} className={osSelectClass()}>
-          <option value="">All priorities</option>
-          {TASK_PRIORITIES.map((p) => (
-            <option key={p} value={p}>
-              {TASK_PRIORITY_LABELS[p]}
-            </option>
-          ))}
-        </select>
+        <OsSelect
+          name="projectId"
+          defaultValue={sp.projectId || ""}
+          placeholder="All projects"
+          className="w-auto min-w-[160px]"
+          options={allProjects.map((p) => ({ value: String(p._id), label: p.name }))}
+        />
+        <OsSelect
+          name="assignee"
+          defaultValue={sp.assignee || ""}
+          placeholder="All assignees"
+          className="w-auto min-w-[160px]"
+          options={staffUsers.map((u) => ({ value: String(u._id), label: u.name || u.email }))}
+        />
+        <OsSelect
+          name="status"
+          defaultValue={sp.status || ""}
+          placeholder="All statuses"
+          className="w-auto min-w-[160px]"
+          options={TASK_STATUSES.map((s) => ({ value: s, label: TASK_STATUS_LABELS[s] }))}
+        />
+        <OsSelect
+          name="priority"
+          defaultValue={sp.priority || ""}
+          placeholder="All priorities"
+          className="w-auto min-w-[160px]"
+          options={TASK_PRIORITIES.map((p) => ({ value: p, label: TASK_PRIORITY_LABELS[p] }))}
+        />
         <button type="submit" className="rounded-lg bg-[var(--dash-input)] px-3 py-2 text-sm">
           Filter
         </button>
@@ -238,36 +235,32 @@ export default async function TasksPage({
           className="mb-8 grid max-w-xl gap-2 rounded-2xl border border-[var(--dash-border)] p-4"
         >
           <Field label="Project">
-            <select name="projectId" required className={osSelectClass()}>
-              <option value="">Select project</option>
-              {allProjects.map((p) => (
-                <option key={String(p._id)} value={String(p._id)}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
+            <OsSelect
+              name="projectId"
+              required
+              defaultValue=""
+              placeholder="Select project"
+              options={allProjects.map((p) => ({ value: String(p._id), label: p.name }))}
+            />
           </Field>
           <Field label="Title">
             <input name="title" required className={osInputClass()} />
           </Field>
           <Field label="Assign to">
-            <select name="assignedToId" required className={osSelectClass()}>
-              <option value="">Select assignee</option>
-              {staffUsers.map((u) => (
-                <option key={String(u._id)} value={String(u._id)}>
-                  {u.name || u.email}
-                </option>
-              ))}
-            </select>
+            <OsSelect
+              name="assignedToId"
+              required
+              defaultValue=""
+              placeholder="Select assignee"
+              options={staffUsers.map((u) => ({ value: String(u._id), label: u.name || u.email }))}
+            />
           </Field>
           <Field label="Priority">
-            <select name="priority" defaultValue="medium" className={osSelectClass()}>
-              {TASK_PRIORITIES.map((p) => (
-                <option key={p} value={p}>
-                  {TASK_PRIORITY_LABELS[p]}
-                </option>
-              ))}
-            </select>
+            <OsSelect
+              name="priority"
+              defaultValue="medium"
+              options={TASK_PRIORITIES.map((p) => ({ value: p, label: TASK_PRIORITY_LABELS[p] }))}
+            />
           </Field>
           <Field label="Due date">
             <OsDateInput name="dueDate" />

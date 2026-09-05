@@ -6,8 +6,9 @@ import { ServiceCatalog } from "@/models/os/ServiceCatalog";
 import { StaffUser } from "@/models/os/StaffUser";
 import { createProject } from "@/actions/os/projects";
 import { OsActionForm } from "@/components/os/OsActionForm";
-import { Field, OsPage, osInputClass, osSelectClass, osTextareaClass } from "@/components/os/ui";
+import { Field, OsPage, osInputClass, osTextareaClass } from "@/components/os/ui";
 import { OsDateInput } from "@/components/os/OsDateInput";
+import { OsSelect } from "@/components/os/OsSelect";
 import { PROJECT_STATUSES, PROJECT_STATUS_LABELS } from "@/lib/os/constants";
 
 export default async function NewProjectPage({
@@ -27,42 +28,39 @@ export default async function NewProjectPage({
       backLabel="Back to projects">
       <OsActionForm action={createProject} submitLabel="Create project" className="grid max-w-2xl gap-4">
       <Field label="Conversion">
-      <select name="conversionUuid" defaultValue={prefill} required className={osSelectClass()}>
-      <option value="">Select</option>
-            {conversions.map((c) => (
-              <option key={c.conversionUuid} value={c.conversionUuid}>
-                {c.publicCode}
-              </option>
-            ))}
-          </select>
+      <OsSelect
+        name="conversionUuid"
+        defaultValue={prefill || ""}
+        required
+        placeholder="Select"
+        options={conversions.map((c) => ({ value: c.conversionUuid, label: c.publicCode }))}
+      />
       </Field>
       <Field label="Name">
       <input name="name" required className={osInputClass()} />
       </Field>
       <Field label="Service">
-      <select name="service" className={osSelectClass()}>
-      <option value="">—</option>
-            {services.map((s) => (
-              <option key={s.slug} value={s.slug}>{s.name}</option>
-            ))}
-          </select>
+      <OsSelect
+        name="service"
+        defaultValue=""
+        placeholder="—"
+        options={services.map((s) => ({ value: s.slug, label: s.name }))}
+      />
       </Field>
       <Field label="Status">
-      <select name="status" defaultValue="planned" className={osSelectClass()}>
-            {PROJECT_STATUSES.map((s) => (
-              <option key={s} value={s}>{PROJECT_STATUS_LABELS[s]}</option>
-            ))}
-          </select>
+      <OsSelect
+        name="status"
+        defaultValue="planned"
+        options={PROJECT_STATUSES.map((s) => ({ value: s, label: PROJECT_STATUS_LABELS[s] }))}
+      />
       </Field>
       <Field label="Primary POC">
-      <select name="primaryPocUserId" className={osSelectClass()}>
-            <option value="">Select POC</option>
-            {staffUsers.map((u) => (
-              <option key={String(u._id)} value={String(u._id)}>
-                {u.name || u.email}
-              </option>
-            ))}
-          </select>
+      <OsSelect
+        name="primaryPocUserId"
+        defaultValue=""
+        placeholder="Select POC"
+        options={staffUsers.map((u) => ({ value: String(u._id), label: u.name || u.email }))}
+      />
       </Field>
       <Field label="Start date"><OsDateInput name="startDate" /></Field>
       <Field label="Expected delivery"><OsDateInput name="expectedDelivery" /></Field>

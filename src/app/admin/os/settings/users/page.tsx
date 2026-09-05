@@ -6,7 +6,8 @@ import { ProjectMember } from "@/models/os/ProjectMember";
 import { OsTask } from "@/models/os/Task";
 import { createStaffUser, updateStaffUser } from "@/actions/os/staff";
 import { OsActionForm } from "@/components/os/OsActionForm";
-import { Field, OsPage, osInputClass, osSelectClass } from "@/components/os/ui";
+import { Field, OsPage, osInputClass } from "@/components/os/ui";
+import { OsSelect } from "@/components/os/OsSelect";
 import { STAFF_ROLES, STAFF_ROLE_LABELS } from "@/lib/os/constants";
 import { formatDateTime } from "@/lib/utils";
 
@@ -59,13 +60,11 @@ export default async function UsersSettingsPage() {
           <input name="password" type="password" required className={osInputClass()} />
         </Field>
         <Field label="Role">
-          <select name="role" defaultValue="team_member" className={osSelectClass()}>
-            {STAFF_ROLES.filter((r) => r !== "super_admin").map((r) => (
-              <option key={r} value={r}>
-                {STAFF_ROLE_LABELS[r]}
-              </option>
-            ))}
-          </select>
+          <OsSelect
+            name="role"
+            defaultValue="team_member"
+            options={STAFF_ROLES.filter((r) => r !== "super_admin").map((r) => ({ value: r, label: STAFF_ROLE_LABELS[r] }))}
+          />
         </Field>
       </OsActionForm>
       <div className="space-y-6">
@@ -91,26 +90,21 @@ export default async function UsersSettingsPage() {
                 <input name="name" defaultValue={u.name} className={osInputClass()} />
               </Field>
               <Field label="Role">
-                <select name="role" defaultValue={u.role} className={osSelectClass()}>
-                  {STAFF_ROLES.map((r) => (
-                    <option key={r} value={r}>
-                      {STAFF_ROLE_LABELS[r]}
-                    </option>
-                  ))}
-                </select>
+                <OsSelect
+                  name="role"
+                  defaultValue={u.role}
+                  options={STAFF_ROLES.map((r) => ({ value: r, label: STAFF_ROLE_LABELS[r] }))}
+                />
               </Field>
               <Field label="New password (optional)">
                 <input name="password" type="password" className={osInputClass()} />
               </Field>
               <Field label="Active">
-                <select
+                <OsSelect
                   name="isActive"
                   defaultValue={u.isActive ? "true" : "false"}
-                  className={osSelectClass()}
-                >
-                  <option value="true">Active</option>
-                  <option value="false">Inactive</option>
-                </select>
+                  options={[{ value: "true", label: "Active" }, { value: "false", label: "Inactive" }]}
+                />
               </Field>
             </OsActionForm>
           );

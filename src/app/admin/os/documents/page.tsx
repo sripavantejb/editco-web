@@ -6,7 +6,8 @@ import { Conversion } from "@/models/os/Conversion";
 import { Project } from "@/models/os/Project";
 import { uploadDocument } from "@/actions/os/documents";
 import { OsActionForm } from "@/components/os/OsActionForm";
-import { OsPage, osInputClass, osSelectClass } from "@/components/os/ui";
+import { OsPage, osInputClass } from "@/components/os/ui";
+import { OsSelect } from "@/components/os/OsSelect";
 import { formatDate } from "@/lib/utils";
 import { hasPermission } from "@/lib/os/permissions";
 
@@ -22,18 +23,19 @@ export default async function DocumentsPage() {
       backLabel="Back to dashboard">
       {hasPermission(staff.permissions, "documents:write") ? (
       <OsActionForm action={uploadDocument} submitLabel="Upload" className="mb-8 max-w-xl space-y-2">
-      <select name="conversionUuid" required className={osSelectClass()}>
-      <option value="">Conversion</option>
-          {conversions.map((c) => (
-            <option key={c.conversionUuid} value={c.conversionUuid}>{c.publicCode}</option>
-          ))}
-        </select>
-      <select name="projectId" className={osSelectClass()}>
-      <option value="">Project (optional)</option>
-          {projects.map((p) => (
-            <option key={String(p._id)} value={String(p._id)}>{p.name}</option>
-          ))}
-        </select>
+      <OsSelect
+        name="conversionUuid"
+        required
+        defaultValue=""
+        placeholder="Conversion"
+        options={conversions.map((c) => ({ value: c.conversionUuid, label: c.publicCode }))}
+      />
+      <OsSelect
+        name="projectId"
+        defaultValue=""
+        placeholder="Project (optional)"
+        options={projects.map((p) => ({ value: String(p._id), label: p.name }))}
+      />
       <input name="title" required placeholder="Title" className={osInputClass()} />
       <input type="file" name="file" />
       <label className="flex items-center gap-2 text-sm">
