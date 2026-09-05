@@ -196,6 +196,20 @@ export default function FallingText({
       const rawUp = m.mouseup;
       const { Query } = Matter;
 
+      // Touch listeners are bound to `window` (see bindMouseWindow) so the pointer-events:none
+      // overlay doesn't block footer UI — but that means every touchstart/touchmove on the WHOLE
+      // page reaches here once physics starts. Matter's raw handlers call preventDefault()
+      // unconditionally, which was swallowing scroll gestures anywhere below the footer. Only
+      // forward touch events that actually start on a chip, so page scrolling stays untouched.
+      let touchDragActive = false;
+      const getTouchPoint = (event: Event) => {
+        const touch =
+          (event as TouchEvent).changedTouches?.[0] ?? (event as TouchEvent).touches?.[0];
+        if (!touch) return null;
+        const rect = container.getBoundingClientRect();
+        return { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+      };
+
       const syncHoverCursor = () => {
         if (!mouse || dragging) return;
         const hits = Query.point(chipBodies, mouse.position);
@@ -218,17 +232,25 @@ export default function FallingText({
         ) {
           return;
         }
+        if (event.type === "touchstart") {
+          const point = getTouchPoint(event);
+          const hitsChip = point ? Query.point(chipBodies, point).length > 0 : false;
+          if (!hitsChip) return; // not grabbing a chip — leave the touch alone so the page scrolls
+          touchDragActive = true;
+        }
         rawDown(event);
       }) as EventListener;
 
       m.mousemove = ((event: Event) => {
         if (!mouse?.element?.isConnected) return;
+        if (event.type === "touchmove" && !touchDragActive) return;
         rawMove(event);
         syncHoverCursor();
       }) as EventListener;
 
       m.mouseup = ((event: Event) => {
         if (!mouse?.element?.isConnected) return;
+        if (event.type === "touchend") touchDragActive = false;
         rawUp(event);
       }) as EventListener;
 
