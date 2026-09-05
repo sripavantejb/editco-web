@@ -14,6 +14,7 @@ export function MagneticNav() {
   const hideOnAppRoutes =
     pathname?.startsWith("/dashboard") ||
     pathname?.startsWith("/admin") ||
+    pathname?.startsWith("/sales") ||
     pathname?.startsWith("/client");
 
   const toggleMenu = () => setIsOpen(!isOpen);
