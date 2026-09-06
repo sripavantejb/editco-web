@@ -100,6 +100,43 @@ export async function updateStaffUser(
   return { success: "User updated" };
 }
 
+/** Soft-deactivate — keeps history (projects/tasks still reference the user). */
+export async function deleteStaffUser(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const gate = await requireStaff("*");
+  if (!gate.ok) return { error: gate.error };
+  await connectDB();
+  const id = str(formData, "id");
+  const user = await StaffUser.findById(id);
+  if (!user) return { error: "User not found" };
+  if (user.email === gate.staff.email) {
+    return { error: "You cannot delete your own account" };
+  }
+  if (user.role === "super_admin" && gate.staff.role !== "super_admin") {
+    return { error: "Cannot delete a super admin" };
+  }
+
+  user.isActive = false;
+  await user.save();
+
+  await logActivity({
+    title: "User deactivated",
+    detail: `${user.name} (${user.email})`,
+    createdBy: gate.staff.email,
+    actorUserId: gate.staff.userId,
+    actorName: gate.staff.name,
+    actionType: "USER_DEACTIVATED",
+    entityType: "staff",
+    entityId: user._id.toString(),
+    metadata: { email: user.email, role: user.role },
+  });
+
+  revalidatePath("/admin/os/settings/users");
+  return { success: "User deleted" };
+}
+
 export async function createService(
   _prev: ActionState,
   formData: FormData

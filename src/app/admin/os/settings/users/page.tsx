@@ -9,6 +9,7 @@ import { OsActionForm } from "@/components/os/OsActionForm";
 import { Field, OsPage, osInputClass } from "@/components/os/ui";
 import { OsSelect } from "@/components/os/OsSelect";
 import { OsPasswordInput } from "@/components/os/OsPasswordInput";
+import { OsSlideOver } from "@/components/os/OsSlideOver";
 import { StaffUsersGrid, type StaffUserCard } from "@/components/os/StaffUsersGrid";
 import { STAFF_ROLES, STAFF_ROLE_LABELS, type StaffRole } from "@/lib/os/constants";
 import { formatDateTime } from "@/lib/utils";
@@ -62,33 +63,36 @@ export default async function UsersSettingsPage() {
       subtitle="Internal team accounts. Soft-deactivate to preserve history."
       backHref="/admin/os"
       backLabel="Back to dashboard"
+      actions={
+        <OsSlideOver
+          triggerLabel="Add user"
+          title="Add user"
+          subtitle="Create an internal team login."
+        >
+          <OsActionForm action={createStaffUser} submitLabel="Add user" className="grid gap-3">
+            <Field label="Name">
+              <input name="name" className={osInputClass()} />
+            </Field>
+            <Field label="Email">
+              <input name="email" type="email" required className={osInputClass()} />
+            </Field>
+            <Field label="Password">
+              <OsPasswordInput name="password" required />
+            </Field>
+            <Field label="Role">
+              <OsSelect
+                name="role"
+                defaultValue="team_member"
+                options={STAFF_ROLES.filter((r) => r !== "super_admin").map((r) => ({
+                  value: r,
+                  label: STAFF_ROLE_LABELS[r],
+                }))}
+              />
+            </Field>
+          </OsActionForm>
+        </OsSlideOver>
+      }
     >
-      <OsActionForm
-        action={createStaffUser}
-        submitLabel="Add user"
-        className="mb-10 grid max-w-xl gap-3"
-      >
-        <Field label="Name">
-          <input name="name" className={osInputClass()} />
-        </Field>
-        <Field label="Email">
-          <input name="email" type="email" required className={osInputClass()} />
-        </Field>
-        <Field label="Password">
-          <OsPasswordInput name="password" required />
-        </Field>
-        <Field label="Role">
-          <OsSelect
-            name="role"
-            defaultValue="team_member"
-            options={STAFF_ROLES.filter((r) => r !== "super_admin").map((r) => ({
-              value: r,
-              label: STAFF_ROLE_LABELS[r],
-            }))}
-          />
-        </Field>
-      </OsActionForm>
-
       <h2 className="mb-3 font-inter text-sm font-semibold text-[#111111]">Team</h2>
       <StaffUsersGrid users={cards} />
     </OsPage>

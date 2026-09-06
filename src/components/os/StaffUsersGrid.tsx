@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
-import { updateStaffUser } from "@/actions/os/staff";
+import { toast } from "sonner";
+import { deleteStaffUser, updateStaffUser } from "@/actions/os/staff";
 import { OsActionForm } from "@/components/os/OsActionForm";
 import { Field, osInputClass } from "@/components/os/ui";
 import { OsSelect } from "@/components/os/OsSelect";
@@ -25,8 +27,10 @@ export type StaffUserCard = {
 };
 
 export function StaffUsersGrid({ users }: { users: StaffUserCard[] }) {
+  const router = useRouter();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [deleting, startDelete] = useTransition();
   const selected = users.find((u) => u.id === selectedId) || null;
 
   useEffect(() => setMounted(true), []);
@@ -45,6 +49,29 @@ export function StaffUsersGrid({ users }: { users: StaffUserCard[] }) {
   }, [selectedId]);
 
   const close = () => setSelectedId(null);
+
+  function onDelete() {
+    if (!selected) return;
+    if (
+      !window.confirm(
+        `Delete ${selected.name || selected.email}? They will be deactivated and can no longer sign in.`
+      )
+    ) {
+      return;
+    }
+    startDelete(async () => {
+      const fd = new FormData();
+      fd.set("id", selected.id);
+      const result = await deleteStaffUser({}, fd);
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success(result.success || "User deleted");
+      close();
+      router.refresh();
+    });
+  }
 
   return (
     <>
@@ -171,6 +198,21 @@ export function StaffUsersGrid({ users }: { users: StaffUserCard[] }) {
                           </Field>
                         </OsActionForm>
                       </SalesModalContext.Provider>
+
+                      <div className="mt-6 border-t border-[#e5e7eb] pt-4">
+                        <button
+                          type="button"
+                          disabled={deleting || !selected.isActive}
+                          onClick={onDelete}
+                          className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-red-200 bg-red-50 font-inter text-sm font-medium text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {deleting
+                            ? "Deleting…"
+                            : selected.isActive
+                              ? "Delete user"
+                              : "Already inactive"}
+                        </button>
+                      </div>
                     </div>
                   </motion.div>
                 </div>
