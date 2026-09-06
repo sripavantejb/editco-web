@@ -18,7 +18,7 @@ type CropState = {
 
 /**
  * WhatsApp-style circular crop for crew photos.
- * Uniform transform zoom (no stretch) + drag to pan; Apply bakes a square JPEG.
+ * Drag to move, slider to zoom, Apply writes a cropped square into the form file input.
  */
 export function CrewPhotoCropField({
   currentSrc,
@@ -84,7 +84,9 @@ export function CrewPhotoCropField({
         </span>
       </p>
 
+      {/* Cropped file goes here for the server action */}
       <input ref={fileRef} name="image" type="file" accept="image/*" className="hidden" />
+      {/* Baked crop is centered — reset adjust fields */}
       <input type="hidden" name="imageScale" value="1" />
       <input type="hidden" name="imagePosX" value="50" />
       <input type="hidden" name="imagePosY" value="50" />
@@ -93,11 +95,7 @@ export function CrewPhotoCropField({
         <div className="mx-auto flex flex-col items-center gap-2">
           <div className="relative h-32 w-32 overflow-hidden rounded-full bg-[#f5f5f5] ring-2 ring-[var(--dash-border)]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={shown}
-              alt="Crew preview"
-              className="h-full w-full object-cover object-center"
-            />
+            <img src={shown} alt="Crew preview" className="h-full w-full object-cover object-center" />
           </div>
           <div className="flex flex-wrap items-center justify-center gap-2">
             <label className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-[var(--dash-border)] bg-white px-3 font-inter text-[12px] font-medium text-[var(--dash-text)] hover:border-[#111]">
@@ -179,61 +177,41 @@ function CropModal({
   const imgRef = useRef<HTMLImageElement | null>(null);
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [nw, setNw] = useState(0);
-  const [nh, setNh] = useState(0);
   const [crop, setCrop] = useState<CropState>({ zoom: 1, panX: 0, panY: 0 });
-  const drag = useRef<{ x: number; y: number; panX: number; panY: number } | null>(
-    null
-  );
-  const cropRef = useRef(crop);
-  cropRef.current = crop;
+  const drag = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
 
-  const coverScaleFor = useCallback((w: number, h: number) => {
-    if (w <= 0 || h <= 0) return 1;
+  const natural = useRef({ w: 1, h: 1 });
+
+  const coverScale = () => {
+    const { w, h } = natural.current;
     return Math.max(VIEW / w, VIEW / h);
-  }, []);
+  };
 
-  const clampPan = useCallback(
-    (zoom: number, panX: number, panY: number, w: number, h: number) => {
-      const s = coverScaleFor(w, h) * zoom;
-      const dw = w * s;
-      const dh = h * s;
-      const maxX = Math.max(0, (dw - VIEW) / 2);
-      const maxY = Math.max(0, (dh - VIEW) / 2);
-      return {
-        zoom: Math.min(3, Math.max(1, zoom)),
-        panX: Math.min(maxX, Math.max(-maxX, panX)),
-        panY: Math.min(maxY, Math.max(-maxY, panY)),
-      };
-    },
-    [coverScaleFor]
-  );
+  const displayScale = () => coverScale() * crop.zoom;
 
   const onImgLoad = (el: HTMLImageElement) => {
     imgRef.current = el;
-    const w = el.naturalWidth;
-    const h = el.naturalHeight;
-    if (!w || !h) {
-      toast.error("Could not read this image. Try another file.");
-      return;
-    }
-    setNw(w);
-    setNh(h);
+    natural.current = { w: el.naturalWidth || 1, h: el.naturalHeight || 1 };
     setCrop({ zoom: 1, panX: 0, panY: 0 });
     setReady(true);
   };
 
-  // Cached images may skip onLoad
-  useEffect(() => {
-    const el = imgRef.current;
-    if (el?.complete && el.naturalWidth) onImgLoad(el);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [src]);
+  const clampPan = useCallback((zoom: number, panX: number, panY: number) => {
+    const s = coverScale() * zoom;
+    const dw = natural.current.w * s;
+    const dh = natural.current.h * s;
+    const maxX = Math.max(0, (dw - VIEW) / 2);
+    const maxY = Math.max(0, (dh - VIEW) / 2);
+    return {
+      zoom,
+      panX: Math.min(maxX, Math.max(-maxX, panX)),
+      panY: Math.min(maxY, Math.max(-maxY, panY)),
+    };
+  }, []);
 
   const onPointerDown = (e: React.PointerEvent) => {
     e.currentTarget.setPointerCapture(e.pointerId);
-    const c = cropRef.current;
-    drag.current = { x: e.clientX, y: e.clientY, panX: c.panX, panY: c.panY };
+    drag.current = { x: e.clientX, y: e.clientY, panX: crop.panX, panY: crop.panY };
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
@@ -241,13 +219,7 @@ function CropModal({
     const dx = e.clientX - drag.current.x;
     const dy = e.clientY - drag.current.y;
     setCrop(
-      clampPan(
-        cropRef.current.zoom,
-        drag.current.panX + dx,
-        drag.current.panY + dy,
-        nw,
-        nh
-      )
+      clampPan(crop.zoom, drag.current.panX + dx, drag.current.panY + dy)
     );
   };
 
@@ -257,7 +229,7 @@ function CropModal({
 
   const exportCrop = async () => {
     const img = imgRef.current;
-    if (!img || !ready || !nw || !nh) return;
+    if (!img || !ready) return;
     setBusy(true);
     try {
       const canvas = document.createElement("canvas");
@@ -266,18 +238,16 @@ function CropModal({
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
-      const { zoom, panX, panY } = cropRef.current;
-      const totalScale = coverScaleFor(nw, nh) * zoom;
       const ratio = EXPORT / VIEW;
+      const s = displayScale() * ratio;
+      const dw = natural.current.w * s;
+      const dh = natural.current.h * s;
+      const dx = EXPORT / 2 + crop.panX * ratio - dw / 2;
+      const dy = EXPORT / 2 + crop.panY * ratio - dh / 2;
 
-      ctx.fillStyle = "#111111";
+      ctx.fillStyle = "#111";
       ctx.fillRect(0, 0, EXPORT, EXPORT);
-      ctx.save();
-      ctx.translate(EXPORT / 2 + panX * ratio, EXPORT / 2 + panY * ratio);
-      ctx.scale(totalScale * ratio, totalScale * ratio);
-      // Draw at natural size around origin — uniform scale, no stretch
-      ctx.drawImage(img, -nw / 2, -nh / 2, nw, nh);
-      ctx.restore();
+      ctx.drawImage(img, dx, dy, dw, dh);
 
       const blob = await new Promise<Blob | null>((resolve) =>
         canvas.toBlob((b) => resolve(b), "image/jpeg", 0.92)
@@ -294,7 +264,9 @@ function CropModal({
     }
   };
 
-  const totalScale = ready ? coverScaleFor(nw, nh) * crop.zoom : 1;
+  const s = ready ? displayScale() : 1;
+  const dw = natural.current.w * s;
+  const dh = natural.current.h * s;
 
   return (
     <div className="admin-theme fixed inset-0 z-[300] flex items-center justify-center px-4">
@@ -322,10 +294,10 @@ function CropModal({
 
         <div className="px-4 py-5">
           <p className="mb-3 text-center font-inter text-[11px] text-white/50">
-            Drag to move · slider to zoom (keeps face shape)
+            Drag to move · use the slider to zoom
           </p>
           <div
-            className="relative mx-auto touch-none select-none overflow-hidden rounded-full bg-[#222] cursor-grab active:cursor-grabbing"
+            className="relative mx-auto touch-none select-none overflow-hidden rounded-full bg-[#222]"
             style={{ width: VIEW, height: VIEW }}
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
@@ -333,27 +305,22 @@ function CropModal({
             onPointerCancel={onPointerUp}
             onWheel={(e) => {
               e.preventDefault();
-              const next = crop.zoom + (e.deltaY > 0 ? -0.08 : 0.08);
-              setCrop((c) => clampPan(next, c.panX, c.panY, nw, nh));
+              const next = Math.min(3, Math.max(1, crop.zoom + (e.deltaY > 0 ? -0.08 : 0.08)));
+              setCrop((c) => clampPan(next, c.panX, c.panY));
             }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              ref={imgRef}
               src={src}
               alt=""
               draggable={false}
               onLoad={(e) => onImgLoad(e.currentTarget)}
-              className={cn(
-                "pointer-events-none absolute left-1/2 top-1/2 max-w-none",
-                !ready && "opacity-0"
-              )}
+              className={cn("absolute max-w-none", !ready && "opacity-0")}
               style={{
-                // Natural pixel size only — zoom via uniform CSS transform (no stretch)
-                width: nw || undefined,
-                height: nh || undefined,
-                transform: `translate(-50%, -50%) translate(${crop.panX}px, ${crop.panY}px) scale(${totalScale})`,
-                transformOrigin: "center center",
+                width: dw,
+                height: dh,
+                left: VIEW / 2 + crop.panX - dw / 2,
+                top: VIEW / 2 + crop.panY - dh / 2,
               }}
             />
             <div className="pointer-events-none absolute inset-0 rounded-full ring-2 ring-white/80 ring-inset" />
@@ -369,7 +336,7 @@ function CropModal({
               value={crop.zoom}
               onChange={(e) => {
                 const zoom = Number(e.target.value);
-                setCrop((c) => clampPan(zoom, c.panX, c.panY, nw, nh));
+                setCrop((c) => clampPan(zoom, c.panX, c.panY));
               }}
               className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/20 accent-gaude-orange"
             />
