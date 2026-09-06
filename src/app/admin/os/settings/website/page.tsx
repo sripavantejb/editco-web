@@ -24,7 +24,7 @@ import { OsActionForm } from "@/components/os/OsActionForm";
 import { OsSlideOver } from "@/components/os/OsSlideOver";
 import { RowDeleteButton } from "@/components/os/RowDeleteButton";
 import { SiteImageFields } from "@/components/os/SiteImageFields";
-import { CrewImageAdjustFields } from "@/components/os/CrewImageAdjustFields";
+import { CrewPhotoCropField } from "@/components/os/CrewPhotoCropField";
 import { Field, OsPage, osInputClass, osTextareaClass } from "@/components/os/ui";
 import { OsSelect } from "@/components/os/OsSelect";
 
@@ -491,11 +491,9 @@ export default async function WebsiteSettingsPage() {
                   <input name="slug" placeholder="harsha" className={osInputClass()} />
                 </Field>
               </div>
-              <SiteImageFields
-                label="Photo"
+              <CrewPhotoCropField
                 urlPlaceholder="/crew/harsha.jpg or https://…"
               />
-              <CrewImageAdjustFields />
               <Field label="Role">
                 <input name="role" className={osInputClass()} />
               </Field>
@@ -543,17 +541,19 @@ export default async function WebsiteSettingsPage() {
               >
                 <div className="relative flex h-48 items-center justify-center overflow-hidden bg-[#111]">
                   {src ? (
-                    <Image
-                      src={src}
-                      alt={member.name}
-                      fill
-                      className="object-cover"
-                      style={{
-                        objectPosition: `${Number(member.imagePosX ?? 50)}% ${Number(member.imagePosY ?? 18)}%`,
-                        transform: `scale(${Number(member.imageScale ?? 1)})`,
-                      }}
-                      unoptimized
-                    />
+                    <div className="relative h-36 w-36 overflow-hidden rounded-full">
+                      <Image
+                        src={src}
+                        alt={member.name}
+                        fill
+                        className="object-cover object-center"
+                        style={{
+                          objectPosition: `${Number(member.imagePosX ?? 50)}% ${Number(member.imagePosY ?? 50)}%`,
+                          transform: `scale(${Number(member.imageScale ?? 1)})`,
+                        }}
+                        unoptimized
+                      />
+                    </div>
                   ) : (
                     <span className="font-inter text-xs text-white/50">
                       No photo — use Add image
@@ -600,16 +600,10 @@ export default async function WebsiteSettingsPage() {
                             />
                           </Field>
                         </div>
-                        <SiteImageFields
-                          label="Photo"
+                        <CrewPhotoCropField
                           currentSrc={src || undefined}
                           defaultUrl={member.imageBase64 ? "" : member.imageUrl || ""}
                           urlPlaceholder="Leave blank to keep current upload"
-                        />
-                        <CrewImageAdjustFields
-                          scale={Number(member.imageScale ?? 1)}
-                          posX={Number(member.imagePosX ?? 50)}
-                          posY={Number(member.imagePosY ?? 18)}
                         />
                         <Field label="Role">
                           <input

@@ -103,7 +103,7 @@ export function WhySection({ members: membersProp }: { members?: SiteCrewItem[] 
                         sizes="180px"
                         className="object-cover"
                         style={{
-                          objectPosition: `${member.imagePosX ?? 50}% ${member.imagePosY ?? 18}%`,
+                          objectPosition: `${member.imagePosX ?? 50}% ${member.imagePosY ?? 50}%`,
                           transform: `scale(${member.imageScale ?? 1})`,
                         }}
                         unoptimized={member.image.startsWith("/api/")}
