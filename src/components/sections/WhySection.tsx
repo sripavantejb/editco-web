@@ -101,11 +101,7 @@ export function WhySection({ members: membersProp }: { members?: SiteCrewItem[] 
                         alt={member.name}
                         fill
                         sizes="180px"
-                        className="object-cover"
-                        style={{
-                          objectPosition: `${member.imagePosX ?? 50}% ${member.imagePosY ?? 50}%`,
-                          transform: `scale(${member.imageScale ?? 1})`,
-                        }}
+                        className="object-cover object-center"
                         unoptimized={member.image.startsWith("/api/")}
                         priority={i === 0}
                       />

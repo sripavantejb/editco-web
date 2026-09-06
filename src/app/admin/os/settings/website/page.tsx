@@ -547,10 +547,6 @@ export default async function WebsiteSettingsPage() {
                         alt={member.name}
                         fill
                         className="object-cover object-center"
-                        style={{
-                          objectPosition: `${Number(member.imagePosX ?? 50)}% ${Number(member.imagePosY ?? 50)}%`,
-                          transform: `scale(${Number(member.imageScale ?? 1)})`,
-                        }}
                         unoptimized
                       />
                     </div>
