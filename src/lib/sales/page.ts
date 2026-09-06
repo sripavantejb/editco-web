@@ -76,10 +76,49 @@ export const requireSalesAdminPage = cache(async (): Promise<SalesEmployeeContex
   }
 
   const employee = await getSalesEmployeeContext(session.email);
-  if (!employee) redirect(`${SALES_ADMIN_LOGIN}?next=/sales/admin`);
+  // Never bounce "has session but no Sales Admin row" back through the admin
+  // login page — that page used to auto-redirect to /sales/admin and loop.
+  if (!employee) redirect("/sales/login");
   if (!employee!.isSalesAdmin) redirect("/sales/employee");
   return employee!;
 });
+
+/**
+ * Where a logged-in user should go for a portal — or `null` if they must stay
+ * on the login screen (prevents login ↔ /sales/admin redirect loops).
+ */
+export async function resolvePortalDestination(
+  email: string,
+  opts: { portal: StaffPortal; next?: string | null }
+): Promise<string | null> {
+  await connectDB();
+  const next = opts.next?.trim() || null;
+  const portal = opts.portal === "sales" ? "sales_admin" : opts.portal;
+
+  if (portal === "sales_admin") {
+    if (isSuperAdminEmail(email)) {
+      await ensureSuperAdminSalesAccess(email);
+      return next?.startsWith("/sales/admin") ? next : "/sales/admin";
+    }
+    const employee = await getSalesEmployeeContext(email);
+    if (employee?.isSalesAdmin) {
+      return next?.startsWith("/sales/admin") ? next : "/sales/admin";
+    }
+    // Regular sales employee → their home. No sales profile → stay on login.
+    if (employee) return "/sales/employee";
+    return null;
+  }
+
+  if (portal === "sales_employee") {
+    const employee = await getSalesEmployeeContext(email);
+    if (!employee) return null;
+    if (employee.isSalesAdmin) return "/sales/admin";
+    return next?.startsWith("/sales/employee") ? next : "/sales/employee";
+  }
+
+  // OS / default
+  return getStaffLandingPath(email, { portal, next });
+}
 
 /**
  * Landing after login:
@@ -95,17 +134,15 @@ export async function getStaffLandingPath(
   const next = opts?.next?.trim() || null;
   const portal = opts?.portal === "sales" ? "sales_admin" : opts?.portal;
 
-  if (portal === "sales_employee") {
-    if (next?.startsWith("/sales/employee")) return next;
-    return "/sales/employee";
-  }
-
-  if (portal === "sales_admin") {
-    if (isSuperAdminEmail(email)) {
-      await ensureSuperAdminSalesAccess(email);
-    }
-    if (next?.startsWith("/sales/admin")) return next;
-    return "/sales/admin";
+  if (portal === "sales_employee" || portal === "sales_admin") {
+    const dest = await resolvePortalDestination(email, {
+      portal,
+      next,
+    });
+    // Callers that require a path (post-login redirect) fall back to the
+    // matching login screen — never to a protected page the user can't enter.
+    if (dest) return dest;
+    return portal === "sales_admin" ? SALES_ADMIN_LOGIN : SALES_EMPLOYEE_LOGIN;
   }
 
   if (isSuperAdminEmail(email)) {

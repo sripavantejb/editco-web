@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/session";
-import { getStaffLandingPath } from "@/lib/sales/page";
+import { resolvePortalDestination } from "@/lib/sales/page";
 import { PortalLoginForm } from "@/components/portal/PortalLoginForm";
 
 export default async function SalesAdminLoginPage({
@@ -13,12 +13,15 @@ export default async function SalesAdminLoginPage({
   const params = await searchParams;
   const session = await getAdminSession();
   if (session) {
-    redirect(
-      await getStaffLandingPath(session.email, {
-        portal: "sales_admin",
-        next: params.next,
-      })
-    );
+    const dest = await resolvePortalDestination(session.email, {
+      portal: "sales_admin",
+      next: params.next,
+    });
+    // Only leave the login page when this account can actually open Sales Admin
+    // (or their employee home). null = show the form — breaks ERR_TOO_MANY_REDIRECTS.
+    if (dest && !dest.startsWith("/sales/login")) {
+      redirect(dest);
+    }
   }
 
   return (

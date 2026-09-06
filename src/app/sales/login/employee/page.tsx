@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/session";
-import { getStaffLandingPath } from "@/lib/sales/page";
+import { resolvePortalDestination } from "@/lib/sales/page";
 import { PortalLoginForm } from "@/components/portal/PortalLoginForm";
 
 export default async function SalesEmployeeLoginPage({
@@ -13,12 +13,13 @@ export default async function SalesEmployeeLoginPage({
   const params = await searchParams;
   const session = await getAdminSession();
   if (session) {
-    redirect(
-      await getStaffLandingPath(session.email, {
-        portal: "sales_employee",
-        next: params.next,
-      })
-    );
+    const dest = await resolvePortalDestination(session.email, {
+      portal: "sales_employee",
+      next: params.next,
+    });
+    if (dest && !dest.startsWith("/sales/login")) {
+      redirect(dest);
+    }
   }
 
   return (
