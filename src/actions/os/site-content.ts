@@ -237,6 +237,20 @@ export async function upsertSiteCrewMember(
     return { error: e instanceof Error ? e.message : "Upload failed" };
   }
 
+  const rawScale = num(formData, "imageScale");
+  const rawPosX = num(formData, "imagePosX");
+  const rawPosY = num(formData, "imagePosY");
+  const imageScale =
+    Number.isFinite(rawScale) && rawScale > 0
+      ? Math.min(2.5, Math.max(0.6, rawScale))
+      : 1;
+  const imagePosX = Number.isFinite(rawPosX)
+    ? Math.min(100, Math.max(0, rawPosX))
+    : 50;
+  const imagePosY = Number.isFinite(rawPosY)
+    ? Math.min(100, Math.max(0, rawPosY))
+    : 18;
+
   const payload = {
     slug,
     name,
@@ -247,6 +261,9 @@ export async function upsertSiteCrewMember(
     portfolio: str(formData, "portfolio"),
     sortOrder: num(formData, "sortOrder"),
     imageUrl: str(formData, "imageUrl"),
+    imageScale,
+    imagePosX,
+    imagePosY,
     updatedBy: gate.staff.email,
   };
 

@@ -40,6 +40,9 @@ function fallbackCrew(): SiteCrewItem[] {
     image: m.image,
     linkedin: m.linkedin,
     portfolio: m.portfolio,
+    imageScale: 1,
+    imagePosX: 50,
+    imagePosY: 18,
   }));
 }
 
@@ -92,15 +95,21 @@ export function WhySection({ members: membersProp }: { members?: SiteCrewItem[] 
                       "rounded-full group-hover:rounded-[1.25rem] group-hover:scale-[1.03]"
                     )}
                   >
-                    <Image
-                      src={member.image}
-                      alt={member.name}
-                      fill
-                      sizes="180px"
-                      className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
-                      unoptimized={member.image.startsWith("/api/")}
-                      priority={i === 0}
-                    />
+                    <div className="absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-105">
+                      <Image
+                        src={member.image}
+                        alt={member.name}
+                        fill
+                        sizes="180px"
+                        className="object-cover"
+                        style={{
+                          objectPosition: `${member.imagePosX ?? 50}% ${member.imagePosY ?? 18}%`,
+                          transform: `scale(${member.imageScale ?? 1})`,
+                        }}
+                        unoptimized={member.image.startsWith("/api/")}
+                        priority={i === 0}
+                      />
+                    </div>
                   </div>
                 </div>
 

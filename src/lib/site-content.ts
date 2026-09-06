@@ -27,6 +27,9 @@ export type SiteCrewItem = {
   image: string;
   linkedin: string;
   portfolio: string;
+  imageScale: number;
+  imagePosX: number;
+  imagePosY: number;
 };
 
 export function siteClientImageSrc(id: string) {
@@ -67,7 +70,20 @@ function staticCrewItems(): SiteCrewItem[] {
     image: m.image,
     linkedin: m.linkedin,
     portfolio: m.portfolio,
+    imageScale: 1,
+    imagePosX: 50,
+    imagePosY: 18,
   }));
+}
+
+function clampPct(n: number, fallback: number) {
+  if (!Number.isFinite(n)) return fallback;
+  return Math.min(100, Math.max(0, n));
+}
+
+function clampScale(n: number) {
+  if (!Number.isFinite(n) || n <= 0) return 1;
+  return Math.min(2.5, Math.max(0.6, n));
 }
 
 /** Seed DB from static content; also inserts any new static items missing from DB. */
@@ -334,6 +350,9 @@ export async function getSiteCrew(): Promise<SiteCrewItem[]> {
       image: resolveImage(d, "crew") || "/crew/tej.jpg",
       linkedin: d.linkedin || "",
       portfolio: d.portfolio || "",
+      imageScale: clampScale(Number(d.imageScale ?? 1)),
+      imagePosX: clampPct(Number(d.imagePosX ?? 50), 50),
+      imagePosY: clampPct(Number(d.imagePosY ?? 18), 18),
     }));
   } catch {
     return staticCrewItems();

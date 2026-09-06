@@ -18,6 +18,11 @@ const siteCrewMemberSchema = new Schema(
     imageUrl: { type: String, default: "" },
     imageBase64: { type: String, default: "" },
     mimeType: { type: String, default: "" },
+    /** Zoom inside the circular crop (1 = normal). */
+    imageScale: { type: Number, default: 1 },
+    /** Focal point X/Y as 0–100% for object-position. */
+    imagePosX: { type: Number, default: 50 },
+    imagePosY: { type: Number, default: 18 },
     recordStatus: {
       type: String,
       enum: RECORD_STATUSES,

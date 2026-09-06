@@ -24,6 +24,7 @@ import { OsActionForm } from "@/components/os/OsActionForm";
 import { OsSlideOver } from "@/components/os/OsSlideOver";
 import { RowDeleteButton } from "@/components/os/RowDeleteButton";
 import { SiteImageFields } from "@/components/os/SiteImageFields";
+import { CrewImageAdjustFields } from "@/components/os/CrewImageAdjustFields";
 import { Field, OsPage, osInputClass, osTextareaClass } from "@/components/os/ui";
 import { OsSelect } from "@/components/os/OsSelect";
 
@@ -494,6 +495,7 @@ export default async function WebsiteSettingsPage() {
                 label="Photo"
                 urlPlaceholder="/crew/harsha.jpg or https://…"
               />
+              <CrewImageAdjustFields />
               <Field label="Role">
                 <input name="role" className={osInputClass()} />
               </Field>
@@ -539,13 +541,17 @@ export default async function WebsiteSettingsPage() {
                 key={String(member._id)}
                 className="overflow-hidden rounded-2xl border border-[var(--dash-border)]"
               >
-                <div className="relative flex h-48 items-center justify-center bg-[#111]">
+                <div className="relative flex h-48 items-center justify-center overflow-hidden bg-[#111]">
                   {src ? (
                     <Image
                       src={src}
                       alt={member.name}
                       fill
-                      className="object-cover object-top"
+                      className="object-cover"
+                      style={{
+                        objectPosition: `${Number(member.imagePosX ?? 50)}% ${Number(member.imagePosY ?? 18)}%`,
+                        transform: `scale(${Number(member.imageScale ?? 1)})`,
+                      }}
                       unoptimized
                     />
                   ) : (
@@ -599,6 +605,11 @@ export default async function WebsiteSettingsPage() {
                           currentSrc={src || undefined}
                           defaultUrl={member.imageBase64 ? "" : member.imageUrl || ""}
                           urlPlaceholder="Leave blank to keep current upload"
+                        />
+                        <CrewImageAdjustFields
+                          scale={Number(member.imageScale ?? 1)}
+                          posX={Number(member.imagePosX ?? 50)}
+                          posY={Number(member.imagePosY ?? 18)}
                         />
                         <Field label="Role">
                           <input
