@@ -161,7 +161,7 @@ export function MagneticNav() {
                   if (isReferral) {
                     return renderNavHref(
                       link.href,
-                      `nav-referral shrink-0 px-2.5 py-2 font-archivo text-[9px] font-bold uppercase tracking-widest text-white/70 transition-colors hover:text-white lg:px-3.5 lg:text-[10px] ${visibility}`,
+                      `nav-referral shrink-0 px-2.5 py-1.5 font-archivo text-[9px] font-bold uppercase tracking-widest text-white/90 transition-colors hover:text-white lg:px-3.5 lg:text-[10px] ${visibility}`,
                       link.label,
                       (e) => handleNavClick(e, link.href)
                     );
@@ -308,9 +308,9 @@ export function MagneticNav() {
                     const isReferral = link.href === "/refer";
                     return renderNavHref(
                       link.href,
-                      `font-inter text-[clamp(1.5rem,4.2vw,2.55rem)] font-medium leading-[1.12] tracking-[-0.02em] text-black transition-opacity hover:opacity-45 ${
-                        isReferral ? "text-gaude-orange hover:opacity-80" : ""
-                      }`,
+                      isReferral
+                        ? "nav-referral-menu font-inter text-[clamp(1.5rem,4.2vw,2.55rem)] font-medium leading-[1.12] tracking-[-0.02em] text-black transition-opacity hover:opacity-80"
+                        : "font-inter text-[clamp(1.5rem,4.2vw,2.55rem)] font-medium leading-[1.12] tracking-[-0.02em] text-black transition-opacity hover:opacity-45",
                       link.label,
                       (e) => handleNavClick(e, link.href)
                     );
