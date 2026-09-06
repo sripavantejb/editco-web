@@ -171,8 +171,8 @@ export default function FallingText({
         elem.style.position = "absolute";
         elem.style.left = "0";
         elem.style.top = "0";
-        // Chips catch hover (custom hand cursor) + clicks; empty overlay stays pass-through
-        elem.style.pointerEvents = "auto";
+        // Pass-through so LinkedIn/mail stay tappable; drag uses window + Query.point
+        elem.style.pointerEvents = "none";
         elem.style.zIndex = "2";
         elem.style.willChange = "transform";
         elem.style.cursor = "grab";

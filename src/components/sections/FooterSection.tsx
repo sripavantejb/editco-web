@@ -50,10 +50,10 @@ export function FooterSection() {
       id={footer.id}
       className={`relative overflow-hidden bg-black py-4 font-inter md:py-6 ${sectionFlowAfter}`}
     >
-      {/* Industry chips — below interactive footer UI (z-40) so mobile taps work */}
+      {/* Industry chips float above footer cards; taps pass through to links */}
       <div
         id={industriesWorked.id}
-        className="pointer-events-none absolute inset-0 z-20"
+        className="pointer-events-none absolute inset-0 z-30"
         aria-hidden
       >
         <FallingText
@@ -68,9 +68,9 @@ export function FooterSection() {
         />
       </div>
 
-      <div className="relative z-40 mx-auto max-w-[1400px] px-4 sm:px-6 md:px-2">
-        <div className="grid grid-cols-1 gap-1.5 md:grid-cols-2">
-          <div className="relative overflow-hidden rounded-[20px] bg-[#FFD600] p-4 md:p-6">
+      <div className="relative z-10 mx-auto max-w-[1400px] px-4 sm:px-6 md:px-2">
+        <div className="pointer-events-none relative z-40 grid grid-cols-1 gap-1.5 md:grid-cols-2">
+          <div className="pointer-events-auto relative overflow-hidden rounded-[20px] bg-[#FFD600] p-4 md:p-6">
             <div className="relative z-10">
               <h2 className="mb-0.5 max-w-md origin-left px-1 font-archivo text-2xl italic leading-[1.05] tracking-[-0.05em] text-black sm:skew-x-[-12deg] sm:leading-[0.85] sm:text-3xl md:text-5xl">
                 YOUR INBOX
@@ -89,7 +89,7 @@ export function FooterSection() {
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-[20px] bg-[#FFD600] p-4 md:p-6">
+          <div className="pointer-events-auto relative overflow-hidden rounded-[20px] bg-[#FFD600] p-4 md:p-6">
             <div className="relative z-10">
               <h2 className="mb-0.5 max-w-md origin-left px-1 font-archivo text-2xl italic leading-[1.05] tracking-[-0.05em] text-black sm:skew-x-[-12deg] sm:leading-[0.85] sm:text-3xl md:text-5xl">
                 ALWAYS HERE
@@ -155,8 +155,7 @@ export function FooterSection() {
           </motion.div>
         </div>
 
-        {/* Socials + CTA — above falling chips so mobile taps always work */}
-        <div className="relative z-40 flex flex-col gap-1.5 md:flex-row">
+        <div className="pointer-events-none flex flex-col gap-1.5 md:flex-row">
           <div className="grid grid-cols-2 gap-1.5 md:w-[240px]">
             {socials.map((social) => (
               <a
@@ -166,14 +165,14 @@ export function FooterSection() {
                   ? { target: "_blank", rel: "noopener noreferrer" }
                   : {})}
                 aria-label={social.label}
-                className="flex aspect-square items-center justify-center rounded-[12px] bg-white text-black transition-transform hover:scale-105 active:scale-95"
+                className="pointer-events-auto flex aspect-square items-center justify-center rounded-[12px] bg-white text-black transition-transform hover:scale-105 active:scale-95"
               >
                 {social.icon}
               </a>
             ))}
           </div>
 
-          <div className="relative flex flex-1 flex-col justify-between overflow-hidden rounded-[24px] bg-[#36DF93] p-4 text-black md:p-6">
+          <div className="pointer-events-auto relative flex flex-1 flex-col justify-between overflow-hidden rounded-[24px] bg-[#36DF93] p-4 text-black md:p-6">
             <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
               <h2 className="max-w-[260px] origin-left px-1 font-archivo text-2xl italic leading-[1.05] tracking-[-0.05em] sm:skew-x-[-12deg] sm:leading-[0.85] sm:text-3xl md:text-4xl">
                 BUILD WITH EDITCO.

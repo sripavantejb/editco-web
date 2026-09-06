@@ -22,7 +22,8 @@
   margin: 0.35rem 0.4rem;
   user-select: none;
   -webkit-user-select: none;
-  pointer-events: auto;
+  /* Pass taps through to footer links; Matter hits via window + Query.point */
+  pointer-events: none;
   cursor: grab;
 }
 
