@@ -5,6 +5,7 @@ import { verifyAdminSessionToken } from "@/lib/os/admin-session-edge";
 
 const PUBLIC_LOGINS = new Set([
   "/admin/login",
+  "/admin/sales",
   "/sales/login",
   "/sales/login/admin",
   "/sales/login/employee",
@@ -15,7 +16,7 @@ function loginUrlForPath(pathname: string, requestUrl: string) {
     return new URL("/sales/login/employee", requestUrl);
   }
   if (pathname.startsWith("/sales/admin") || pathname.startsWith("/sales")) {
-    return new URL("/sales/login/admin", requestUrl);
+    return new URL("/admin/sales", requestUrl);
   }
   return new URL("/admin/login", requestUrl);
 }
@@ -37,7 +38,3 @@ export async function middleware(request: NextRequest) {
 
   return NextResponse.next();
 }
-
-export const config = {
-  matcher: ["/admin/:path*", "/sales/:path*"],
-};

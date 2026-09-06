@@ -2,31 +2,25 @@ export const dynamic = "force-dynamic";
 
 import { redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/session";
-import { isSuperAdminEmail } from "@/lib/os/super-admin";
+import { resolvePortalDestination } from "@/lib/sales/page";
 import { PortalLoginForm } from "@/components/portal/PortalLoginForm";
 
-/**
- * Super Admin only. Always shows the credential form unless the cookie is
- * already a super-admin — never bounce sales cookies into /admin/os (that
- * caused the login ↔ OS flicker).
- */
-export default async function AdminLoginPage({
+/** Sales Admin sign-in — /admin/sales (Super Admin uses /admin/login). */
+export default async function AdminSalesLoginPage({
   searchParams,
 }: {
   searchParams: Promise<{ next?: string }>;
 }) {
   const params = await searchParams;
   const session = await getAdminSession();
-  if (session && isSuperAdminEmail(session.email)) {
-    const next = params.next?.trim() || "";
-    if (
-      next.startsWith("/admin") &&
-      !next.startsWith("/admin/login") &&
-      !next.startsWith("/admin/sales")
-    ) {
-      redirect(next);
+  if (session) {
+    const dest = await resolvePortalDestination(session.email, {
+      portal: "sales_admin",
+      next: params.next,
+    });
+    if (dest && !dest.startsWith("/sales/login") && !dest.startsWith("/admin/sales") && !dest.startsWith("/admin/login")) {
+      redirect(dest);
     }
-    redirect("/admin/os");
   }
 
   return (
@@ -37,20 +31,24 @@ export default async function AdminLoginPage({
             EC
           </span>
           <div>
-            <p className="font-inter text-sm font-semibold text-[#111111]">Editco</p>
-            <p className="font-inter text-xs text-[#6b7280]">Super Admin</p>
+            <p className="font-inter text-sm font-semibold text-[#111111]">Editco Sales</p>
+            <p className="font-inter text-xs text-[#6b7280]">Admin portal</p>
           </div>
         </div>
 
         <h1 className="font-inter text-3xl font-semibold tracking-tight text-[#111111]">
-          Super Admin sign in
+          Sales Admin sign in
         </h1>
         <p className="mt-2 font-inter text-sm text-[#6b7280]">
-          Enter your credentials to open Editco OS.
+          For sales managers and admins only — not for employees.
         </p>
 
         <div className="mt-8 rounded-xl border border-[#e5e7eb] bg-white p-6">
-          <PortalLoginForm portal="os" next={params.next} submitLabel="Sign in" />
+          <PortalLoginForm
+            portal="sales_admin"
+            next={params.next}
+            submitLabel="Sign in to Sales Admin"
+          />
         </div>
       </div>
     </main>

@@ -19,7 +19,7 @@ export type SalesPageContext = SalesEmployeeContext & {
 
 export type StaffPortal = "os" | "sales_admin" | "sales_employee" | "sales";
 
-const SALES_ADMIN_LOGIN = "/sales/login/admin";
+const SALES_ADMIN_LOGIN = "/admin/sales";
 const SALES_EMPLOYEE_LOGIN = "/sales/login/employee";
 
 /**
@@ -78,7 +78,7 @@ export const requireSalesAdminPage = cache(async (): Promise<SalesEmployeeContex
   const employee = await getSalesEmployeeContext(session.email);
   // Never bounce "has session but no Sales Admin row" back through the admin
   // login page — that page used to auto-redirect to /sales/admin and loop.
-  if (!employee) redirect("/sales/login");
+  if (!employee) redirect(SALES_ADMIN_LOGIN);
   if (!employee!.isSalesAdmin) redirect("/sales/employee");
   return employee!;
 });
@@ -116,8 +116,19 @@ export async function resolvePortalDestination(
     return next?.startsWith("/sales/employee") ? next : "/sales/employee";
   }
 
-  // OS / default
-  return getStaffLandingPath(email, { portal, next });
+  if (portal === "os") {
+    if (!isSuperAdminEmail(email)) return null;
+    if (
+      next?.startsWith("/admin") &&
+      !next.startsWith("/admin/login") &&
+      !next.startsWith("/admin/sales")
+    ) {
+      return next;
+    }
+    return "/admin/os";
+  }
+
+  return null;
 }
 
 /**
@@ -134,15 +145,15 @@ export async function getStaffLandingPath(
   const next = opts?.next?.trim() || null;
   const portal = opts?.portal === "sales" ? "sales_admin" : opts?.portal;
 
-  if (portal === "sales_employee" || portal === "sales_admin") {
+  if (portal === "sales_employee" || portal === "sales_admin" || portal === "os") {
     const dest = await resolvePortalDestination(email, {
-      portal,
+      portal: portal || "os",
       next,
     });
-    // Callers that require a path (post-login redirect) fall back to the
-    // matching login screen — never to a protected page the user can't enter.
     if (dest) return dest;
-    return portal === "sales_admin" ? SALES_ADMIN_LOGIN : SALES_EMPLOYEE_LOGIN;
+    if (portal === "sales_admin") return SALES_ADMIN_LOGIN;
+    if (portal === "sales_employee") return SALES_EMPLOYEE_LOGIN;
+    return "/admin/login";
   }
 
   if (isSuperAdminEmail(email)) {
@@ -150,7 +161,13 @@ export async function getStaffLandingPath(
       await ensureSuperAdminSalesAccess(email);
       return next.startsWith("/sales/employee") ? "/sales/admin" : next;
     }
-    if (next?.startsWith("/admin") && !next.startsWith("/admin/login")) return next;
+    if (
+      next?.startsWith("/admin") &&
+      !next.startsWith("/admin/login") &&
+      !next.startsWith("/admin/sales")
+    ) {
+      return next;
+    }
     return "/admin/os";
   }
 
@@ -165,8 +182,8 @@ export async function getStaffLandingPath(
     return salesHome;
   }
 
-  if (next?.startsWith("/admin") && !next.startsWith("/admin/login")) return next;
-  return "/admin/os";
+  // Never dump unknown cookies into /admin/os — that caused the flicker loop.
+  return "/admin/login";
 }
 
 /** @deprecated use getStaffLandingPath */

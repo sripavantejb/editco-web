@@ -29,7 +29,7 @@ function footerFor(portal: PortalKind) {
     return (
       <>
         Sales Admin?{" "}
-        <Link href="/sales/login/admin" className="font-semibold text-[#111111] underline underline-offset-2">
+        <Link href="/admin/sales" className="font-semibold text-[#111111] underline underline-offset-2">
           Sign in here
         </Link>
       </>

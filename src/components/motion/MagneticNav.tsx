@@ -14,8 +14,9 @@ const PUBLIC_PREFETCH = [
   "/refer",
   "/services",
   "/work",
-  "/sales/login",
   "/sales/login/employee",
+  "/admin/login",
+  "/admin/sales",
 ];
 
 export function MagneticNav() {

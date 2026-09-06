@@ -17,7 +17,12 @@ export default async function SalesEmployeeLoginPage({
       portal: "sales_employee",
       next: params.next,
     });
-    if (dest && !dest.startsWith("/sales/login")) {
+    if (
+      dest &&
+      !dest.startsWith("/sales/login") &&
+      !dest.startsWith("/admin/sales") &&
+      !dest.startsWith("/admin/login")
+    ) {
       redirect(dest);
     }
   }

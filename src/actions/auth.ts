@@ -276,7 +276,7 @@ export async function logoutAdmin() {
 
 export async function logoutSalesAdmin() {
   await clearAdminSession();
-  redirect("/sales/login/admin");
+  redirect("/admin/sales");
 }
 
 export async function logoutSalesEmployee() {

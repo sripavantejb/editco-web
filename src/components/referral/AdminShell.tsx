@@ -47,7 +47,8 @@ export function AdminShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isLogin = pathname?.startsWith("/admin/login");
+  const isLogin =
+    pathname?.startsWith("/admin/login") || pathname?.startsWith("/admin/sales");
   const showNav = Boolean(email) && !isLogin;
 
   return (
