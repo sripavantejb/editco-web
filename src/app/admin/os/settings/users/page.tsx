@@ -4,12 +4,13 @@ import { requireOsPage } from "@/lib/os/page";
 import { StaffUser } from "@/models/os/StaffUser";
 import { ProjectMember } from "@/models/os/ProjectMember";
 import { OsTask } from "@/models/os/Task";
-import { createStaffUser, updateStaffUser } from "@/actions/os/staff";
+import { createStaffUser } from "@/actions/os/staff";
 import { OsActionForm } from "@/components/os/OsActionForm";
 import { Field, OsPage, osInputClass } from "@/components/os/ui";
 import { OsSelect } from "@/components/os/OsSelect";
 import { OsPasswordInput } from "@/components/os/OsPasswordInput";
-import { STAFF_ROLES, STAFF_ROLE_LABELS } from "@/lib/os/constants";
+import { StaffUsersGrid, type StaffUserCard } from "@/components/os/StaffUsersGrid";
+import { STAFF_ROLES, STAFF_ROLE_LABELS, type StaffRole } from "@/lib/os/constants";
 import { formatDateTime } from "@/lib/utils";
 
 export default async function UsersSettingsPage() {
@@ -39,6 +40,22 @@ export default async function UsersSettingsPage() {
     taskCount.set(id, (taskCount.get(id) || 0) + 1);
   }
 
+  const cards: StaffUserCard[] = users.map((u) => {
+    const id = String(u._id);
+    return {
+      id,
+      name: u.name || "",
+      email: u.email,
+      role: u.role as StaffRole,
+      isActive: Boolean(u.isActive),
+      projectCount: projectCount.get(id) || 0,
+      taskCount: taskCount.get(id) || 0,
+      lastLoginLabel: u.lastLoginAt
+        ? `Last login: ${formatDateTime(u.lastLoginAt)}`
+        : "Never logged in",
+    };
+  });
+
   return (
     <OsPage
       title="Users & roles"
@@ -64,53 +81,16 @@ export default async function UsersSettingsPage() {
           <OsSelect
             name="role"
             defaultValue="team_member"
-            options={STAFF_ROLES.filter((r) => r !== "super_admin").map((r) => ({ value: r, label: STAFF_ROLE_LABELS[r] }))}
+            options={STAFF_ROLES.filter((r) => r !== "super_admin").map((r) => ({
+              value: r,
+              label: STAFF_ROLE_LABELS[r],
+            }))}
           />
         </Field>
       </OsActionForm>
-      <div className="space-y-6">
-        {users.map((u) => {
-          const id = String(u._id);
-          return (
-            <OsActionForm
-              key={id}
-              action={updateStaffUser}
-              submitLabel="Save"
-              className="grid max-w-xl gap-2 rounded-2xl border border-[var(--dash-border)] p-4"
-            >
-              <input type="hidden" name="id" value={id} />
-              <p className="font-inter text-sm text-[var(--dash-muted)]">{u.email}</p>
-              <p className="font-inter text-xs text-[var(--dash-muted)]">
-                Projects: {projectCount.get(id) || 0} · Open tasks:{" "}
-                {taskCount.get(id) || 0}
-                {u.lastLoginAt
-                  ? ` · Last login: ${formatDateTime(u.lastLoginAt)}`
-                  : " · Never logged in"}
-              </p>
-              <Field label="Name">
-                <input name="name" defaultValue={u.name} className={osInputClass()} />
-              </Field>
-              <Field label="Role">
-                <OsSelect
-                  name="role"
-                  defaultValue={u.role}
-                  options={STAFF_ROLES.map((r) => ({ value: r, label: STAFF_ROLE_LABELS[r] }))}
-                />
-              </Field>
-              <Field label="New password (optional)">
-                <OsPasswordInput name="password" />
-              </Field>
-              <Field label="Active">
-                <OsSelect
-                  name="isActive"
-                  defaultValue={u.isActive ? "true" : "false"}
-                  options={[{ value: "true", label: "Active" }, { value: "false", label: "Inactive" }]}
-                />
-              </Field>
-            </OsActionForm>
-          );
-        })}
-      </div>
+
+      <h2 className="mb-3 font-inter text-sm font-semibold text-[#111111]">Team</h2>
+      <StaffUsersGrid users={cards} />
     </OsPage>
   );
 }
