@@ -55,7 +55,7 @@ export function AdminStageForm({
       <div className="space-y-2">
         <Label
           htmlFor="stage"
-          className="font-archivo text-[10px] uppercase tracking-[0.16em] text-white/45"
+          className="font-archivo text-[10px] uppercase tracking-[0.16em] text-[var(--dash-muted)]"
         >
           Stage
         </Label>
@@ -64,7 +64,7 @@ export function AdminStageForm({
           name="stage"
           value={stage}
           onChange={(e) => setStage(e.target.value as Stage)}
-          className="flex h-11 w-full rounded-xl border border-white/10 bg-white/5 px-3 text-sm text-white transition focus:border-gaude-orange/50 focus:outline-none"
+          className="flex h-11 w-full rounded-xl border border-[var(--dash-border)] bg-[var(--dash-input)] px-3 text-sm text-[var(--dash-text)] transition focus:border-gaude-orange/50 focus:outline-none"
         >
           {STAGES.map((s) => (
             <option key={s} value={s} className="bg-gaude-black">
@@ -78,7 +78,7 @@ export function AdminStageForm({
         <div className="space-y-2">
           <Label
             htmlFor="lostReason"
-            className="font-archivo text-[10px] uppercase tracking-[0.16em] text-white/45"
+            className="font-archivo text-[10px] uppercase tracking-[0.16em] text-[var(--dash-muted)]"
           >
             Lost reason
           </Label>
@@ -86,7 +86,7 @@ export function AdminStageForm({
             id="lostReason"
             name="lostReason"
             required
-            className="flex h-11 w-full rounded-xl border border-white/10 bg-white/5 px-3 text-sm text-white transition focus:border-gaude-orange/50 focus:outline-none"
+            className="flex h-11 w-full rounded-xl border border-[var(--dash-border)] bg-[var(--dash-input)] px-3 text-sm text-[var(--dash-text)] transition focus:border-gaude-orange/50 focus:outline-none"
           >
             <option value="" className="bg-gaude-black">
               Select reason
@@ -105,7 +105,7 @@ export function AdminStageForm({
           <div className="space-y-2">
             <Label
               htmlFor="projectType"
-              className="font-archivo text-[10px] uppercase tracking-[0.16em] text-white/45"
+              className="font-archivo text-[10px] uppercase tracking-[0.16em] text-[var(--dash-muted)]"
             >
               Project type
             </Label>
@@ -113,7 +113,7 @@ export function AdminStageForm({
               id="projectType"
               name="projectType"
               required
-              className="flex h-11 w-full rounded-xl border border-white/10 bg-white/5 px-3 text-sm text-white transition focus:border-gaude-orange/50 focus:outline-none"
+              className="flex h-11 w-full rounded-xl border border-[var(--dash-border)] bg-[var(--dash-input)] px-3 text-sm text-[var(--dash-text)] transition focus:border-gaude-orange/50 focus:outline-none"
             >
               <option value="" className="bg-gaude-black">
                 Select type
@@ -128,7 +128,7 @@ export function AdminStageForm({
           <div className="space-y-2">
             <Label
               htmlFor="projectValue"
-              className="font-archivo text-[10px] uppercase tracking-[0.16em] text-white/45"
+              className="font-archivo text-[10px] uppercase tracking-[0.16em] text-[var(--dash-muted)]"
             >
               Project value (₹)
             </Label>
@@ -146,7 +146,7 @@ export function AdminStageForm({
       <div className="space-y-2">
         <Label
           htmlFor="referrerFacingNote"
-          className="font-archivo text-[10px] uppercase tracking-[0.16em] text-white/45"
+          className="font-archivo text-[10px] uppercase tracking-[0.16em] text-[var(--dash-muted)]"
         >
           Note for referrer
         </Label>
@@ -160,7 +160,7 @@ export function AdminStageForm({
       <div className="space-y-2">
         <Label
           htmlFor="adminInternalNote"
-          className="font-archivo text-[10px] uppercase tracking-[0.16em] text-white/45"
+          className="font-archivo text-[10px] uppercase tracking-[0.16em] text-[var(--dash-muted)]"
         >
           Internal note
         </Label>
@@ -297,7 +297,7 @@ export function AdminEditReferralForm({
             id="rewardStatus"
             name="rewardStatus"
             defaultValue={referral.rewardStatus}
-            className="flex h-11 w-full rounded-xl border border-white/10 bg-white/5 px-3 text-sm text-white transition focus:border-gaude-orange/50 focus:outline-none"
+            className="flex h-11 w-full rounded-xl border border-[var(--dash-border)] bg-[var(--dash-input)] px-3 text-sm text-[var(--dash-text)] transition focus:border-gaude-orange/50 focus:outline-none"
           >
             <option value="not_applicable" className="bg-gaude-black">
               Not applicable
@@ -352,7 +352,7 @@ export function AdminEditReferralForm({
         </div>
       </div>
 
-      <label className="flex items-center gap-2 text-sm text-white/60">
+      <label className="flex items-center gap-2 text-sm text-[var(--dash-muted)]">
         <input
           type="checkbox"
           name="flaggedDuplicate"
@@ -471,7 +471,7 @@ export function AdminEditReferrerForm({
             id="refTier"
             name="tier"
             defaultValue={referrer.tier}
-            className="flex h-11 w-full rounded-xl border border-white/10 bg-white/5 px-3 text-sm text-white focus:border-gaude-orange/50 focus:outline-none"
+            className="flex h-11 w-full rounded-xl border border-[var(--dash-border)] bg-[var(--dash-input)] px-3 text-sm text-[var(--dash-text)] focus:border-gaude-orange/50 focus:outline-none"
           >
             {TIERS.map((t) => (
               <option key={t} value={t} className="bg-gaude-black">
@@ -480,7 +480,7 @@ export function AdminEditReferrerForm({
             ))}
           </select>
         </div>
-        <label className="flex items-center gap-2 text-sm text-white/60">
+        <label className="flex items-center gap-2 text-sm text-[var(--dash-muted)]">
           <input
             type="checkbox"
             name="isPublicPartner"

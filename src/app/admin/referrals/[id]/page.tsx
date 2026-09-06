@@ -33,16 +33,16 @@ function AttrTile({
 }) {
   return (
     <div
-      className={`flex min-h-[88px] flex-col rounded-xl border border-white/10 bg-white/[0.02] p-3.5 ${className}`}
+      className={`flex min-h-[88px] flex-col rounded-xl border border-[var(--dash-border)] bg-[var(--dash-surface)] p-3.5 ${className}`}
     >
       <div className="flex items-center gap-2">
-        {Icon && <Icon className="h-3 w-3 text-white/30" />}
-        <p className="font-archivo text-[10px] uppercase tracking-[0.16em] text-white/35">
+        {Icon && <Icon className="h-3 w-3 text-[var(--dash-faint)]" />}
+        <p className="font-archivo text-[10px] uppercase tracking-[0.16em] text-[var(--dash-faint)]">
           {label}
         </p>
       </div>
-      <div className="mt-2 flex-1 font-inter text-sm leading-relaxed text-white/85 break-words">
-        {value || <span className="text-white/30">—</span>}
+      <div className="mt-2 flex-1 font-inter text-sm leading-relaxed text-[var(--dash-text)] break-words">
+        {value || <span className="text-[var(--dash-faint)]">—</span>}
       </div>
     </div>
   );
@@ -77,7 +77,7 @@ function SectionCard({
   action?: React.ReactNode;
 }) {
   return (
-    <section className="flex h-full min-h-0 flex-col rounded-2xl border border-white/10 bg-white/[0.02] p-5 sm:p-6">
+    <section className="flex h-full min-h-0 flex-col rounded-2xl border border-[var(--dash-border)] bg-[var(--dash-surface)] p-5 sm:p-6">
       <div className="mb-5 flex h-10 shrink-0 items-start justify-between gap-3">
         <div>
           {eyebrow && (
@@ -86,7 +86,7 @@ function SectionCard({
             </p>
           )}
           <h2
-            className={`font-archivo text-sm uppercase tracking-[0.14em] text-white ${
+            className={`font-archivo text-sm uppercase tracking-[0.14em] text-[var(--dash-text)] ${
               eyebrow ? "mt-1" : ""
             }`}
           >
@@ -133,7 +133,7 @@ export default async function AdminReferralDetailPage({
       <div className="mb-8">
         <Link
           href="/admin"
-          className="inline-flex items-center gap-2 font-archivo text-[10px] uppercase tracking-widest text-white/40 transition hover:text-white"
+          className="inline-flex items-center gap-2 font-archivo text-[10px] uppercase tracking-widest text-[var(--dash-muted)] transition hover:text-[var(--dash-text)]"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Back to overview
@@ -143,18 +143,18 @@ export default async function AdminReferralDetailPage({
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2.5">
               <StageBadge stage={stage} />
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 font-archivo text-[10px] uppercase tracking-widest text-white/45">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--dash-border)] bg-[var(--dash-surface)] px-3 py-1 font-archivo text-[10px] uppercase tracking-widest text-[var(--dash-muted)]">
                 <Link2 className="h-3 w-3" />
                 {sourceLabel}
               </span>
             </div>
-            <h1 className="mt-3 font-archivo text-3xl uppercase tracking-tighter text-white sm:text-4xl">
+            <h1 className="mt-3 font-archivo text-3xl uppercase tracking-tighter text-[var(--dash-text)] sm:text-4xl">
               {referral.referredName}
             </h1>
-            <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 font-inter text-sm text-white/45">
+            <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 font-inter text-sm text-[var(--dash-muted)]">
               {referral.referredBusiness ? (
                 <span className="inline-flex items-center gap-1.5">
-                  <Building2 className="h-3.5 w-3.5 text-white/30" />
+                  <Building2 className="h-3.5 w-3.5 text-[var(--dash-faint)]" />
                   {referral.referredBusiness}
                 </span>
               ) : (
@@ -162,10 +162,10 @@ export default async function AdminReferralDetailPage({
               )}
               {referral.rewardAmount != null && (
                 <>
-                  <span className="text-white/20">·</span>
+                  <span className="text-[var(--dash-faint)]">·</span>
                   <span>
                     {formatCurrencyINR(referral.rewardAmount)}{" "}
-                    <span className="text-white/30">
+                    <span className="text-[var(--dash-faint)]">
                       ({referral.rewardStatus})
                     </span>
                   </span>
@@ -175,18 +175,18 @@ export default async function AdminReferralDetailPage({
           </div>
 
           {referrer && (
-            <div className="flex h-[72px] w-full items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 lg:w-[280px]">
+            <div className="flex h-[72px] w-full items-center gap-3 rounded-2xl border border-[var(--dash-border)] bg-[var(--dash-surface)] px-4 lg:w-[280px]">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gaude-orange/15 font-archivo text-sm text-gaude-orange">
                 {referrerInitial}
               </span>
               <div className="min-w-0">
-                <p className="font-archivo text-[10px] uppercase tracking-[0.16em] text-white/35">
+                <p className="font-archivo text-[10px] uppercase tracking-[0.16em] text-[var(--dash-faint)]">
                   Referrer
                 </p>
-                <p className="truncate font-inter text-sm text-white">
+                <p className="truncate font-inter text-sm text-[var(--dash-text)]">
                   {referrer.fullName}
                 </p>
-                <p className="truncate font-inter text-xs text-white/40">
+                <p className="truncate font-inter text-xs text-[var(--dash-muted)]">
                   {referrer.referralCode}
                 </p>
               </div>
@@ -195,7 +195,7 @@ export default async function AdminReferralDetailPage({
         </div>
       </div>
 
-      <div className="mb-5 rounded-2xl border border-white/10 bg-white/[0.02] p-4 font-inter text-sm">
+      <div className="mb-5 rounded-2xl border border-[var(--dash-border)] bg-[var(--dash-surface)] p-4 font-inter text-sm">
         {crmLead ? (
           <Link href={`/admin/os/leads/${crmLead._id}`} className="text-gaude-orange">
             Open CRM lead ({crmLead.status})
@@ -261,14 +261,14 @@ export default async function AdminReferralDetailPage({
         >
           <div className="space-y-2 font-inter text-sm">
             {conversion ? (
-              <p className="text-white/70">
+              <p className="text-[var(--dash-muted)]">
                 {conversion.publicCode}{" "}
-                <span className="text-white/40">
+                <span className="text-[var(--dash-muted)]">
                   · UUID {conversion.conversionUuid}
                 </span>
               </p>
             ) : (
-              <p className="text-white/40">No OS conversion yet.</p>
+              <p className="text-[var(--dash-muted)]">No OS conversion yet.</p>
             )}
           </div>
         </SectionCard>
@@ -309,7 +309,7 @@ export default async function AdminReferralDetailPage({
               className="col-span-2"
               value={
                 referral.landingPage ? (
-                  <span className="break-all text-white/70">
+                  <span className="break-all text-[var(--dash-muted)]">
                     {referral.landingPage}
                   </span>
                 ) : null
@@ -322,13 +322,13 @@ export default async function AdminReferralDetailPage({
           eyebrow="History"
           title="Activity"
           action={
-            <span className="font-archivo text-[10px] uppercase tracking-widest text-white/30">
+            <span className="font-archivo text-[10px] uppercase tracking-widest text-[var(--dash-faint)]">
               {activity.length}
             </span>
           }
         >
           {activity.length === 0 ? (
-            <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed border-white/10 px-4 py-8 text-center font-inter text-sm text-white/35">
+            <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed border-[var(--dash-border)] px-4 py-8 text-center font-inter text-sm text-[var(--dash-faint)]">
               No activity yet
             </div>
           ) : (
@@ -353,21 +353,21 @@ export default async function AdminReferralDetailPage({
                       }`}
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="font-inter text-sm capitalize text-white/90">
+                      <p className="font-inter text-sm capitalize text-[var(--dash-text)]">
                         {label}
                         {stageChange && (
-                          <span className="text-white/50">
+                          <span className="text-[var(--dash-muted)]">
                             {" "}
                             · {stageChange}
                           </span>
                         )}
                       </p>
                       {a.note && (
-                        <p className="mt-1 font-inter text-sm text-white/45">
+                        <p className="mt-1 font-inter text-sm text-[var(--dash-muted)]">
                           {a.note}
                         </p>
                       )}
-                      <p className="mt-1.5 font-inter text-[11px] text-white/30">
+                      <p className="mt-1.5 font-inter text-[11px] text-[var(--dash-faint)]">
                         {a.createdBy} · {formatDateTime(a.createdAt)}
                       </p>
                     </div>

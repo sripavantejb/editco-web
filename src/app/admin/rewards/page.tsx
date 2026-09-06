@@ -28,10 +28,10 @@ export default async function AdminRewardsPage() {
         <p className="font-archivo text-[10px] uppercase tracking-[0.22em] text-gaude-orange">
           Payouts
         </p>
-        <h1 className="mt-2 font-archivo text-3xl uppercase tracking-tighter text-white sm:text-4xl">
+        <h1 className="mt-2 font-archivo text-3xl uppercase tracking-tighter text-[var(--dash-text)] sm:text-4xl">
           Pending rewards
         </h1>
-        <p className="mt-2 font-inter text-sm text-white/45">
+        <p className="mt-2 font-inter text-sm text-[var(--dash-muted)]">
           Mark payouts as paid once transferred.
         </p>
       </div>
@@ -45,7 +45,7 @@ export default async function AdminRewardsPage() {
             return (
               <Card
                 key={String(r._id)}
-                className="flex flex-col gap-4 transition hover:border-white/20 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-4 transition hover:border-[var(--dash-border)] sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
                   <CardTitle className="normal-case tracking-normal">

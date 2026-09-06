@@ -203,12 +203,12 @@ export function AdminOverviewPanel({
       className={`relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-all ${
         filtersOpen || manualFiltersActive
           ? "border-gaude-orange/50 bg-gaude-orange/15 text-gaude-orange shadow-[0_0_24px_rgba(200,245,66,0.25)]"
-          : "border-white/10 bg-white/[0.03] text-white/50 hover:border-white/25 hover:text-white"
+          : "border-[var(--dash-border)] bg-[var(--dash-surface)] text-[var(--dash-muted)] hover:border-[var(--dash-border)] hover:text-[var(--dash-text)]"
       }`}
     >
       <SlidersHorizontal className="h-4 w-4" />
       {activeFilterCount > 0 && (
-        <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-gaude-orange font-archivo text-[9px] text-white">
+        <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-gaude-orange font-archivo text-[9px] text-[var(--dash-on-accent)]">
           {activeFilterCount}
         </span>
       )}
@@ -235,7 +235,7 @@ export function AdminOverviewPanel({
               className={`group relative overflow-hidden rounded-2xl border p-4 text-left transition-all duration-300 ${
                 active
                   ? "border-gaude-orange/50 bg-gaude-orange/10 shadow-[0_0_32px_rgba(200,245,66,0.18)]"
-                  : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]"
+                  : "border-[var(--dash-border)] bg-[var(--dash-surface)] hover:border-[var(--dash-border)] hover:bg-white/[0.05]"
               }`}
             >
               {active && (
@@ -249,15 +249,15 @@ export function AdminOverviewPanel({
                 <div>
                   <p
                     className={`font-archivo text-[10px] uppercase tracking-[0.16em] ${
-                      active ? "text-gaude-orange" : "text-white/40"
+                      active ? "text-gaude-orange" : "text-[var(--dash-muted)]"
                     }`}
                   >
                     {card.label}
                   </p>
-                  <p className="mt-2 truncate font-archivo text-xl tracking-tight text-white sm:text-2xl">
+                  <p className="mt-2 truncate font-archivo text-xl tracking-tight text-[var(--dash-text)] sm:text-2xl">
                     {card.value}
                   </p>
-                  <p className="mt-1 font-inter text-[11px] text-white/30">
+                  <p className="mt-1 font-inter text-[11px] text-[var(--dash-faint)]">
                     {card.hint}
                   </p>
                 </div>
@@ -265,7 +265,7 @@ export function AdminOverviewPanel({
                   className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition-colors ${
                     active
                       ? "border-gaude-orange/40 bg-gaude-orange/20 text-gaude-orange"
-                      : "border-white/10 bg-white/5 text-white/40 group-hover:text-white/70"
+                      : "border-[var(--dash-border)] bg-[var(--dash-input)] text-[var(--dash-muted)] group-hover:text-[var(--dash-muted)]"
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -279,10 +279,10 @@ export function AdminOverviewPanel({
       {/* Section header + filter icon on same line */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="font-archivo text-lg uppercase tracking-tight text-white">
+          <h2 className="font-archivo text-lg uppercase tracking-tight text-[var(--dash-text)]">
             {viewTitle}
           </h2>
-          <p className="mt-1 font-inter text-sm text-white/40">
+          <p className="mt-1 font-inter text-sm text-[var(--dash-muted)]">
             {showReferralsView
               ? `${filteredReferrals.length} result${filteredReferrals.length === 1 ? "" : "s"}`
               : "Click a partner to expand their referrals"}
@@ -312,7 +312,7 @@ export function AdminOverviewPanel({
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
             className="overflow-hidden"
           >
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 backdrop-blur-sm">
+            <div className="rounded-2xl border border-[var(--dash-border)] bg-[var(--dash-surface)] p-4 backdrop-blur-sm">
               <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Filter className="h-3.5 w-3.5 text-gaude-orange" />
@@ -323,7 +323,7 @@ export function AdminOverviewPanel({
                 <button
                   type="button"
                   onClick={() => setFiltersOpen(false)}
-                  className="flex h-7 w-7 items-center justify-center rounded-full text-white/40 transition hover:bg-white/10 hover:text-white"
+                  className="flex h-7 w-7 items-center justify-center rounded-full text-[var(--dash-muted)] transition hover:bg-[var(--dash-hover)] hover:text-[var(--dash-text)]"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -336,7 +336,7 @@ export function AdminOverviewPanel({
                     setExpandedId(null);
                   }}
                   placeholder="Search name / business"
-                  className="h-10 rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-white placeholder:text-white/30 focus:border-gaude-orange/50 focus:outline-none"
+                  className="h-10 rounded-lg border border-[var(--dash-border)] bg-[var(--dash-input)] px-3 text-sm text-[var(--dash-text)] placeholder:text-[var(--dash-faint)] focus:border-gaude-orange/50 focus:outline-none"
                 />
                 <select
                   value={stage}
@@ -344,7 +344,7 @@ export function AdminOverviewPanel({
                     setStage(e.target.value);
                     setExpandedId(null);
                   }}
-                  className="h-10 rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-white focus:border-gaude-orange/50 focus:outline-none"
+                  className="h-10 rounded-lg border border-[var(--dash-border)] bg-[var(--dash-input)] px-3 text-sm text-[var(--dash-text)] focus:border-gaude-orange/50 focus:outline-none"
                 >
                   <option value="" className="bg-gaude-black">
                     All stages
@@ -361,7 +361,7 @@ export function AdminOverviewPanel({
                     setSource(e.target.value);
                     setExpandedId(null);
                   }}
-                  className="h-10 rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-white focus:border-gaude-orange/50 focus:outline-none"
+                  className="h-10 rounded-lg border border-[var(--dash-border)] bg-[var(--dash-input)] px-3 text-sm text-[var(--dash-text)] focus:border-gaude-orange/50 focus:outline-none"
                 >
                   <option value="" className="bg-gaude-black">
                     All sources
@@ -377,7 +377,7 @@ export function AdminOverviewPanel({
                   type="button"
                   onClick={clearAll}
                   disabled={!manualFiltersActive && !metricFilter}
-                  className="h-10 rounded-full border border-white/10 font-archivo text-[10px] uppercase tracking-widest text-white/50 transition hover:border-white/25 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+                  className="h-10 rounded-full border border-[var(--dash-border)] font-archivo text-[10px] uppercase tracking-widest text-[var(--dash-muted)] transition hover:border-[var(--dash-border)] hover:text-[var(--dash-text)] disabled:cursor-not-allowed disabled:opacity-30"
                 >
                   Clear all
                 </button>
@@ -415,7 +415,7 @@ export function AdminOverviewPanel({
           >
             <div className="space-y-3 md:hidden">
               {referrers.length === 0 ? (
-                <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-10 text-center text-sm text-white/40">
+                <div className="rounded-2xl border border-[var(--dash-border)] bg-[var(--dash-surface)] px-4 py-10 text-center text-sm text-[var(--dash-muted)]">
                   No referrers yet
                 </div>
               ) : (
@@ -425,7 +425,7 @@ export function AdminOverviewPanel({
                   return (
                     <div
                       key={r.id}
-                      className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]"
+                      className="overflow-hidden rounded-2xl border border-[var(--dash-border)] bg-[var(--dash-surface)]"
                     >
                       <button
                         type="button"
@@ -435,13 +435,13 @@ export function AdminOverviewPanel({
                         }`}
                       >
                         <div className="min-w-0">
-                          <p className="truncate font-medium text-white">
+                          <p className="truncate font-medium text-[var(--dash-text)]">
                             {r.fullName}
                           </p>
-                          <p className="mt-0.5 truncate text-xs text-white/40">
+                          <p className="mt-0.5 truncate text-xs text-[var(--dash-muted)]">
                             {r.email}
                           </p>
-                          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-white/50">
+                          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-[var(--dash-muted)]">
                             <span>{TIER_LABELS[r.tier]}</span>
                             <span>{r.referralCount} refs</span>
                             <span>{r.successfulReferralCount} wins</span>
@@ -449,7 +449,7 @@ export function AdminOverviewPanel({
                           </div>
                         </div>
                         <ChevronRight
-                          className={`mt-1 h-4 w-4 shrink-0 text-white/30 transition-transform ${
+                          className={`mt-1 h-4 w-4 shrink-0 text-[var(--dash-faint)] transition-transform ${
                             open ? "rotate-90 text-gaude-orange" : ""
                           }`}
                         />
@@ -470,27 +470,27 @@ export function AdminOverviewPanel({
               )}
             </div>
 
-            <div className="hidden overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] md:block">
+            <div className="hidden overflow-hidden rounded-2xl border border-[var(--dash-border)] bg-[var(--dash-surface)] md:block">
               <div className="overflow-x-auto">
                 <table className="min-w-full text-left text-sm">
-                  <thead className="border-b border-white/10 bg-white/[0.03]">
+                  <thead className="border-b border-[var(--dash-border)] bg-[var(--dash-surface)]">
                     <tr>
-                      <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-white/45">
+                      <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-[var(--dash-muted)]">
                         Name
                       </th>
-                      <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-white/45">
+                      <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-[var(--dash-muted)]">
                         Tier
                       </th>
-                      <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-white/45">
+                      <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-[var(--dash-muted)]">
                         Referrals
                       </th>
-                      <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-white/45">
+                      <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-[var(--dash-muted)]">
                         Wins
                       </th>
-                      <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-white/45">
+                      <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-[var(--dash-muted)]">
                         Earned
                       </th>
-                      <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-white/45">
+                      <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-[var(--dash-muted)]">
                         Paid
                       </th>
                       <th className="w-10 px-4 py-3.5" />
@@ -517,7 +517,7 @@ export function AdminOverviewPanel({
                       <tr>
                         <td
                           colSpan={7}
-                          className="px-4 py-10 text-center text-white/40"
+                          className="px-4 py-10 text-center text-[var(--dash-muted)]"
                         >
                           No referrers yet
                         </td>
@@ -549,7 +549,7 @@ function ReferralsTable({
 }) {
   if (referrals.length === 0) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-10 text-center text-sm text-white/40">
+      <div className="rounded-2xl border border-[var(--dash-border)] bg-[var(--dash-surface)] px-4 py-10 text-center text-sm text-[var(--dash-muted)]">
         {emptyLabel}
       </div>
     );
@@ -563,20 +563,20 @@ function ReferralsTable({
             <button
               type="button"
               onClick={() => onOpen(ref.id)}
-              className="w-full rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-left transition hover:border-gaude-orange/40 hover:bg-gaude-orange/5"
+              className="w-full rounded-2xl border border-[var(--dash-border)] bg-[var(--dash-surface)] p-4 text-left transition hover:border-gaude-orange/40 hover:bg-gaude-orange/5"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="truncate font-medium text-white">
+                  <p className="truncate font-medium text-[var(--dash-text)]">
                     {ref.referredName}
                   </p>
-                  <p className="mt-0.5 truncate text-xs text-white/40">
+                  <p className="mt-0.5 truncate text-xs text-[var(--dash-muted)]">
                     {ref.referredBusiness || "—"}
                   </p>
                 </div>
-                <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-white/25" />
+                <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-[var(--dash-faint)]" />
               </div>
-              <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-white/50">
+              <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-[var(--dash-muted)]">
                 <span>{STAGE_LABELS[ref.stage]}</span>
                 <span>
                   {ref.source === "manual_submission" ? "Manual" : "Link"}
@@ -593,28 +593,28 @@ function ReferralsTable({
         ))}
       </ul>
 
-      <div className="hidden overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.02] md:block">
+      <div className="hidden overflow-x-auto rounded-2xl border border-[var(--dash-border)] bg-[var(--dash-surface)] md:block">
         <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-white/10 bg-white/[0.03]">
+          <thead className="border-b border-[var(--dash-border)] bg-[var(--dash-surface)]">
             <tr>
-              <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-white/45">
+              <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-[var(--dash-muted)]">
                 Lead
               </th>
               {showReferrer && (
-                <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-white/45">
+                <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-[var(--dash-muted)]">
                   Referrer
                 </th>
               )}
-              <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-white/45">
+              <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-[var(--dash-muted)]">
                 Source
               </th>
-              <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-white/45">
+              <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-[var(--dash-muted)]">
                 Stage
               </th>
-              <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-white/45">
+              <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-[var(--dash-muted)]">
                 UTM
               </th>
-              <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-white/45">
+              <th className="px-4 py-3.5 font-archivo text-[10px] uppercase tracking-widest text-[var(--dash-muted)]">
                 Created
               </th>
               <th className="w-10 px-4 py-3.5" />
@@ -633,36 +633,36 @@ function ReferralsTable({
                     onOpen(ref.id);
                   }
                 }}
-                className="cursor-pointer border-t border-white/10 transition hover:bg-gaude-orange/5"
+                className="cursor-pointer border-t border-[var(--dash-border)] transition hover:bg-gaude-orange/5"
               >
                 <td className="px-4 py-3.5">
-                  <span className="font-medium text-white">
+                  <span className="font-medium text-[var(--dash-text)]">
                     {ref.referredName}
                   </span>
-                  <div className="text-xs text-white/40">
+                  <div className="text-xs text-[var(--dash-muted)]">
                     {ref.referredBusiness || "—"}
                   </div>
                 </td>
                 {showReferrer && (
-                  <td className="px-4 py-3.5 text-white/70">
+                  <td className="px-4 py-3.5 text-[var(--dash-muted)]">
                     {referrerMap[ref.referrerId]?.fullName || "—"}
                   </td>
                 )}
-                <td className="px-4 py-3.5 text-white/50">
+                <td className="px-4 py-3.5 text-[var(--dash-muted)]">
                   {ref.source === "manual_submission" ? "Manual" : "Link"}
                 </td>
-                <td className="px-4 py-3.5 text-white/70">
+                <td className="px-4 py-3.5 text-[var(--dash-muted)]">
                   {STAGE_LABELS[ref.stage]}
                 </td>
-                <td className="px-4 py-3.5 text-xs text-white/40">
+                <td className="px-4 py-3.5 text-xs text-[var(--dash-muted)]">
                   {[ref.utmSource, ref.utmMedium, ref.utmCampaign]
                     .filter(Boolean)
                     .join(" / ") || "—"}
                 </td>
-                <td className="px-4 py-3.5 text-white/50">
+                <td className="px-4 py-3.5 text-[var(--dash-muted)]">
                   {formatDate(ref.createdAt)}
                 </td>
-                <td className="px-4 py-3.5 text-white/25">
+                <td className="px-4 py-3.5 text-[var(--dash-faint)]">
                   <ChevronRight className="h-4 w-4" />
                 </td>
               </tr>
@@ -700,28 +700,28 @@ function ReferrerBlock({
             onToggle();
           }
         }}
-        className={`cursor-pointer border-t border-white/10 transition ${
+        className={`cursor-pointer border-t border-[var(--dash-border)] transition ${
           open ? "bg-gaude-orange/10" : "hover:bg-white/[0.04]"
         }`}
       >
-        <td className="px-4 py-3.5 text-white">
+        <td className="px-4 py-3.5 text-[var(--dash-text)]">
           {referrer.fullName}
-          <div className="text-xs text-white/40">{referrer.email}</div>
+          <div className="text-xs text-[var(--dash-muted)]">{referrer.email}</div>
         </td>
-        <td className="px-4 py-3.5 text-white/70">
+        <td className="px-4 py-3.5 text-[var(--dash-muted)]">
           {TIER_LABELS[referrer.tier]}
         </td>
-        <td className="px-4 py-3.5 text-white/70">{referrer.referralCount}</td>
-        <td className="px-4 py-3.5 text-white/70">
+        <td className="px-4 py-3.5 text-[var(--dash-muted)]">{referrer.referralCount}</td>
+        <td className="px-4 py-3.5 text-[var(--dash-muted)]">
           {referrer.successfulReferralCount}
         </td>
-        <td className="px-4 py-3.5 text-white/70">
+        <td className="px-4 py-3.5 text-[var(--dash-muted)]">
           {formatCurrencyINR(referrer.totalRewardEarned)}
         </td>
-        <td className="px-4 py-3.5 text-white/70">
+        <td className="px-4 py-3.5 text-[var(--dash-muted)]">
           {formatCurrencyINR(referrer.totalRewardPaid)}
         </td>
-        <td className="px-4 py-3.5 text-white/30">
+        <td className="px-4 py-3.5 text-[var(--dash-faint)]">
           <ChevronRight
             className={`h-4 w-4 transition-transform duration-300 ${
               open ? "rotate-90 text-gaude-orange" : ""
@@ -747,7 +747,7 @@ function ReferrerBlock({
                     <p className="font-archivo text-[10px] uppercase tracking-[0.2em] text-gaude-orange">
                       Referrals
                     </p>
-                    <p className="mt-1 font-inter text-sm text-white/50">
+                    <p className="mt-1 font-inter text-sm text-[var(--dash-muted)]">
                       {referrals.length === 0
                         ? "No referrals from this partner yet"
                         : `${referrals.length} referral${referrals.length === 1 ? "" : "s"} from ${referrer.fullName}`}
@@ -762,7 +762,7 @@ function ReferrerBlock({
                       emptyLabel="No referrals yet for this partner"
                     />
                   ) : (
-                    <div className="rounded-xl border border-dashed border-white/10 px-4 py-8 text-center font-inter text-sm text-white/40">
+                    <div className="rounded-xl border border-dashed border-[var(--dash-border)] px-4 py-8 text-center font-inter text-sm text-[var(--dash-muted)]">
                       No referrals yet for this partner
                     </div>
                   )}
