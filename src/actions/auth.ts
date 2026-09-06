@@ -42,18 +42,6 @@ export type ActionState = {
   success?: string;
 };
 
-async function routeAdminIfAllowed(email: string) {
-  const staff = await loadStaffByEmail(email);
-  if (staff) {
-    await createAdminSession(email, { userId: staff.userId, role: staff.role });
-    redirect(await getStaffLandingPath(email));
-  }
-  if (await isAdminEmail(email)) {
-    await createAdminSession(email);
-    redirect(await getStaffLandingPath(email));
-  }
-}
-
 export async function joinAsReferrer(
   _prev: ActionState,
   formData: FormData
@@ -71,7 +59,8 @@ export async function joinAsReferrer(
   await connectDB();
   const email = parsed.data.email.toLowerCase().trim();
 
-  await routeAdminIfAllowed(email);
+  // Refer portal is for referrers only — never hijack into Super Admin / Sales.
+  // Staff sign in at /admin/login or /admin/sales.
 
   const existing = await Referrer.findOne({ email });
 
@@ -125,8 +114,6 @@ export async function continueWithEmail(
 
   await connectDB();
   const email = parsed.data.email.toLowerCase().trim();
-
-  await routeAdminIfAllowed(email);
 
   const referrer = await Referrer.findOne({ email });
 
