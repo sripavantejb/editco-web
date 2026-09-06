@@ -214,3 +214,14 @@ export async function sendTierUpgradeEmail(params: {
   );
   return send(params.to, `Tier upgrade: ${TIER_LABELS[params.tier]}`, html);
 }
+
+export async function sendNewsletterSubscribeAdminEmail(params: {
+  email: string;
+}) {
+  const html = shell(
+    "New newsletter subscriber",
+    `<p><strong style="color:#fff;">Email:</strong> ${params.email}</p>
+     <p>Someone subscribed via the homepage footer. Add them to your broadcast list when you send news, offers, or job updates.</p>`
+  );
+  return send(adminEmail, `Newsletter: ${params.email}`, html);
+}

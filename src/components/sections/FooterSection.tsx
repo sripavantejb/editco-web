@@ -7,6 +7,7 @@ import { footer, industriesWorked } from "@/content/landing";
 import { site } from "@/content/site";
 import { sectionFlowAfter } from "@/lib/stickyStack";
 import FallingText from "@/components/motion/FallingText";
+import { NewsletterSubscribeForm } from "@/components/sections/NewsletterSubscribeForm";
 
 const PaperPlaneIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="h-24 w-24 text-black/10">
@@ -36,16 +37,23 @@ const LinkedInIcon = () => (
   </svg>
 );
 
+const socials = [
+  { icon: <Mail className="h-6 w-6" />, label: "Email", href: `mailto:${site.email}`, external: false },
+  { icon: <XIcon />, label: "X", href: "https://x.com/editcomedia", external: true },
+  { icon: <Instagram className="h-6 w-6" />, label: "Instagram", href: site.instagram, external: true },
+  { icon: <LinkedInIcon />, label: "LinkedIn", href: site.linkedin, external: true },
+] as const;
+
 export function FooterSection() {
   return (
     <footer
       id={footer.id}
       className={`relative overflow-hidden bg-black py-4 font-inter md:py-6 ${sectionFlowAfter}`}
     >
-      {/* Industry chips fall across the whole footer */}
+      {/* Industry chips — below interactive footer UI (z-40) so mobile taps work */}
       <div
         id={industriesWorked.id}
-        className="pointer-events-none absolute inset-0 z-30"
+        className="pointer-events-none absolute inset-0 z-20"
         aria-hidden
       >
         <FallingText
@@ -60,10 +68,9 @@ export function FooterSection() {
         />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-[1400px] px-4 sm:px-6 md:px-2">
-        {/* Top Cards stay clickable above the chip layer */}
-        <div className="pointer-events-none relative z-40 grid grid-cols-1 gap-1.5 md:grid-cols-2">
-          <div className="pointer-events-auto relative overflow-hidden rounded-[20px] bg-[#FFD600] p-4 md:p-6">
+      <div className="relative z-40 mx-auto max-w-[1400px] px-4 sm:px-6 md:px-2">
+        <div className="grid grid-cols-1 gap-1.5 md:grid-cols-2">
+          <div className="relative overflow-hidden rounded-[20px] bg-[#FFD600] p-4 md:p-6">
             <div className="relative z-10">
               <h2 className="mb-0.5 max-w-md origin-left px-1 font-archivo text-2xl italic leading-[1.05] tracking-[-0.05em] text-black sm:skew-x-[-12deg] sm:leading-[0.85] sm:text-3xl md:text-5xl">
                 YOUR INBOX
@@ -74,36 +81,15 @@ export function FooterSection() {
                 Subscribe to our newsletter for VIP access to news, offers, and insights!
               </p>
 
-              <div className="flex flex-col gap-1.5">
-                <div className="flex w-full max-w-sm flex-col gap-2 sm:max-w-xs">
-                  <input
-                    type="email"
-                    placeholder="Your email address"
-                    className="w-full min-w-0 rounded-full border-none bg-white px-3.5 py-2.5 text-[11px] text-black placeholder-black/40 focus:ring-1 focus:ring-black/10"
-                  />
-                  <button
-                    type="button"
-                    className="w-full rounded-full bg-black px-3.5 py-2 text-[9px] font-black text-white transition-transform hover:scale-105 active:scale-95 sm:w-auto"
-                  >
-                    SUBSCRIBE
-                  </button>
-                </div>
-                <label className="flex items-start gap-1 text-[8px] font-bold leading-none text-black/60">
-                  <input
-                    type="checkbox"
-                    className="h-2.5 w-2.5 shrink-0 rounded border-none bg-black/10 text-black focus:ring-transparent"
-                  />
-                  <span>I agree to receive communications from {site.name}.</span>
-                </label>
-              </div>
+              <NewsletterSubscribeForm />
             </div>
 
-            <div className="absolute top-8 right-3 hidden rotate-[-10deg] opacity-40 md:block">
+            <div className="pointer-events-none absolute top-8 right-3 hidden rotate-[-10deg] opacity-40 md:block">
               <PaperPlaneIcon />
             </div>
           </div>
 
-          <div className="pointer-events-auto relative overflow-hidden rounded-[20px] bg-[#FFD600] p-4 md:p-6">
+          <div className="relative overflow-hidden rounded-[20px] bg-[#FFD600] p-4 md:p-6">
             <div className="relative z-10">
               <h2 className="mb-0.5 max-w-md origin-left px-1 font-archivo text-2xl italic leading-[1.05] tracking-[-0.05em] text-black sm:skew-x-[-12deg] sm:leading-[0.85] sm:text-3xl md:text-5xl">
                 ALWAYS HERE
@@ -133,13 +119,12 @@ export function FooterSection() {
               </div>
             </div>
 
-            <div className="absolute top-5 right-3 hidden opacity-60 md:block">
+            <div className="pointer-events-none absolute top-5 right-3 hidden opacity-60 md:block">
               <SupportIcon />
             </div>
           </div>
         </div>
 
-        {/* Marquee */}
         <div className="pointer-events-none relative z-0 my-2 overflow-hidden py-1 md:my-3">
           <motion.div
             className="flex whitespace-nowrap"
@@ -170,32 +155,25 @@ export function FooterSection() {
           </motion.div>
         </div>
 
-        {/* Bottom */}
-        <div className="pointer-events-none flex flex-col gap-1.5 md:flex-row">
+        {/* Socials + CTA — above falling chips so mobile taps always work */}
+        <div className="relative z-40 flex flex-col gap-1.5 md:flex-row">
           <div className="grid grid-cols-2 gap-1.5 md:w-[240px]">
-            {[
-              { icon: <Mail className="h-6 w-6" />, label: "Email", href: `mailto:${site.email}` },
-              { icon: <XIcon />, label: "X", href: "#" },
-              { icon: <Instagram className="h-6 w-6" />, label: "Instagram", href: site.instagram },
-              { icon: <LinkedInIcon />, label: "LinkedIn", href: site.linkedin },
-            ].map((social) => (
-              <div
+            {socials.map((social) => (
+              <a
                 key={social.label}
-                className="pointer-events-auto flex aspect-square items-center justify-center rounded-[12px] bg-white text-black transition-transform hover:scale-105 active:scale-95"
+                href={social.href}
+                {...(social.external
+                  ? { target: "_blank", rel: "noopener noreferrer" }
+                  : {})}
+                aria-label={social.label}
+                className="flex aspect-square items-center justify-center rounded-[12px] bg-white text-black transition-transform hover:scale-105 active:scale-95"
               >
-                <Link
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex h-full w-full items-center justify-center"
-                >
-                  {social.icon}
-                </Link>
-              </div>
+                {social.icon}
+              </a>
             ))}
           </div>
 
-          <div className="pointer-events-auto relative flex flex-1 flex-col justify-between overflow-hidden rounded-[24px] bg-[#36DF93] p-4 text-black md:p-6">
+          <div className="relative flex flex-1 flex-col justify-between overflow-hidden rounded-[24px] bg-[#36DF93] p-4 text-black md:p-6">
             <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
               <h2 className="max-w-[260px] origin-left px-1 font-archivo text-2xl italic leading-[1.05] tracking-[-0.05em] sm:skew-x-[-12deg] sm:leading-[0.85] sm:text-3xl md:text-4xl">
                 BUILD WITH EDITCO.
