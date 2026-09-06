@@ -21,6 +21,7 @@ import {
   TrendingUp,
   RefreshCw,
   KeyRound,
+  ImageIcon,
 } from "lucide-react";
 
 export type OsNavItem = {
@@ -300,6 +301,13 @@ export const osNavSections: OsNavSection[] = [
         icon: Settings,
         permission: "*",
         match: (p) => p.startsWith("/admin/os/settings/services"),
+      },
+      {
+        href: "/admin/os/settings/website",
+        label: "Website images",
+        icon: ImageIcon,
+        permission: "*",
+        match: (p) => p.startsWith("/admin/os/settings/website"),
       },
       {
         href: "/admin/os/settings/sales-admins",

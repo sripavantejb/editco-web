@@ -63,7 +63,7 @@ export function CalculatorSection() {
   return (
     <section
       id="calculator"
-      className={`relative overflow-hidden bg-gaude-black pt-16 pb-20 md:pt-[110px] md:pb-24 ${sectionFlow}`}
+      className={`relative overflow-hidden bg-white pt-16 pb-20 md:pt-[110px] md:pb-24 ${sectionFlow}`}
     >
       <div className="relative z-10 mx-auto max-w-[1200px] px-4 sm:px-6">
         <motion.div
@@ -78,7 +78,6 @@ export function CalculatorSection() {
                 Growth <span className="text-gaude-orange">Calculator</span>
               </>
             }
-            light
           />
         </motion.div>
 
@@ -87,7 +86,7 @@ export function CalculatorSection() {
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
           viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.6, delay: 0.08, ease: easeOut }}
-          className="grid overflow-hidden rounded-[20px] border-2 border-white/10 md:grid-cols-2 md:rounded-[24px]"
+          className="grid overflow-hidden rounded-[20px] border-2 border-gaude-black/10 md:grid-cols-2 md:rounded-[24px]"
         >
           {/* Inputs */}
           <motion.div
@@ -95,7 +94,7 @@ export function CalculatorSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.55, delay: 0.15, ease: easeOut }}
-            className="flex min-w-0 flex-col gap-6 border-b-2 border-white/10 bg-white p-4 sm:p-6 md:border-r-2 md:border-b-0 md:p-8"
+            className="flex min-w-0 flex-col gap-6 border-b-2 border-gaude-black/10 bg-white p-4 sm:p-6 md:border-r-2 md:border-b-0 md:p-8"
           >
             <motion.p
               initial={{ opacity: 0 }}

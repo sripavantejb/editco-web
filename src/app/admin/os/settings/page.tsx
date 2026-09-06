@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import { UserCog, Settings as SettingsIcon, Building2 } from "lucide-react";
+import { UserCog, Settings as SettingsIcon, Building2, ImageIcon } from "lucide-react";
 import { requireOsPage } from "@/lib/os/page";
 import { OsPage } from "@/components/os/ui";
 
@@ -17,6 +17,12 @@ const SETTINGS_SECTIONS = [
     icon: SettingsIcon,
     title: "Services",
     description: "The service catalog used across leads, proposals, and pitches.",
+  },
+  {
+    href: "/admin/os/settings/website",
+    icon: ImageIcon,
+    title: "Website images",
+    description: "Clients logos, Selected Works, and The Crew photos & portfolio links.",
   },
   {
     href: "/admin/os/settings/sales-admins",

@@ -12,9 +12,12 @@ gsap.registerPlugin(ScrollTrigger);
 const steps = processContent.steps;
 const labels = steps.map((s) => s.title);
 
+/**
+ * Process uses CSS sticky (not GSAP pin) so Lenis scroll into/out of Crew
+ * doesn’t flicker from pin-spacer jumps.
+ */
 export function ProcessSection() {
   const stageRef = useRef<HTMLElement>(null);
-  const stickyRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const [compact, setCompact] = useState(false);
   const current = steps[active] ?? steps[0];
@@ -29,24 +32,14 @@ export function ProcessSection() {
 
   useEffect(() => {
     const stage = stageRef.current;
-    const sticky = stickyRef.current;
-    if (!stage || !sticky) return;
+    if (!stage) return;
 
     const ctx = gsap.context(() => {
       ScrollTrigger.create({
         trigger: stage,
         start: "top top",
-        end: () =>
-          `+=${Math.max(
-            steps.length *
-              window.innerHeight *
-              (window.matchMedia("(max-width: 1023px)").matches ? 0.55 : 0.95),
-            1
-          )}`,
-        pin: sticky,
-        scrub: 1.25,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
+        end: "bottom bottom",
+        scrub: true,
         onUpdate: (self) => {
           const next = Math.min(
             steps.length - 1,
@@ -57,7 +50,13 @@ export function ProcessSection() {
       });
     }, stage);
 
-    return () => ctx.revert();
+    const refresh = () => ScrollTrigger.refresh();
+    const t = window.setTimeout(refresh, 100);
+
+    return () => {
+      window.clearTimeout(t);
+      ctx.revert();
+    };
   }, []);
 
   return (
@@ -65,11 +64,12 @@ export function ProcessSection() {
       id={processContent.id}
       ref={stageRef}
       className={`relative scroll-mt-24 bg-gaude-black text-white ${sectionFlowAfter}`}
+      style={{
+        // Scroll runway for step changes while the panel stays sticky
+        height: `${Math.max(steps.length * 70, 220)}vh`,
+      }}
     >
-      <div
-        ref={stickyRef}
-        className="flex min-h-[100svh] flex-col justify-start overflow-x-clip px-4 pt-20 pb-12 sm:px-6 sm:pt-24 sm:pb-16 md:px-10 md:pt-28 md:pb-20"
-      >
+      <div className="sticky top-0 flex min-h-[100svh] flex-col justify-start overflow-x-clip bg-gaude-black px-4 pt-20 pb-12 sm:px-6 sm:pt-24 sm:pb-16 md:px-10 md:pt-28 md:pb-20">
         <div className="pointer-events-none absolute inset-0 opacity-[0.04] [background-image:linear-gradient(to_right,rgba(255,255,255,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.12)_1px,transparent_1px)] [background-size:40px_40px]" />
 
         <div className="relative mx-auto w-full max-w-6xl">
@@ -109,10 +109,7 @@ export function ProcessSection() {
               className="min-w-0 font-archivo font-bold uppercase tracking-tight [&>ul>li>span]:break-words"
             />
 
-            <article
-              key={active}
-              className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-6 transition-opacity duration-300 sm:rounded-[1.75rem] sm:p-8 md:rounded-[2rem] md:p-10"
-            >
+            <article className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-6 sm:rounded-[1.75rem] sm:p-8 md:rounded-[2rem] md:p-10">
               <p className="font-archivo text-sm font-semibold uppercase tracking-[0.22em] text-gaude-orange">
                 Step {String(active + 1).padStart(2, "0")}
               </p>

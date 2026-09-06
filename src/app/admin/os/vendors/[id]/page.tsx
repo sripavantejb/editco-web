@@ -6,15 +6,18 @@ import { requireOsPage } from "@/lib/os/page";
 import { Vendor, VENDOR_ACTIVE_STATUSES, VENDOR_ACTIVE_STATUS_LABELS } from "@/models/os/Vendor";
 import { Conversion } from "@/models/os/Conversion";
 import { Project } from "@/models/os/Project";
+import { Payment } from "@/models/os/Payment";
 import { PortalAccess } from "@/models/os/PortalAccess";
 import { conversionRollup } from "@/lib/os/rollups";
 import { updateVendor, deleteVendor } from "@/actions/os/vendors";
 import { OsActionForm } from "@/components/os/OsActionForm";
 import { Field, OsLink, OsPage, osInputClass, osTextareaClass } from "@/components/os/ui";
 import { OsSelect } from "@/components/os/OsSelect";
-import { formatCurrencyINR } from "@/lib/utils";
+import { OsDateInput } from "@/components/os/OsDateInput";
+import { formatCurrencyINR, formatDate } from "@/lib/utils";
 import { GeneratePortalForm } from "@/components/os/OsForms";
 import { CopyPortalUrl } from "@/components/os/CopyPortalUrl";
+import { RecordClientPaymentDrawer } from "@/components/os/RecordClientPaymentDrawer";
 import { hasPermission } from "@/lib/os/permissions";
 import { revokeClientPortal } from "@/actions/os/portal";
 import Link from "next/link";
@@ -32,6 +35,13 @@ function appOrigin(host: string | null, proto: string | null) {
   return "http://localhost:3000";
 }
 
+function toDateInputValue(value?: Date | string | null) {
+  if (!value) return "";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toISOString().slice(0, 10);
+}
+
 export default async function VendorDetailPage({
   params,
 }: {
@@ -44,15 +54,26 @@ export default async function VendorDetailPage({
   const conversion = await Conversion.findOne({
     conversionUuid: vendor.conversionUuid,
   }).lean();
-  const projects = await Project.find({
-    conversionUuid: vendor.conversionUuid,
-    recordStatus: "active",
-  }).lean();
-  const portal = await PortalAccess.findOne({
-    conversionUuid: vendor.conversionUuid,
-  }).lean();
-  const rollup = await conversionRollup(vendor.conversionUuid);
+  const [projects, payments, portal, rollup] = await Promise.all([
+    Project.find({
+      conversionUuid: vendor.conversionUuid,
+      recordStatus: "active",
+    }).lean(),
+    Payment.find({
+      conversionUuid: vendor.conversionUuid,
+      recordStatus: "active",
+    })
+      .sort({ paidAt: -1 })
+      .limit(20)
+      .lean(),
+    PortalAccess.findOne({
+      conversionUuid: vendor.conversionUuid,
+    }).lean(),
+    conversionRollup(vendor.conversionUuid),
+  ]);
   const canWrite = hasPermission(staff.permissions, "vendors:write");
+  const canPay =
+    canWrite || hasPermission(staff.permissions, "payments:write");
   const h = await headers();
   const origin = appOrigin(h.get("host"), h.get("x-forwarded-proto"));
   const portalUrl =
@@ -67,11 +88,14 @@ export default async function VendorDetailPage({
       backHref="/admin/os/vendors"
       backLabel="Back to clients"
       actions={
-        conversion ? (
-          <OsLink href={`/admin/os/c/${conversion.publicCode}`}>
-            Conversion hub
-          </OsLink>
-        ) : null
+        <div className="flex flex-wrap items-center gap-2">
+          {canPay ? <RecordClientPaymentDrawer vendorId={id} /> : null}
+          {conversion ? (
+            <OsLink href={`/admin/os/c/${conversion.publicCode}`}>
+              Conversion hub
+            </OsLink>
+          ) : null}
+        </div>
       }
     >
       <div className="mb-8 grid gap-4 sm:grid-cols-4">
@@ -104,6 +128,7 @@ export default async function VendorDetailPage({
       {canWrite ? (
         <OsActionForm
           action={updateVendor}
+          submitLabel="Save client"
           className="mb-10 grid max-w-3xl gap-3 sm:grid-cols-2"
         >
           <input type="hidden" name="id" value={id} />
@@ -146,7 +171,10 @@ export default async function VendorDetailPage({
             <OsSelect
               name="activeStatus"
               defaultValue={vendor.activeStatus || "active"}
-              options={VENDOR_ACTIVE_STATUSES.map((s) => ({ value: s, label: VENDOR_ACTIVE_STATUS_LABELS[s] }))}
+              options={VENDOR_ACTIVE_STATUSES.map((s) => ({
+                value: s,
+                label: VENDOR_ACTIVE_STATUS_LABELS[s],
+              }))}
             />
           </Field>
           <Field label="Industry">
@@ -177,6 +205,22 @@ export default async function VendorDetailPage({
               className={osInputClass()}
             />
           </Field>
+          <Field label="Deal value (₹)">
+            <input
+              name="conversionValue"
+              type="number"
+              min="0"
+              step="0.01"
+              defaultValue={conversion?.conversionValue ?? 0}
+              className={osInputClass()}
+            />
+          </Field>
+          <Field label="Expected start">
+            <OsDateInput
+              name="expectedStart"
+              defaultValue={toDateInputValue(conversion?.expectedStart)}
+            />
+          </Field>
           <div className="sm:col-span-2">
             <Field label="Address">
               <textarea
@@ -195,8 +239,45 @@ export default async function VendorDetailPage({
               />
             </Field>
           </div>
+          <div className="sm:col-span-2">
+            <Field label="Notes">
+              <textarea
+                name="notes"
+                defaultValue={conversion?.notes || ""}
+                className={osTextareaClass()}
+              />
+            </Field>
+          </div>
         </OsActionForm>
       ) : null}
+
+      <section className="mb-10 max-w-3xl">
+        <h2 className="mb-3 font-archivo text-sm uppercase">Money received</h2>
+        {payments.length === 0 ? (
+          <p className="font-inter text-sm text-[var(--dash-muted)]">
+            No payments yet. Use Record money when this client pays — it updates
+            Received here and Revenue.
+          </p>
+        ) : (
+          <ul className="space-y-2 font-inter text-sm">
+            {payments.map((p) => (
+              <li
+                key={String(p._id)}
+                className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--dash-border)] px-3 py-2"
+              >
+                <span>
+                  {formatCurrencyINR(p.amount)} · {p.method || "—"} ·{" "}
+                  {formatDate(p.paidAt)}
+                  {p.reference ? ` · ${p.reference}` : ""}
+                </span>
+                {p.notes ? (
+                  <span className="text-[var(--dash-muted)]">{p.notes}</span>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       {canWrite ? (
         <form action={deleteVendorForm} className="mb-10">

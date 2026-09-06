@@ -1,18 +1,21 @@
-"use client";
-
-import { notFound, useParams } from "next/navigation";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
-import { getWork } from "@/content/landing";
+import { getSiteWork } from "@/lib/site-content";
 import { MagneticNav } from "@/components/motion/MagneticNav";
 import { FloatingBottomNav } from "@/components/motion/FloatingBottomNav";
 
-export default function WorkDetailPage() {
-  const params = useParams();
-  const slug = params.slug as string;
-  const work = getWork(slug);
+export const dynamic = "force-dynamic";
 
-  if (!work) return notFound();
+export default async function WorkDetailPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const work = await getSiteWork(slug);
+
+  if (!work) notFound();
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">

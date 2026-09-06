@@ -8,8 +8,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 /**
- * Slightly slowed, momentum-style scroll on the marketing homepage only.
- * Keeps section-to-section movement (Selected Works → Crew → Process…) from feeling rushed.
+ * Momentum scroll for the marketing homepage.
+ * Keeps ScrollTrigger pins (Process, etc.) in sync so reverse scroll doesn’t flicker.
  */
 export function HomeSmoothScroll() {
   useEffect(() => {
@@ -18,8 +18,7 @@ export function HomeSmoothScroll() {
     }
 
     const lenis = new Lenis({
-      // Higher duration = smoother / a little slower wheel catch-up
-      duration: 1.35,
+      duration: 1.05,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
       touchMultiplier: 1.1,
@@ -27,13 +26,24 @@ export function HomeSmoothScroll() {
     });
 
     lenis.on("scroll", ScrollTrigger.update);
+
     const ticker = (time: number) => {
       lenis.raf(time * 1000);
     };
     gsap.ticker.add(ticker);
     gsap.ticker.lagSmoothing(0);
 
+    const refresh = () => ScrollTrigger.refresh();
+    const t1 = window.setTimeout(refresh, 80);
+    const t2 = window.setTimeout(refresh, 400);
+    window.addEventListener("load", refresh);
+    window.addEventListener("resize", refresh);
+
     return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+      window.removeEventListener("load", refresh);
+      window.removeEventListener("resize", refresh);
       gsap.ticker.remove(ticker);
       lenis.destroy();
       ScrollTrigger.update();

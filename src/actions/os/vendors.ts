@@ -318,23 +318,86 @@ export async function updateVendor(
   const vendor = await Vendor.findById(str(formData, "id"));
   if (!vendor) return { error: "Vendor not found" };
 
-  vendor.companyName = str(formData, "companyName") || vendor.companyName;
-  vendor.contactPerson = str(formData, "contactPerson");
-  vendor.email = str(formData, "email");
-  vendor.phone = str(formData, "phone");
-  vendor.address = str(formData, "address");
-  vendor.location = str(formData, "location");
-  vendor.industry = str(formData, "industry");
-  vendor.gstNumber = str(formData, "gstNumber");
-  vendor.website = str(formData, "website");
-  vendor.socialLinks = str(formData, "socialLinks");
-  vendor.accountOwner = str(formData, "accountOwner") || vendor.accountOwner;
+  const companyName = str(formData, "companyName") || vendor.companyName;
+  const contactPerson = str(formData, "contactPerson");
+  const email = str(formData, "email").toLowerCase();
+  const phone = str(formData, "phone");
+  const address = str(formData, "address");
+  const location = str(formData, "location");
+  const industry = str(formData, "industry");
+  const gstNumber = str(formData, "gstNumber");
+  const website = str(formData, "website");
+  const socialLinks = str(formData, "socialLinks");
+  const accountOwner = str(formData, "accountOwner") || vendor.accountOwner;
+  const conversionValue = num(formData, "conversionValue");
+  const notes = str(formData, "notes");
+  const expectedStart = optDate(formData, "expectedStart");
+  const services = formData.getAll("services").map(String).filter(Boolean);
+
+  vendor.companyName = companyName;
+  vendor.contactPerson = contactPerson;
+  vendor.email = email;
+  vendor.phone = phone;
+  vendor.address = address;
+  vendor.location = location;
+  vendor.industry = industry;
+  vendor.gstNumber = gstNumber;
+  vendor.website = website;
+  vendor.socialLinks = socialLinks;
+  vendor.accountOwner = accountOwner;
   const activeStatusRaw = str(formData, "activeStatus");
   if (VENDOR_ACTIVE_STATUSES.includes(activeStatusRaw as VendorActiveStatus)) {
     vendor.activeStatus = activeStatusRaw as VendorActiveStatus;
   }
   vendor.updatedBy = gate.staff.email;
   await vendor.save();
+
+  try {
+    const canonical = await resolveCompanyAndContact({
+      companyName,
+      contactPerson,
+      email,
+      phone,
+      industry,
+      website,
+      address,
+      gstNumber,
+      staffEmail: gate.staff.email,
+    });
+    vendor.companyId = canonical.companyId;
+    vendor.primaryContactId = canonical.contactId;
+    await vendor.save();
+  } catch (err) {
+    console.error("[updateVendor] company/contact sync", err);
+  }
+
+  const conversion = await Conversion.findOne({
+    conversionUuid: vendor.conversionUuid,
+  });
+  if (conversion) {
+    if (Number.isFinite(conversionValue) && conversionValue >= 0) {
+      conversion.conversionValue = conversionValue;
+    }
+    if (services.length) conversion.services = services;
+    conversion.notes = notes || conversion.notes;
+    conversion.owner = accountOwner || conversion.owner;
+    if (expectedStart) conversion.expectedStart = expectedStart;
+    conversion.updatedBy = gate.staff.email;
+    await conversion.save();
+
+    // Keep primary project budget in sync with deal value so Total business updates.
+    if (Number.isFinite(conversionValue) && conversionValue >= 0) {
+      const primary = await Project.findOne({
+        conversionUuid: vendor.conversionUuid,
+        recordStatus: "active",
+      }).sort({ createdAt: 1 });
+      if (primary) {
+        primary.budget = conversionValue;
+        primary.updatedBy = gate.staff.email;
+        await primary.save();
+      }
+    }
+  }
 
   await logActivity({
     title: "Client updated",
@@ -347,6 +410,8 @@ export async function updateVendor(
   });
 
   revalidatePath("/admin/os", "layout");
+  revalidatePath(`/admin/os/vendors/${vendor._id}`);
+  revalidatePath("/admin/os/revenue");
   return { success: "Client saved" };
 }
 

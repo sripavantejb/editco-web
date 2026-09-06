@@ -27,8 +27,9 @@ function toLogoItem(logo: ClientLogo): LogoItem {
   };
 }
 
-export function ClientsSection() {
-  const logos: LogoItem[] = clients.logos.map((logo) => toLogoItem(logo));
+export function ClientsSection({ logos: logosProp }: { logos?: ClientLogo[] }) {
+  const logoSource = logosProp?.length ? logosProp : clients.logos;
+  const logos: LogoItem[] = logoSource.map((logo) => toLogoItem(logo));
 
   return (
     <section
@@ -65,7 +66,7 @@ export function ClientsSection() {
             scaleOnHover
             ariaLabel="Editco Media clients"
             renderItem={(item, _key, index) => {
-              const meta = clients.logos.find((l) => l.title === item.title);
+              const meta = logoSource.find((l) => l.title === item.title);
               const onDark =
                 meta?.card === "dark"
                   ? true

@@ -16,21 +16,28 @@ import { SolutionSection } from "@/components/sections/SolutionSection";
 import { TechSection } from "@/components/sections/TechSection";
 
 import { WhySection } from "@/components/sections/WhySection";
+import { getSiteClientLogos, getSiteCrew, getSiteWorks } from "@/lib/site-content";
 
-export default function Home() {
+export default async function Home() {
+  const [clientLogos, works, crewMembers] = await Promise.all([
+    getSiteClientLogos(),
+    getSiteWorks(),
+    getSiteCrew(),
+  ]);
+
   return (
     <SlamVisibilityProvider>
       <HomeSmoothScroll />
       <main id="main" className="relative w-full overflow-x-clip">
         <HeroSection />
         <ProblemSection />
-        <ClientsSection />
+        <ClientsSection logos={clientLogos} />
         <SolutionSection />
         <ServicesSection />
         <WhyEditcoSection />
         <CalculatorSection />
-        <CaseStudySection />
-        <WhySection />
+        <CaseStudySection works={works} />
+        <WhySection members={crewMembers} />
         <ProcessSection />
         <TechSection />
         <FaqSection />

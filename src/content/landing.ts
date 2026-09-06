@@ -189,22 +189,37 @@ export const crew = {
   heading: "The Crew Behind the Growth",
   members: [
     {
+      slug: "tej",
       name: "Sri Pavan Tej",
       role: "Product, Technology, And Systems.",
       description:
         "Sees the company as a set of systems that should still make sense later.",
+      accent: "orange" as const,
+      image: "/crew/tej.jpg",
+      linkedin: "https://www.linkedin.com/in/sripavantejbalam/",
+      portfolio: "https://sripavantejb.editcomedia.com/",
     },
     {
+      slug: "harsha",
       name: "Harsha Polina",
       role: "Strategy, Operations, And Technology.",
       description:
         "Builds the business together in a way that lets the creative work stay clear and true.",
+      accent: "green" as const,
+      image: "/crew/harsha-v2.jpg",
+      linkedin: "https://www.linkedin.com/in/harsha-polina/",
+      portfolio: "https://harshapolina.editcomedia.com/",
     },
     {
+      slug: "deepika",
       name: "Deepika Mundla",
       role: "Design, Identity, And Technology.",
       description:
         "Shapes how Editco appears and how every product we make feels to use.",
+      accent: "purple" as const,
+      image: "/crew/deepika-v2.jpg",
+      linkedin: "https://www.linkedin.com/in/deepika-mundla/",
+      portfolio: "https://dpka-s-portfolio.vercel.app/",
     },
   ],
 } as const;
@@ -237,6 +252,21 @@ export const process = {
 } as const;
 
 export const works = [
+  {
+    id: "epm",
+    title: "EPM",
+    location: "Editco",
+    category: "Project Management SaaS",
+    image: "/works/epm.png",
+    fullWidth: true,
+    problem:
+      "Interior and delivery teams were juggling tasks across chats, sheets, and scattered tools — no single place to see ownership, deadlines, and progress.",
+    approach:
+      "We built EPM — Editco Project Management — an interior project OS with tasks, boards, Gantt views, and a clear daily workspace teams actually open.",
+    outcome:
+      "Teams simplify task management and boost productivity with one system for assigned work, today/overdue focus, and project visibility.",
+    focus: ["Project OS", "Task boards", "Team productivity"],
+  },
   {
     id: "dentin-oral-experts",
     title: "Dentin Oral Experts",

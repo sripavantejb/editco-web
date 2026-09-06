@@ -1,139 +1,155 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
+import { Linkedin, ArrowUpRight, Globe } from "lucide-react";
 import { crew } from "@/content/landing";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { sectionFlowAfter } from "@/lib/stickyStack";
-import { Linkedin, ArrowUpRight, Globe } from "lucide-react";
+import type { SiteCrewItem } from "@/lib/site-content";
+import { cn } from "@/lib/utils";
 
-const CREW = [
-  {
-    name: "Sri Pavan Tej",
-    role: "Product, Technology, And Systems.",
-    description:
-      "Sees the company as a set of systems that should still make sense later.",
-    accent: "bg-gaude-orange",
-    rotate: "rotate-[-1deg]",
-    linkedin: "https://www.linkedin.com/in/sripavantejbalam/",
+const ACCENT = {
+  orange: {
+    bar: "bg-gaude-orange",
+    ring: "ring-gaude-orange/35",
+    glow: "group-hover:shadow-[6px_6px_0_0_#ff4e00]",
+    chip: "bg-gaude-orange",
   },
-  {
-    name: "Harsha Polina",
-    role: "Strategy, Operations, And Technology.",
-    description:
-      "Builds the business together in a way that lets the creative work stay clear and true.",
-    accent: "bg-gaude-green",
-    rotate: "rotate-[-0.5deg]",
-    linkedin: "https://www.linkedin.com/in/harsha-polina/",
+  green: {
+    bar: "bg-gaude-green",
+    ring: "ring-gaude-green/40",
+    glow: "group-hover:shadow-[6px_6px_0_0_#2fdf92]",
+    chip: "bg-gaude-green",
   },
-  {
-    name: "Deepika Mundla",
-    role: "Design, Identity, And Technology.",
-    description:
-      "Shapes how Editco appears and how every product we make feels to use.",
-    accent: "bg-gaude-purple",
-    rotate: "rotate-[1deg]",
-    linkedin: "https://www.linkedin.com/in/deepika-mundla/",
-    portfolio: "https://dpka-s-portfolio.vercel.app/",
+  purple: {
+    bar: "bg-gaude-purple",
+    ring: "ring-gaude-purple/45",
+    glow: "group-hover:shadow-[6px_6px_0_0_#c3a4f6]",
+    chip: "bg-gaude-purple",
   },
-] as const;
+} as const;
 
-export function WhySection() {
+function fallbackCrew(): SiteCrewItem[] {
+  return crew.members.map((m) => ({
+    slug: m.slug,
+    name: m.name,
+    role: m.role,
+    description: m.description,
+    accent: m.accent,
+    image: m.image,
+    linkedin: m.linkedin,
+    portfolio: m.portfolio,
+  }));
+}
+
+export function WhySection({ members: membersProp }: { members?: SiteCrewItem[] }) {
+  const members = membersProp?.length ? membersProp : fallbackCrew();
+
   return (
     <section
       id={crew.id}
-      className={`relative overflow-hidden bg-white px-4 py-24 md:px-8 md:py-36 ${sectionFlowAfter}`}
+      className={`relative overflow-hidden bg-white px-4 py-14 md:px-8 md:py-20 ${sectionFlowAfter}`}
     >
-      <div className="absolute top-20 right-[5%] h-64 w-64 rounded-full border-4 border-gaude-black bg-gaude-orange/10 blur-3xl" />
-      <div className="absolute bottom-20 left-[5%] h-80 w-80 rounded-full border-4 border-gaude-black bg-gaude-purple/10 blur-3xl" />
+      <div className="pointer-events-none absolute top-10 right-[6%] h-48 w-48 rounded-full bg-gaude-orange/10 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-8 left-[6%] h-52 w-52 rounded-full bg-gaude-purple/10 blur-3xl" />
 
       <div className="relative z-10 mx-auto max-w-6xl">
-        <div className="mb-16">
+        <div className="mb-8 md:mb-10">
           <SectionHeading
             title={
               <>
                 THE <span className="text-gaude-orange">CREW</span> BEHIND THE GROWTH
               </>
             }
-            description="A collective of designers, developers, and strategists obsessed with building high-performance digital systems."
+            description="Founders who design, build, and ship — portfolios open if you want to go deeper."
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-12">
-          {CREW.map((member, i) => (
-            <motion.div
-              key={member.name}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className={`group relative flex flex-col border-4 border-gaude-black bg-white p-4 shadow-[8px_8px_0_0_#000] transition-all hover:shadow-[12px_12px_0_0_#000] hover:-translate-y-2 md:shadow-[12px_12px_0_0_#000] md:hover:shadow-[16px_16px_0_0_#000] max-md:rotate-0 ${member.rotate}`}
-            >
-              <div className="relative aspect-[4/5] overflow-hidden border-4 border-gaude-black">
-                <div
-                  className={`flex h-full w-full items-center justify-center font-archivo text-6xl font-black text-gaude-black/20 ${member.accent} transition-all duration-500 group-hover:scale-105`}
-                >
-                  {member.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
-                </div>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 md:gap-5 lg:gap-6">
+          {members.map((member, i) => {
+            const accent = ACCENT[member.accent] || ACCENT.orange;
+            return (
+              <motion.article
+                key={member.slug}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.15 }}
+                transition={{ delay: i * 0.06, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                className={cn(
+                  "group relative flex flex-col overflow-hidden rounded-[1.5rem] border-2 border-gaude-black bg-white p-3.5 shadow-[5px_5px_0_0_#0a0a0a] transition-[box-shadow,transform] duration-500 sm:p-4",
+                  "hover:-translate-y-1 hover:shadow-[8px_8px_0_0_#0a0a0a]",
+                  accent.glow
+                )}
+              >
+                <div className={cn("absolute inset-x-0 top-0 h-1", accent.bar)} />
 
-                <div className="absolute bottom-4 right-4 flex gap-2 translate-y-12 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                  <a
-                    href={member.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`${member.name} on LinkedIn`}
-                    className="flex h-10 w-10 items-center justify-center border-2 border-gaude-black bg-white shadow-[4px_4px_0_0_#000] transition-colors hover:bg-gaude-orange hover:text-white"
+                <div className="relative mx-auto mt-2 aspect-square w-[min(100%,160px)] sm:w-[min(100%,168px)] md:w-[min(100%,180px)]">
+                  <div
+                    className={cn(
+                      "absolute inset-0 overflow-hidden bg-[#f3f3f3] ring-2 ring-offset-2 ring-offset-white transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                      accent.ring,
+                      "rounded-full group-hover:rounded-[1.25rem] group-hover:scale-[1.03]"
+                    )}
                   >
-                    <Linkedin size={18} />
-                  </a>
-                  {"portfolio" in member && member.portfolio ? (
-                    <a
-                      href={member.portfolio}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`${member.name} portfolio`}
-                      className="flex h-10 w-10 items-center justify-center border-2 border-gaude-black bg-white shadow-[4px_4px_0_0_#000] transition-colors hover:bg-gaude-orange hover:text-white"
-                    >
-                      <Globe size={18} />
-                    </a>
-                  ) : null}
+                    <Image
+                      src={member.image}
+                      alt={member.name}
+                      fill
+                      sizes="180px"
+                      className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+                      unoptimized={member.image.startsWith("/api/")}
+                      priority={i === 0}
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div className="mt-6 flex flex-col items-center px-2 text-center">
-                <h3 className="font-archivo text-2xl font-black uppercase tracking-tighter text-gaude-black">
-                  {member.name}
-                </h3>
+                <div className="mt-4 flex flex-1 flex-col text-center">
+                  <h3 className="font-archivo text-lg font-black uppercase tracking-tighter text-gaude-black md:text-xl">
+                    {member.name}
+                  </h3>
+                  <p
+                    className={cn(
+                      "mx-auto mt-2 line-clamp-2 inline-block max-w-full rounded-full border-2 border-gaude-black px-2.5 py-1 font-inter text-[10px] font-bold uppercase leading-snug tracking-wide text-gaude-black",
+                      accent.chip
+                    )}
+                  >
+                    {member.role}
+                  </p>
+                  <p className="mt-2.5 line-clamp-2 flex-1 font-inter text-xs font-medium leading-relaxed text-gaude-black/60 md:text-[13px]">
+                    {member.description}
+                  </p>
 
-                <p
-                  className={`mt-2 inline-block border-2 border-gaude-black px-3 py-1.5 font-inter text-xs font-semibold leading-snug tracking-normal normal-case text-gaude-black ${member.accent}`}
-                >
-                  {member.role}
-                </p>
-
-                <p className="mt-4 font-inter text-sm font-medium leading-relaxed text-gaude-black/70">
-                  {member.description}
-                </p>
-
-                <a
-                  href={member.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group/link mt-6 flex w-full cursor-pointer items-center justify-center gap-2 border-t-2 border-gaude-black/10 pt-4"
-                >
-                  <span className="font-archivo text-[10px] font-black uppercase tracking-[0.2em] text-gaude-black/40 transition-colors group-hover/link:text-gaude-black">
-                    View LinkedIn
-                  </span>
-                  <ArrowUpRight
-                    size={14}
-                    className="text-gaude-black/40 transition-colors group-hover/link:text-gaude-black"
-                  />
-                </a>
-              </div>
-            </motion.div>
-          ))}
+                  <div className="mt-3.5 flex items-center justify-center gap-2">
+                    {member.linkedin ? (
+                      <a
+                        href={member.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`${member.name} on LinkedIn`}
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-full border-2 border-gaude-black bg-white text-gaude-black transition hover:bg-gaude-orange hover:text-white"
+                      >
+                        <Linkedin size={15} />
+                      </a>
+                    ) : null}
+                    {member.portfolio ? (
+                      <a
+                        href={member.portfolio}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`${member.name} portfolio`}
+                        className="inline-flex h-9 items-center gap-1.5 rounded-full border-2 border-gaude-black bg-gaude-black px-3 font-archivo text-[10px] font-bold uppercase tracking-[0.12em] text-white transition hover:border-gaude-orange hover:bg-gaude-orange"
+                      >
+                        <Globe size={12} />
+                        Portfolio
+                        <ArrowUpRight size={12} />
+                      </a>
+                    ) : null}
+                  </div>
+                </div>
+              </motion.article>
+            );
+          })}
         </div>
       </div>
     </section>

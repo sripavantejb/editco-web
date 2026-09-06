@@ -33,3 +33,6 @@ import "@/models/os/LeadProjectPitch";
 import "@/models/os/EditcoTrackerRow";
 import "@/models/os/RecurringPayment";
 import "@/models/os/ProductCredential";
+import "@/models/os/SiteClientLogo";
+import "@/models/os/SiteWork";
+import "@/models/os/SiteCrewMember";

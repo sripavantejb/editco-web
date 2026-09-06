@@ -1,12 +1,14 @@
-"use client";
-
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { works } from "@/content/landing";
+import { getSiteWorks } from "@/lib/site-content";
 import { MagneticNav } from "@/components/motion/MagneticNav";
 import { FloatingBottomNav } from "@/components/motion/FloatingBottomNav";
 
-export default function WorkIndexPage() {
+export const dynamic = "force-dynamic";
+
+export default async function WorkIndexPage() {
+  const works = await getSiteWorks();
+
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
       <MagneticNav />
