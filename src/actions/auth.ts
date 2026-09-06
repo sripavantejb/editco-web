@@ -159,6 +159,13 @@ export async function adminLogin(
   await ensureOsSeeded();
   await ensureSalesDemoSeeded();
   const staff = await StaffUser.findOne({ email, isActive: true });
+  // Deleted/revoked accounts stay in DB as inactive — never fall through to legacy passwords.
+  if (!staff) {
+    const revoked = await StaffUser.findOne({ email, isActive: false }).select("_id").lean();
+    if (revoked) {
+      return { error: "This account has been deactivated. Contact an admin." };
+    }
+  }
 
   const finish = async (userId?: string, role?: StaffRole) => {
     const sales = await getSalesEmployeeContext(email);

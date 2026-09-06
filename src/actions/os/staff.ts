@@ -100,7 +100,7 @@ export async function updateStaffUser(
   return { success: "User updated" };
 }
 
-/** Soft-deactivate — keeps history (projects/tasks still reference the user). */
+/** Revoke login: clear credentials + deactivate (history kept). Also disables Sales CRM profile. */
 export async function deleteStaffUser(
   _prev: ActionState,
   formData: FormData
@@ -114,27 +114,36 @@ export async function deleteStaffUser(
   if (user.email === gate.staff.email) {
     return { error: "You cannot delete your own account" };
   }
-  if (user.role === "super_admin" && gate.staff.role !== "super_admin") {
-    return { error: "Cannot delete a super admin" };
+  if (user.role === "super_admin") {
+    return { error: "Super admin accounts cannot be deleted here" };
   }
 
   user.isActive = false;
+  user.passwordHash = "";
   await user.save();
 
+  // Block Sales Admin / Employee portal access for this login too.
+  const { SalesEmployee } = await import("@/models/sales/SalesEmployee");
+  await SalesEmployee.updateMany(
+    { staffUserId: user._id },
+    { $set: { status: "inactive", updatedBy: gate.staff.email } }
+  );
+
   await logActivity({
-    title: "User deactivated",
-    detail: `${user.name} (${user.email})`,
+    title: "User credentials deleted",
+    detail: `${user.name} (${user.email}) — login revoked`,
     createdBy: gate.staff.email,
     actorUserId: gate.staff.userId,
     actorName: gate.staff.name,
-    actionType: "USER_DEACTIVATED",
+    actionType: "USER_CREDENTIALS_DELETED",
     entityType: "staff",
     entityId: user._id.toString(),
     metadata: { email: user.email, role: user.role },
   });
 
   revalidatePath("/admin/os/settings/users");
-  return { success: "User deleted" };
+  revalidatePath("/sales/admin/team");
+  return { success: "Login credentials removed — they can no longer sign in" };
 }
 
 export async function createService(

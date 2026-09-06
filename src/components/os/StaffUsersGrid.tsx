@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { X } from "lucide-react";
+import { Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { deleteStaffUser, updateStaffUser } from "@/actions/os/staff";
 import { OsActionForm } from "@/components/os/OsActionForm";
@@ -30,7 +30,8 @@ export function StaffUsersGrid({ users }: { users: StaffUserCard[] }) {
   const router = useRouter();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
-  const [deleting, startDelete] = useTransition();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [, startDelete] = useTransition();
   const selected = users.find((u) => u.id === selectedId) || null;
 
   useEffect(() => setMounted(true), []);
@@ -50,25 +51,34 @@ export function StaffUsersGrid({ users }: { users: StaffUserCard[] }) {
 
   const close = () => setSelectedId(null);
 
-  function onDelete() {
-    if (!selected) return;
+  function onDelete(user: StaffUserCard) {
+    if (user.role === "super_admin") {
+      toast.error("Super admin accounts cannot be deleted here");
+      return;
+    }
+    if (!user.isActive) {
+      toast.message("Already removed — they cannot sign in");
+      return;
+    }
     if (
       !window.confirm(
-        `Delete ${selected.name || selected.email}? They will be deactivated and can no longer sign in.`
+        `Delete login for ${user.name || user.email}? Their password will be cleared and they cannot sign in to OS, Sales Admin, or Employee portals.`
       )
     ) {
       return;
     }
+    setDeletingId(user.id);
     startDelete(async () => {
       const fd = new FormData();
-      fd.set("id", selected.id);
+      fd.set("id", user.id);
       const result = await deleteStaffUser({}, fd);
+      setDeletingId(null);
       if (result.error) {
         toast.error(result.error);
         return;
       }
-      toast.success(result.success || "User deleted");
-      close();
+      toast.success(result.success || "Credentials deleted");
+      if (selectedId === user.id) close();
       router.refresh();
     });
   }
@@ -78,30 +88,50 @@ export function StaffUsersGrid({ users }: { users: StaffUserCard[] }) {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {users.map((u) => {
           const initial = (u.name || u.email || "?").charAt(0).toUpperCase();
+          const busy = deletingId === u.id;
           return (
-            <button
+            <div
               key={u.id}
-              type="button"
-              onClick={() => setSelectedId(u.id)}
               className={cn(
-                "flex min-h-[88px] flex-col items-start gap-2 rounded-xl border border-[var(--dash-border)] bg-white p-4 text-left transition",
+                "relative flex min-h-[88px] flex-col items-start gap-2 rounded-xl border border-[var(--dash-border)] bg-white p-4 text-left transition",
                 "hover:border-[#111111] hover:shadow-sm",
                 !u.isActive && "opacity-60"
               )}
             >
-              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#111111] font-inter text-sm font-semibold text-white">
-                {initial}
-              </span>
-              <span className="min-w-0">
-                <span className="block truncate font-inter text-sm font-semibold text-[#111111]">
-                  {u.name || "Unnamed"}
+              <button
+                type="button"
+                onClick={() => setSelectedId(u.id)}
+                className="flex w-full flex-col items-start gap-2 text-left"
+              >
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#111111] font-inter text-sm font-semibold text-white">
+                  {initial}
                 </span>
-                <span className="mt-0.5 block truncate font-inter text-xs text-[#6b7280]">
-                  {STAFF_ROLE_LABELS[u.role] || u.role}
-                  {!u.isActive ? " · Inactive" : ""}
+                <span className="min-w-0 pr-8">
+                  <span className="block truncate font-inter text-sm font-semibold text-[#111111]">
+                    {u.name || "Unnamed"}
+                  </span>
+                  <span className="mt-0.5 block truncate font-inter text-xs text-[#6b7280]">
+                    {STAFF_ROLE_LABELS[u.role] || u.role}
+                    {!u.isActive ? " · Inactive" : ""}
+                  </span>
                 </span>
-              </span>
-            </button>
+              </button>
+              {u.role !== "super_admin" ? (
+                <button
+                  type="button"
+                  aria-label={`Delete ${u.name || u.email}`}
+                  title="Delete login credentials"
+                  disabled={busy || !u.isActive}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(u);
+                  }}
+                  className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#6b7280] transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              ) : null}
+            </div>
           );
         })}
       </div>
@@ -199,20 +229,23 @@ export function StaffUsersGrid({ users }: { users: StaffUserCard[] }) {
                         </OsActionForm>
                       </SalesModalContext.Provider>
 
-                      <div className="mt-6 border-t border-[#e5e7eb] pt-4">
-                        <button
-                          type="button"
-                          disabled={deleting || !selected.isActive}
-                          onClick={onDelete}
-                          className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-red-200 bg-red-50 font-inter text-sm font-medium text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                          {deleting
-                            ? "Deleting…"
-                            : selected.isActive
-                              ? "Delete user"
-                              : "Already inactive"}
-                        </button>
-                      </div>
+                      {selected.role !== "super_admin" ? (
+                        <div className="mt-6 border-t border-[#e5e7eb] pt-4">
+                          <button
+                            type="button"
+                            disabled={deletingId === selected.id || !selected.isActive}
+                            onClick={() => onDelete(selected)}
+                            className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-red-200 bg-red-50 font-inter text-sm font-medium text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            {deletingId === selected.id
+                              ? "Deleting…"
+                              : selected.isActive
+                                ? "Delete credentials"
+                                : "Already inactive"}
+                          </button>
+                        </div>
+                      ) : null}
                     </div>
                   </motion.div>
                 </div>
