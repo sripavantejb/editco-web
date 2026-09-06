@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { SignJWT, jwtVerify, type JWTPayload } from "jose";
 import { cookies } from "next/headers";
 import {
@@ -94,14 +95,14 @@ export async function getReferrerSession(): Promise<ReferrerSession | null> {
   return session;
 }
 
-export async function getAdminSession(): Promise<AdminSession | null> {
+export const getAdminSession = cache(async (): Promise<AdminSession | null> => {
   const jar = await cookies();
   const token = jar.get(ADMIN_SESSION_COOKIE)?.value;
   if (!token) return null;
   const session = await verifyToken<AdminSession>(token);
   if (!session || session.type !== "admin") return null;
   return session;
-}
+});
 
 export async function clearReferrerSession() {
   const jar = await cookies();

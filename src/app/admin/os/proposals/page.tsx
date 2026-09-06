@@ -17,6 +17,8 @@ import { OsSelect } from "@/components/os/OsSelect";
 import { PROPOSAL_STATUSES, PROPOSAL_STATUS_LABELS, type ProposalStatus } from "@/lib/os/constants";
 import { formatDateTime } from "@/lib/utils";
 import { hasPermission } from "@/lib/os/permissions";
+import { RowDeleteButton } from "@/components/os/RowDeleteButton";
+import { archiveProposal } from "@/actions/os/proposals";
 
 function proposalTone(status: ProposalStatus) {
   if (status === "accepted") return "ok";
@@ -54,6 +56,7 @@ export default async function ProposalsPage() {
       <Th>Status</Th>
       <Th>Updated</Th>
       <Th>Update</Th>
+      <Th>Delete</Th>
       </tr>
       </thead>
       <tbody>
@@ -87,7 +90,16 @@ export default async function ProposalsPage() {
                     <span className="text-xs text-[var(--dash-muted)]">—</span>
                   )}
                 </Td>
-      </tr>
+                <Td>
+                  {canWrite ? (
+                    <RowDeleteButton
+                      action={archiveProposal}
+                      id={String(p._id)}
+                      confirmMessage={`Delete proposal "${p.title}"?`}
+                    />
+                  ) : null}
+                </Td>
+              </tr>
             );
           })}
         </tbody>

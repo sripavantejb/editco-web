@@ -28,5 +28,15 @@ export function formatDateTime(date: Date | string) {
     year: "numeric",
     hour: "numeric",
     minute: "2-digit",
+    hour12: true,
+  }).format(new Date(date));
+}
+
+/** Fixed locale — avoid toLocaleTimeString([]) which hydrates differently on server vs browser. */
+export function formatTime(date: Date | string) {
+  return new Intl.DateTimeFormat("en-IN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
   }).format(new Date(date));
 }

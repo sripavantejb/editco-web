@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { connectDB } from "@/lib/db";
 import { AdminUser } from "@/models/AdminUser";
 import { StaffUser } from "@/models/os/StaffUser";
@@ -6,6 +7,7 @@ import { EGA_ADMIN_EMAILS, ensureAdminSeeded } from "@/lib/admin";
 import { DEFAULT_SERVICES, type StaffRole } from "@/lib/os/constants";
 import { hashPassword } from "@/lib/os/password";
 import { permissionsForRole } from "@/lib/os/permissions";
+import { SUPER_ADMIN_EMAILS, isSuperAdminEmail } from "@/lib/os/super-admin";
 
 export const LEGACY_ADMIN_PASSWORD = "editcomedia@DHT";
 export const LEGACY_EGA_PASSWORD = "abc@123";
@@ -19,7 +21,12 @@ export const SEEDED_TEAM_MEMBERS: { name: string; email: string; role: StaffRole
   },
   {
     name: "Tej",
-    email: "bsripavantej@gmail.com",
+    email: "sripavantejb@gmail.com",
+    role: "super_admin",
+  },
+  {
+    name: "Deepika",
+    email: "deepikamundla54@gmail.com",
     role: "super_admin",
   },
 ];
@@ -60,10 +67,12 @@ export async function ensureOsSeeded() {
     const existing = await StaffUser.findOne({ email });
     if (existing) continue;
     const isEga = EGA_ADMIN_EMAILS.includes(email);
+    // Only the hard allowlist may be super_admin; everyone else seeds as admin.
+    const role: StaffRole = isSuperAdminEmail(email) ? "super_admin" : "admin";
     await StaffUser.create({
       email,
       name: email.split("@")[0],
-      role: "super_admin",
+      role,
       isActive: true,
       passwordHash: hashPassword(
         isEga ? LEGACY_EGA_PASSWORD : LEGACY_ADMIN_PASSWORD
@@ -76,10 +85,11 @@ export async function ensureOsSeeded() {
     const email = admin.email.toLowerCase();
     const existing = await StaffUser.findOne({ email });
     if (existing) continue;
+    const role: StaffRole = isSuperAdminEmail(email) ? "super_admin" : "admin";
     await StaffUser.create({
       email,
       name: email.split("@")[0],
-      role: "super_admin",
+      role,
       isActive: true,
       passwordHash: hashPassword(LEGACY_ADMIN_PASSWORD),
     });
@@ -115,6 +125,15 @@ export async function ensureOsSeeded() {
     }
   }
 
+  // Enforce allowlist: anyone else previously seeded as super_admin is demoted.
+  await StaffUser.updateMany(
+    {
+      role: "super_admin",
+      email: { $nin: [...SUPER_ADMIN_EMAILS] },
+    },
+    { $set: { role: "admin" } }
+  );
+
   for (const service of DEFAULT_SERVICES) {
     await ServiceCatalog.updateOne(
       { slug: service.slug },
@@ -124,12 +143,15 @@ export async function ensureOsSeeded() {
   }
 }
 
-export async function loadStaffByEmail(email: string): Promise<StaffContext | null> {
+/** Deduped per RSC request — layout + page share one staff document. */
+export const loadStaffByEmail = cache(async (email: string): Promise<StaffContext | null> => {
   await ensureOsSeeded();
   const staff = await StaffUser.findOne({
     email: email.toLowerCase().trim(),
     isActive: true,
-  });
+  })
+    .select("_id email name role")
+    .lean<{ _id: { toString(): string }; email: string; name?: string; role: string }>();
   if (!staff) return null;
   const role = staff.role as StaffRole;
   return {
@@ -139,7 +161,7 @@ export async function loadStaffByEmail(email: string): Promise<StaffContext | nu
     permissions: permissionsForRole(role),
     name: staff.name || staff.email,
   };
-}
+});
 
 export async function touchLastLogin(userId: string) {
   await connectDB();

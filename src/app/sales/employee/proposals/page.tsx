@@ -4,7 +4,7 @@ import { requireSalesPage } from "@/lib/sales/page";
 import { SalesProposal } from "@/models/sales/SalesProposal";
 import { createSalesProposal, updateSalesProposalStatus } from "@/actions/sales/proposals";
 import { OsActionForm } from "@/components/os/OsActionForm";
-import { SalesModal } from "@/components/sales/SalesModal";
+import { OsSlideOver } from "@/components/os/OsSlideOver";
 import { Field, OsBadge, OsPage, OsTable, Td, Th, osInputClass, osTextareaClass } from "@/components/os/ui";
 import { SALES_PROPOSAL_STATUSES } from "@/lib/sales/constants";
 import { formatCurrencyINR, formatDate } from "@/lib/utils";
@@ -23,7 +23,7 @@ export default async function SalesProposalsPage() {
       title="Proposal Management"
       subtitle="Scope, price, and track proposals through to acceptance."
       actions={
-        <SalesModal triggerLabel="New proposal" title="New proposal">
+        <OsSlideOver triggerLabel="New proposal" title="New proposal">
           <OsActionForm action={createSalesProposal} submitLabel="Create proposal" className="grid gap-3">
             <Field label="Title">
               <input name="title" required className={osInputClass()} />
@@ -43,7 +43,7 @@ export default async function SalesProposalsPage() {
               <textarea name="terms" className={osTextareaClass()} />
             </Field>
           </OsActionForm>
-        </SalesModal>
+        </OsSlideOver>
       }
     >
       <OsTable>
@@ -63,7 +63,7 @@ export default async function SalesProposalsPage() {
                 <form action={updateProposalStatusForm} className="flex flex-wrap gap-1">
                   <input type="hidden" name="proposalId" value={String(p._id)} />
                   {SALES_PROPOSAL_STATUSES.filter((s) => s !== p.status).map((s) => (
-                    <button key={s} type="submit" name="status" value={s} className="rounded-full border border-[var(--dash-border)] px-2 py-1 font-inter text-[10px] text-[var(--dash-muted)] hover:border-[var(--dash-accent)] hover:text-[var(--dash-accent)]">
+                    <button key={s} type="submit" name="status" value={s} className="inline-flex h-7 items-center rounded-lg border border-[#e5e7eb] bg-white px-2 font-inter text-[11px] font-medium capitalize text-[#6b7280] hover:border-[#111111] hover:text-[#111111]">
                       {s}
                     </button>
                   ))}

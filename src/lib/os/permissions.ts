@@ -25,6 +25,7 @@ const ADMIN_OPS: string[] = [
   "analytics:read",
   "vault:read",
   "vault:write",
+  "vault:credentials",
   "activity:read",
 ];
 

@@ -19,6 +19,8 @@ import {
   Archive,
   Table,
   TrendingUp,
+  RefreshCw,
+  KeyRound,
 } from "lucide-react";
 
 export type OsNavItem = {
@@ -225,7 +227,16 @@ export const osNavSections: OsNavSection[] = [
         label: "Payments",
         icon: Wallet,
         permission: "payments:read",
-        match: (p) => p.startsWith("/admin/os/payments"),
+        match: (p) =>
+          p.startsWith("/admin/os/payments") &&
+          !p.startsWith("/admin/os/recurring-payments"),
+      },
+      {
+        href: "/admin/os/recurring-payments",
+        label: "Recurring payments",
+        icon: RefreshCw,
+        permission: "payments:read",
+        match: (p) => p.startsWith("/admin/os/recurring-payments"),
       },
       {
         href: "/admin/os/outstanding",
@@ -241,6 +252,13 @@ export const osNavSections: OsNavSection[] = [
     label: "Operations",
     icon: Activity,
     items: [
+      {
+        href: "/admin/os/credentials",
+        label: "Credentials",
+        icon: KeyRound,
+        permission: "vault:credentials",
+        match: (p) => p.startsWith("/admin/os/credentials"),
+      },
       {
         href: "/admin/os/activity",
         label: "Activity",

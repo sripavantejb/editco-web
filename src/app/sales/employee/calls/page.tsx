@@ -5,7 +5,7 @@ import { SalesCall } from "@/models/sales/SalesCall";
 import { SalesLead } from "@/models/sales/SalesLead";
 import { logSalesCall } from "@/actions/sales/calls";
 import { OsActionForm } from "@/components/os/OsActionForm";
-import { SalesModal } from "@/components/sales/SalesModal";
+import { OsSlideOver } from "@/components/os/OsSlideOver";
 import { OsSelect } from "@/components/os/OsSelect";
 import { Field, OsBadge, OsPage, OsTable, Td, Th, osInputClass, osTextareaClass } from "@/components/os/ui";
 import { SALES_CALL_OUTCOME_LABELS, SALES_CALL_OUTCOMES } from "@/lib/sales/constants";
@@ -31,7 +31,7 @@ export default async function SalesCallsPage() {
       title="Call Tracking"
       subtitle="Log outbound and inbound calls with outcome and next action."
       actions={
-        <SalesModal triggerLabel="Log a call" title="Log a call">
+        <OsSlideOver triggerLabel="Log call" title="Log a call">
           <OsActionForm action={logSalesCall} submitLabel="Save call" className="grid gap-3">
             <Field label="Lead">
               <OsSelect name="leadId" options={leadOptions} defaultValue="" />
@@ -54,7 +54,7 @@ export default async function SalesCallsPage() {
               <input name="nextFollowUpAt" type="datetime-local" className={osInputClass()} />
             </Field>
           </OsActionForm>
-        </SalesModal>
+        </OsSlideOver>
       }
     >
       <OsTable>

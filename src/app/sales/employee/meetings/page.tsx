@@ -5,7 +5,7 @@ import { SalesMeeting } from "@/models/sales/SalesMeeting";
 import { SalesLead } from "@/models/sales/SalesLead";
 import { createSalesMeeting, updateSalesMeetingStatus } from "@/actions/sales/meetings";
 import { OsActionForm } from "@/components/os/OsActionForm";
-import { SalesModal } from "@/components/sales/SalesModal";
+import { OsSlideOver } from "@/components/os/OsSlideOver";
 import { OsSelect } from "@/components/os/OsSelect";
 import { Field, OsBadge, OsPage, OsTable, Td, Th, osInputClass, osTextareaClass } from "@/components/os/ui";
 import { SALES_MEETING_STATUSES, SALES_MEETING_STATUS_LABELS, SALES_MEETING_TYPES } from "@/lib/sales/constants";
@@ -35,7 +35,7 @@ export default async function SalesMeetingsPage() {
       title="Meeting Management"
       subtitle="Schedule and track customer meetings."
       actions={
-        <SalesModal triggerLabel="Schedule a meeting" title="Schedule a meeting">
+        <OsSlideOver triggerLabel="Schedule meeting" title="Schedule a meeting">
           <OsActionForm action={createSalesMeeting} submitLabel="Schedule" className="grid gap-3">
             <Field label="Title">
               <input name="title" required className={osInputClass()} />
@@ -58,7 +58,7 @@ export default async function SalesMeetingsPage() {
               <textarea name="agenda" className={osTextareaClass()} />
             </Field>
           </OsActionForm>
-        </SalesModal>
+        </OsSlideOver>
       }
     >
       <OsTable>
@@ -89,7 +89,7 @@ export default async function SalesMeetingsPage() {
                       type="submit"
                       name="status"
                       value={s}
-                      className="rounded-full border border-[var(--dash-border)] px-2 py-1 font-inter text-[10px] text-[var(--dash-muted)] hover:border-[var(--dash-accent)] hover:text-[var(--dash-accent)]"
+                      className="inline-flex h-7 items-center rounded-lg border border-[#e5e7eb] bg-white px-2 font-inter text-[11px] font-medium text-[#6b7280] hover:border-[#111111] hover:text-[#111111]"
                     >
                       {SALES_MEETING_STATUS_LABELS[s]}
                     </button>

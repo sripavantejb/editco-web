@@ -5,7 +5,7 @@ import { SalesApproval } from "@/models/sales/SalesApproval";
 import { SalesDeal } from "@/models/sales/SalesDeal";
 import { requestSalesApproval } from "@/actions/sales/approvals";
 import { OsActionForm } from "@/components/os/OsActionForm";
-import { SalesModal } from "@/components/sales/SalesModal";
+import { OsSlideOver } from "@/components/os/OsSlideOver";
 import { OsSelect } from "@/components/os/OsSelect";
 import { Field, OsBadge, OsPage, OsTable, Td, Th, osInputClass, osTextareaClass } from "@/components/os/ui";
 import { SALES_APPROVAL_TYPES } from "@/lib/sales/constants";
@@ -26,7 +26,7 @@ export default async function SalesApprovalsPage() {
       title="Approval System"
       subtitle="Request approval for discounts, quotations, proposals, or deal terms."
       actions={
-        <SalesModal triggerLabel="Request approval" title="Request approval">
+        <OsSlideOver triggerLabel="Request approval" title="Request approval">
           <OsActionForm action={requestSalesApproval} submitLabel="Send request" className="grid gap-3">
             <Field label="Type">
               <OsSelect name="type" options={typeOptions} defaultValue="discount" />
@@ -41,7 +41,7 @@ export default async function SalesApprovalsPage() {
               <textarea name="reason" required className={osTextareaClass()} />
             </Field>
           </OsActionForm>
-        </SalesModal>
+        </OsSlideOver>
       }
     >
       <OsTable>

@@ -99,3 +99,31 @@ export async function updateMeeting(
   revalidatePath("/admin/os", "layout");
   return { success: "Meeting saved" };
 }
+
+export async function archiveMeeting(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const gate = await requireStaff("meetings:write");
+  if (!gate.ok) return { error: gate.error };
+  await connectDB();
+  const meeting = await Meeting.findById(str(formData, "id"));
+  if (!meeting || meeting.recordStatus !== "active") {
+    return { error: "Meeting not found" };
+  }
+  meeting.recordStatus = "archived";
+  meeting.updatedBy = gate.staff.email;
+  await meeting.save();
+  await logActivity({
+    title: "Meeting deleted",
+    detail: meeting.title,
+    createdBy: gate.staff.email,
+    conversionUuid: meeting.conversionUuid,
+    projectId: meeting.projectId?.toString(),
+    entityType: "meeting",
+    entityId: meeting._id.toString(),
+  });
+  revalidatePath("/admin/os", "layout");
+  revalidatePath("/admin/os/meetings");
+  return { success: "Meeting deleted" };
+}

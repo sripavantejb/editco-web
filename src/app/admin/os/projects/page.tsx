@@ -13,6 +13,8 @@ import { formatCurrencyINR } from "@/lib/utils";
 import { migrateLegacyProjectStatuses } from "@/lib/os/services/project-service";
 import { projectIdsForStaff } from "@/lib/os/project-access";
 import { hasPermission } from "@/lib/os/permissions";
+import { RowDeleteButton } from "@/components/os/RowDeleteButton";
+import { archiveProject } from "@/actions/os/projects";
 
 export default async function ProjectsPage({
   searchParams,
@@ -86,6 +88,7 @@ export default async function ProjectsPage({
             <Th>Progress</Th>
             <Th>Delivery</Th>
             <Th>Outstanding</Th>
+            <Th>Delete</Th>
           </tr>
         </thead>
         <tbody>
@@ -113,6 +116,15 @@ export default async function ProjectsPage({
                 <Td>{p.progress || 0}%</Td>
                 <Td>{p.expectedDelivery ? formatDate(p.expectedDelivery) : "—"}</Td>
                 <Td>{formatCurrencyINR(rollups[i]?.outstanding || 0)}</Td>
+                <Td>
+                  {canWrite ? (
+                    <RowDeleteButton
+                      action={archiveProject}
+                      id={String(p._id)}
+                      confirmMessage={`Delete project "${p.name}"?`}
+                    />
+                  ) : null}
+                </Td>
               </tr>
             );
           })}

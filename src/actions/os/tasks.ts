@@ -706,7 +706,7 @@ export async function archiveTask(
   loaded.task.updatedBy = gate.staff.email;
   await loaded.task.save();
   revalidateTask(loaded.task);
-  return { success: "Task archived" };
+  return { success: "Task deleted" };
 }
 
 export { listProjectMemberIds };

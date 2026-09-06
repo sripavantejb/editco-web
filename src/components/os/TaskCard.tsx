@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { OsBadge } from "@/components/os/ui";
+import { RowDeleteButton } from "@/components/os/RowDeleteButton";
+import { archiveTask } from "@/actions/os/tasks";
 import {
   TASK_PRIORITY_LABELS,
   TASK_STATUS_LABELS,
@@ -48,6 +50,7 @@ export function TaskCard({
   dependencyCount = 0,
   commentCount = 0,
   actualDurationMs = 0,
+  canDelete = false,
 }: {
   task: {
     _id: { toString(): string };
@@ -65,6 +68,7 @@ export function TaskCard({
   dependencyCount?: number;
   commentCount?: number;
   actualDurationMs?: number;
+  canDelete?: boolean;
 }) {
   const status = (task.status as TaskStatus) || "todo";
   const priority = (task.priority as TaskPriority) || "medium";
@@ -74,68 +78,81 @@ export function TaskCard({
     task.plannedStartTime,
     task.plannedEndTime
   );
+  const id = String(task._id);
 
   return (
-    <Link
-      href={`/admin/os/tasks/${task._id}`}
-      className="block rounded-2xl border border-[var(--dash-border)] bg-[var(--dash-card)] p-4 transition hover:border-[var(--dash-accent)]"
-    >
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <h3 className="font-archivo text-base text-[var(--dash-text)]">{task.title}</h3>
-        <div className="flex gap-2">
-          <OsBadge tone={priorityTone(priority)}>
-            {TASK_PRIORITY_LABELS[priority] || priority}
-          </OsBadge>
-          <OsBadge tone={statusTone(status)}>
-            {TASK_STATUS_LABELS[status] || status}
-          </OsBadge>
+    <div className="relative rounded-2xl border border-[var(--dash-border)] bg-[var(--dash-card)] transition hover:border-[var(--dash-accent)]">
+      <Link href={`/admin/os/tasks/${id}`} className="block p-4 pr-12">
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <h3 className="font-archivo text-base text-[var(--dash-text)]">{task.title}</h3>
+          <div className="flex gap-2">
+            <OsBadge tone={priorityTone(priority)}>
+              {TASK_PRIORITY_LABELS[priority] || priority}
+            </OsBadge>
+            <OsBadge tone={statusTone(status)}>
+              {TASK_STATUS_LABELS[status] || status}
+            </OsBadge>
+          </div>
         </div>
-      </div>
-      <dl className="mt-3 space-y-1 font-inter text-sm text-[var(--dash-muted)]">
-        {projectName ? (
-          <div>
-            <span className="text-[var(--dash-text)]/70">Project:</span> {projectName}
-          </div>
-        ) : null}
-        {assigneeName ? (
-          <div>
-            <span className="text-[var(--dash-text)]/70">Assignee:</span> {assigneeName}
-          </div>
-        ) : null}
-        {task.dueDate ? (
-          <div>
-            <span className="text-[var(--dash-text)]/70">Due:</span>{" "}
-            {formatDate(task.dueDate)}
-          </div>
-        ) : null}
-        {planned != null ? (
-          <div>
-            <span className="text-[var(--dash-text)]/70">Planned:</span>{" "}
-            {formatDurationMs(planned)}
-            {actualDurationMs > 0 ? (
-              <>
-                {" · "}
-                <span className={over ? "text-red-500" : ""}>
-                  Actual: {formatDurationMs(actualDurationMs)}
-                  {over ? " (over)" : ""}
-                </span>
-              </>
-            ) : null}
-          </div>
-        ) : actualDurationMs > 0 ? (
-          <div>
-            <span className="text-[var(--dash-text)]/70">Actual:</span>{" "}
-            {formatDurationMs(actualDurationMs)}
-          </div>
-        ) : null}
-        {(dependencyCount > 0 || commentCount > 0) && (
-          <div>
-            {dependencyCount > 0 ? `${dependencyCount} dependenc${dependencyCount === 1 ? "y" : "ies"}` : null}
-            {dependencyCount > 0 && commentCount > 0 ? " · " : null}
-            {commentCount > 0 ? `${commentCount} comment${commentCount === 1 ? "" : "s"}` : null}
-          </div>
-        )}
-      </dl>
-    </Link>
+        <dl className="mt-3 space-y-1 font-inter text-sm text-[var(--dash-muted)]">
+          {projectName ? (
+            <div>
+              <span className="text-[var(--dash-text)]/70">Project:</span> {projectName}
+            </div>
+          ) : null}
+          {assigneeName ? (
+            <div>
+              <span className="text-[var(--dash-text)]/70">Assignee:</span> {assigneeName}
+            </div>
+          ) : null}
+          {task.dueDate ? (
+            <div>
+              <span className="text-[var(--dash-text)]/70">Due:</span>{" "}
+              {formatDate(task.dueDate)}
+            </div>
+          ) : null}
+          {planned != null ? (
+            <div>
+              <span className="text-[var(--dash-text)]/70">Planned:</span>{" "}
+              {formatDurationMs(planned)}
+              {actualDurationMs > 0 ? (
+                <>
+                  {" · "}
+                  <span className={over ? "text-red-500" : ""}>
+                    Actual: {formatDurationMs(actualDurationMs)}
+                    {over ? " (over)" : ""}
+                  </span>
+                </>
+              ) : null}
+            </div>
+          ) : actualDurationMs > 0 ? (
+            <div>
+              <span className="text-[var(--dash-text)]/70">Actual:</span>{" "}
+              {formatDurationMs(actualDurationMs)}
+            </div>
+          ) : null}
+          {(dependencyCount > 0 || commentCount > 0) && (
+            <div>
+              {dependencyCount > 0
+                ? `${dependencyCount} dependenc${dependencyCount === 1 ? "y" : "ies"}`
+                : null}
+              {dependencyCount > 0 && commentCount > 0 ? " · " : null}
+              {commentCount > 0
+                ? `${commentCount} comment${commentCount === 1 ? "" : "s"}`
+                : null}
+            </div>
+          )}
+        </dl>
+      </Link>
+      {canDelete ? (
+        <div className="absolute right-3 top-3">
+          <RowDeleteButton
+            action={archiveTask}
+            id={id}
+            confirmMessage={`Delete task "${task.title}"?`}
+          />
+        </div>
+      ) : null}
+    </div>
   );
 }

@@ -42,3 +42,19 @@ export async function createSalesTarget(_prev: ActionState, formData: FormData):
   revalidatePath("/sales/employee/targets");
   return { success: "Target set." };
 }
+
+export async function deleteSalesTarget(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const gate = await requireSalesAdminAction();
+  if (!gate.ok) return { error: gate.error };
+
+  const id = String(formData.get("id") || "");
+  if (!id) return { error: "Invalid target" };
+
+  await connectDB();
+  const deleted = await SalesTarget.findByIdAndDelete(id);
+  if (!deleted) return { error: "Target not found" };
+
+  revalidatePath("/sales/admin/targets");
+  revalidatePath("/sales/employee/targets");
+  return { success: "Target removed." };
+}

@@ -73,15 +73,17 @@ export type SalesModule = {
   group: SalesModuleGroup;
   /** Route prefixes under /sales/employee this module gates. Empty = no dedicated page yet. */
   employeeRoutes: string[];
+  /** Route prefixes under /sales/admin when this is an admin-portal module. */
+  adminRoutes?: string[];
 };
 
 export const SALES_MODULES: SalesModule[] = [
   { key: "dashboard.sales", label: "Sales Dashboard", group: "Dashboard", employeeRoutes: ["/sales/employee"] },
-  { key: "dashboard.manager", label: "Manager Dashboard", group: "Dashboard", employeeRoutes: [] },
+  { key: "dashboard.manager", label: "Manager Dashboard", group: "Dashboard", employeeRoutes: [], adminRoutes: ["/sales/admin"] },
 
   { key: "leads.management", label: "Lead Management", group: "Leads", employeeRoutes: ["/sales/employee/leads"] },
   { key: "leads.qualification", label: "Lead Qualification", group: "Leads", employeeRoutes: ["/sales/employee/leads/qualification"] },
-  { key: "leads.assignment", label: "Lead Assignment", group: "Leads", employeeRoutes: ["/sales/employee/leads/assignment"] },
+  { key: "leads.assignment", label: "Lead Assignment", group: "Leads", employeeRoutes: [], adminRoutes: ["/sales/admin/leads/assignment"] },
 
   { key: "sales.pipeline", label: "Sales Pipeline", group: "Sales", employeeRoutes: ["/sales/employee/pipeline"] },
   { key: "sales.deals", label: "Deal Management", group: "Sales", employeeRoutes: ["/sales/employee/deals"] },
@@ -109,27 +111,27 @@ export const SALES_MODULES: SalesModule[] = [
   { key: "perf.daily_work_status", label: "Daily Work Status", group: "Performance", employeeRoutes: ["/sales/employee/work-status"] },
 
   { key: "workforce.attendance_sync", label: "Attendance", group: "Workforce", employeeRoutes: ["/sales/employee/attendance"] },
-  { key: "workforce.attendance_dashboard", label: "Attendance Dashboard", group: "Workforce", employeeRoutes: ["/sales/employee/attendance/dashboard"] },
-  { key: "workforce.live_status", label: "Live Employee Status", group: "Workforce", employeeRoutes: ["/sales/employee/live-status"] },
-  { key: "workforce.activity_tracking", label: "Activity Tracking", group: "Workforce", employeeRoutes: ["/sales/employee/activity"] },
-  { key: "workforce.activity_timeline", label: "Activity Timeline", group: "Workforce", employeeRoutes: ["/sales/employee/activity/timeline"] },
+  { key: "workforce.attendance_dashboard", label: "Attendance Dashboard", group: "Workforce", employeeRoutes: [], adminRoutes: ["/sales/admin/attendance/dashboard"] },
+  { key: "workforce.live_status", label: "Live Employee Status", group: "Workforce", employeeRoutes: [], adminRoutes: ["/sales/admin/live-status"] },
+  { key: "workforce.activity_tracking", label: "Activity Tracking", group: "Workforce", employeeRoutes: [], adminRoutes: ["/sales/admin/activity"] },
+  { key: "workforce.activity_timeline", label: "Activity Timeline", group: "Workforce", employeeRoutes: [], adminRoutes: ["/sales/admin/activity/timeline"] },
 
   { key: "tasks.management", label: "Task Management", group: "Tasks & Calendar", employeeRoutes: ["/sales/employee/tasks"] },
   { key: "tasks.calendar", label: "Sales Calendar", group: "Tasks & Calendar", employeeRoutes: ["/sales/employee/calendar"] },
 
-  { key: "analytics.revenue", label: "Revenue Analytics", group: "Analytics", employeeRoutes: ["/sales/employee/analytics/revenue"] },
-  { key: "analytics.conversion", label: "Conversion Analytics", group: "Analytics", employeeRoutes: ["/sales/employee/analytics/conversion"] },
-  { key: "analytics.lead_source", label: "Lead Source Analytics", group: "Analytics", employeeRoutes: ["/sales/employee/analytics/lead-source"] },
-  { key: "analytics.lost_deals", label: "Lost Deal Analysis", group: "Analytics", employeeRoutes: ["/sales/employee/analytics/lost-deals"] },
+  { key: "analytics.revenue", label: "Revenue Analytics", group: "Analytics", employeeRoutes: [], adminRoutes: ["/sales/admin/analytics/revenue"] },
+  { key: "analytics.conversion", label: "Conversion Analytics", group: "Analytics", employeeRoutes: [], adminRoutes: ["/sales/admin/analytics/conversion"] },
+  { key: "analytics.lead_source", label: "Lead Source Analytics", group: "Analytics", employeeRoutes: [], adminRoutes: ["/sales/admin/analytics/lead-source"] },
+  { key: "analytics.lost_deals", label: "Lost Deal Analysis", group: "Analytics", employeeRoutes: [], adminRoutes: ["/sales/admin/analytics/lost-deals"] },
 
-  { key: "reports.reports", label: "Reports", group: "Reports", employeeRoutes: ["/sales/employee/reports"] },
-  { key: "reports.export", label: "Export Reports", group: "Reports", employeeRoutes: [] },
+  { key: "reports.reports", label: "Reports", group: "Reports", employeeRoutes: [], adminRoutes: ["/sales/admin/reports"] },
+  { key: "reports.export", label: "Export Reports", group: "Reports", employeeRoutes: [], adminRoutes: [] },
 
   { key: "admin.notifications", label: "Notifications", group: "Administration", employeeRoutes: ["/sales/employee/notifications"] },
   { key: "admin.approvals", label: "Approval System", group: "Administration", employeeRoutes: ["/sales/employee/approvals"] },
-  { key: "admin.teams", label: "Team Management", group: "Administration", employeeRoutes: [] },
-  { key: "admin.territories", label: "Territory Management", group: "Administration", employeeRoutes: [] },
-  { key: "admin.audit_logs", label: "Audit Logs", group: "Administration", employeeRoutes: [] },
+  { key: "admin.teams", label: "Team Management", group: "Administration", employeeRoutes: [], adminRoutes: ["/sales/admin/team"] },
+  { key: "admin.territories", label: "Territory Management", group: "Administration", employeeRoutes: [], adminRoutes: ["/sales/admin/territories"] },
+  { key: "admin.audit_logs", label: "Audit Logs", group: "Administration", employeeRoutes: [], adminRoutes: ["/sales/admin/audit-logs"] },
 ];
 
 export const SALES_MODULE_BY_KEY: Record<SalesModuleKey, SalesModule> = Object.fromEntries(

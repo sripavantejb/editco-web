@@ -6,9 +6,11 @@ import { FollowUp } from "@/models/os/FollowUp";
 import { Lead } from "@/models/os/Lead";
 import { formatDateTime } from "@/lib/utils";
 import { OsActionForm } from "@/components/os/OsActionForm";
-import { updateFollowUpStatus } from "@/actions/os/followups";
+import { updateFollowUpStatus, archiveFollowUp } from "@/actions/os/followups";
 import { OsPage, OsTable, Td, Th, OsBadge } from "@/components/os/ui";
 import { OsDateInput } from "@/components/os/OsDateInput";
+import { RowDeleteButton } from "@/components/os/RowDeleteButton";
+import { hasPermission } from "@/lib/os/permissions";
 
 function toDateTimeLocalValue(d: Date | string | undefined) {
   if (!d) return "";
@@ -18,7 +20,8 @@ function toDateTimeLocalValue(d: Date | string | undefined) {
 }
 
 export default async function FollowUpsPage() {
-  await requireOsPage("followups:read");
+  const staff = await requireOsPage("followups:read");
+  const canWrite = hasPermission(staff.permissions, "followups:write");
 
   const now = new Date();
   const in7 = new Date(now.getTime() + 7 * 86400000);
@@ -80,20 +83,27 @@ export default async function FollowUpsPage() {
       <input type="hidden" name="status" value="completed" />
       </OsActionForm>
       </div>
-      <div className="w-64">
-      <OsActionForm action={updateFollowUpStatus} submitLabel="Reschedule">
-      <input type="hidden" name="id" value={String(f._id)} />
-      <input type="hidden" name="status" value="rescheduled" />
-      <OsDateInput
-                          name="dueAt"
-                          type="datetime-local"
-                          required
-                          defaultValue={toDateTimeLocalValue(f.dueAt)}
-                        />
-      </OsActionForm>
-      </div>
-      </div>
-      </Td>
+                  <div className="w-64">
+                    <OsActionForm action={updateFollowUpStatus} submitLabel="Reschedule">
+                      <input type="hidden" name="id" value={String(f._id)} />
+                      <input type="hidden" name="status" value="rescheduled" />
+                      <OsDateInput
+                        name="dueAt"
+                        type="datetime-local"
+                        required
+                        defaultValue={toDateTimeLocalValue(f.dueAt)}
+                      />
+                    </OsActionForm>
+                  </div>
+                  {canWrite ? (
+                    <RowDeleteButton
+                      action={archiveFollowUp}
+                      id={String(f._id)}
+                      confirmMessage="Delete this follow-up?"
+                    />
+                  ) : null}
+                </div>
+              </Td>
       </tr>
             );
           })}

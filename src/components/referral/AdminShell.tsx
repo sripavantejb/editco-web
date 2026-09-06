@@ -2,9 +2,39 @@
 
 import { Suspense } from "react";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
 import { AdminSidebar } from "@/components/referral/AdminSidebar";
+import {
+  PortalSidebarCollapseProvider,
+  portalMainPadClass,
+  usePortalSidebarCollapse,
+} from "@/components/portal/PortalSidebarCollapse";
 
+function AdminShellInner({
+  email,
+  role,
+  permissions,
+  children,
+}: {
+  email: string;
+  role?: import("@/lib/os/constants").StaffRole;
+  permissions?: string[];
+  children: React.ReactNode;
+}) {
+  const { collapsed } = usePortalSidebarCollapse();
+
+  return (
+    <>
+      <Suspense fallback={null}>
+        <AdminSidebar email={email} role={role} permissions={permissions} />
+      </Suspense>
+      <div className={`transition-[padding] duration-200 ease-out ${portalMainPadClass(collapsed)}`}>
+        {children}
+      </div>
+    </>
+  );
+}
+
+/** Instant shell — no Framer Motion page lag on every navigation. */
 export function AdminShell({
   email,
   role,
@@ -23,30 +53,13 @@ export function AdminShell({
   return (
     <div className="admin-theme min-h-screen">
       {showNav && email ? (
-        <>
-          <Suspense fallback={null}>
-            <AdminSidebar email={email} role={role} permissions={permissions} />
-          </Suspense>
-          <div className="lg:pl-[260px]">
-            <motion.div
-              key={pathname}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            >
-              {children}
-            </motion.div>
-          </div>
-        </>
+        <PortalSidebarCollapseProvider>
+          <AdminShellInner email={email} role={role} permissions={permissions}>
+            {children}
+          </AdminShellInner>
+        </PortalSidebarCollapseProvider>
       ) : (
-        <motion.div
-          key={pathname}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        >
-          {children}
-        </motion.div>
+        children
       )}
     </div>
   );

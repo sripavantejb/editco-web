@@ -38,3 +38,18 @@ export async function createSalesTerritory(_prev: ActionState, formData: FormDat
   revalidatePath("/sales/admin/territories");
   return { success: "Territory added." };
 }
+
+export async function deleteSalesTerritory(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const gate = await requireSalesAdminAction();
+  if (!gate.ok) return { error: gate.error };
+
+  const id = String(formData.get("id") || "");
+  if (!id) return { error: "Invalid territory" };
+
+  await connectDB();
+  const deleted = await SalesTerritory.findByIdAndDelete(id);
+  if (!deleted) return { error: "Territory not found" };
+
+  revalidatePath("/sales/admin/territories");
+  return { success: "Territory removed." };
+}

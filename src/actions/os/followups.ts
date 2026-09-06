@@ -158,3 +158,22 @@ export async function updateFollowUpStatus(
   return { success: "Follow-up updated" };
 }
 
+export async function archiveFollowUp(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const gate = await requireStaff("followups:write");
+  if (!gate.ok) return { error: gate.error };
+  await connectDB();
+  const followUp = await FollowUp.findById(str(formData, "id"));
+  if (!followUp || followUp.recordStatus !== "active") {
+    return { error: "Follow-up not found" };
+  }
+  followUp.recordStatus = "archived";
+  followUp.updatedBy = gate.staff.email;
+  await followUp.save();
+  revalidateSales();
+  revalidatePath("/admin/os/follow-ups");
+  return { success: "Follow-up deleted" };
+}
+

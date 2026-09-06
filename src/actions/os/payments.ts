@@ -87,3 +87,58 @@ export async function recordPayment(
   revalidatePath("/admin/os", "layout");
   return { success: "Payment recorded" };
 }
+
+export async function archivePayment(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const gate = await requireStaff("payments:write");
+  if (!gate.ok) return { error: gate.error };
+  await connectDB();
+  const payment = await Payment.findById(str(formData, "id"));
+  if (!payment || payment.recordStatus !== "active") {
+    return { error: "Payment not found" };
+  }
+
+  const invoice = await Invoice.findById(payment.invoiceId);
+  if (invoice && invoice.recordStatus === "active") {
+    const prevPaid = invoice.amountPaid || 0;
+    invoice.amountPaid = Math.max(0, prevPaid - (payment.amount || 0));
+    invoice.status = displayInvoiceStatus({
+      status: invoice.status === "draft" ? "draft" : "issued",
+      dueDate: invoice.dueDate,
+      amountPaid: invoice.amountPaid,
+      total: invoice.total,
+    });
+    invoice.updatedBy = gate.staff.email;
+    await invoice.save();
+    await writeAudit({
+      entityType: "invoice",
+      entityId: invoice._id.toString(),
+      conversionUuid: invoice.conversionUuid,
+      field: "amountPaid",
+      oldValue: String(prevPaid),
+      newValue: String(invoice.amountPaid),
+      reason: "Payment deleted",
+      createdBy: gate.staff.email,
+    });
+  }
+
+  payment.recordStatus = "archived";
+  payment.updatedBy = gate.staff.email;
+  await payment.save();
+
+  await logActivity({
+    title: "Payment deleted",
+    detail: `₹${payment.amount}`,
+    createdBy: gate.staff.email,
+    conversionUuid: payment.conversionUuid,
+    projectId: payment.projectId?.toString(),
+    entityType: "payment",
+    entityId: payment._id.toString(),
+  });
+
+  revalidatePath("/admin/os", "layout");
+  revalidatePath("/admin/os/payments");
+  return { success: "Payment deleted" };
+}

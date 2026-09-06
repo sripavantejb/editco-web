@@ -1,4 +1,4 @@
-import { formatDateTime } from "@/lib/utils";
+import { formatDateTime, formatTime } from "@/lib/utils";
 import { actorKey } from "@/lib/os/activity";
 
 export type TimelineEvent = {
@@ -60,10 +60,7 @@ export function ActivityTimeline({
                 (e.metadata && e.metadata.actorName) ||
                 e.createdBy ||
                 "Unknown";
-              const time = new Date(e.createdAt).toLocaleTimeString(undefined, {
-                hour: "numeric",
-                minute: "2-digit",
-              });
+              const time = formatTime(e.createdAt);
               return (
                 <li key={String(e._id)} className="relative">
                   <span className="absolute -left-[1.35rem] top-1.5 h-2 w-2 rounded-full bg-[var(--dash-accent)]" />

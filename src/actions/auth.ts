@@ -21,8 +21,11 @@ import {
 } from "@/lib/os/staff";
 import { StaffUser } from "@/models/os/StaffUser";
 import { hashPassword, verifyPassword } from "@/lib/os/password";
-import { getSalesLandingPath } from "@/lib/sales/page";
+import { getStaffLandingPath } from "@/lib/sales/page";
 import { ensureSalesDemoSeeded } from "@/lib/sales/seed";
+import { isSuperAdminEmail } from "@/lib/os/super-admin";
+import { getSalesEmployeeContext } from "@/lib/sales/permissions";
+import type { StaffRole } from "@/lib/os/constants";
 
 const joinSchema = z.object({
   fullName: z.string().min(2, "Name is required"),
@@ -43,11 +46,11 @@ async function routeAdminIfAllowed(email: string) {
   const staff = await loadStaffByEmail(email);
   if (staff) {
     await createAdminSession(email, { userId: staff.userId, role: staff.role });
-    redirect((await getSalesLandingPath(email)) || "/admin/os");
+    redirect(await getStaffLandingPath(email));
   }
   if (await isAdminEmail(email)) {
     await createAdminSession(email);
-    redirect((await getSalesLandingPath(email)) || "/admin/os");
+    redirect(await getStaffLandingPath(email));
   }
 }
 
@@ -156,14 +159,76 @@ export async function adminLogin(
     .toLowerCase()
     .trim();
   const password = String(formData.get("password") || "");
+  const portalRaw = String(formData.get("portal") || "os").toLowerCase();
+  const portal = (
+    portalRaw === "sales" ? "sales_admin" : portalRaw
+  ) as "os" | "sales_admin" | "sales_employee";
+  const next = String(formData.get("next") || "").trim() || null;
 
   if (!email || !email.includes("@")) {
-    return { error: "Enter a valid admin email" };
+    return { error: "Enter a valid work email" };
   }
 
   await ensureOsSeeded();
   await ensureSalesDemoSeeded();
   const staff = await StaffUser.findOne({ email, isActive: true });
+
+  const finish = async (userId?: string, role?: StaffRole) => {
+    const sales = await getSalesEmployeeContext(email);
+
+    if (portal === "os") {
+      if (!isSuperAdminEmail(email)) {
+        if (sales?.isSalesAdmin) {
+          return {
+            error: "This is a Sales Admin account. Use the Sales Admin login.",
+          } as ActionState;
+        }
+        if (sales) {
+          return {
+            error: "This is a Sales Employee account. Use the Employee login.",
+          } as ActionState;
+        }
+        return {
+          error: "Super Admin access only. Contact an owner if you need access.",
+        } as ActionState;
+      }
+      await createAdminSession(email, { userId, role });
+      redirect(await getStaffLandingPath(email, { portal: "os", next }));
+    }
+
+    if (portal === "sales_admin") {
+      if (isSuperAdminEmail(email)) {
+        await createAdminSession(email, { userId, role });
+        redirect(await getStaffLandingPath(email, { portal: "sales_admin", next }));
+      }
+      if (!sales) {
+        return {
+          error: "No Sales Admin account found for this email.",
+        } as ActionState;
+      }
+      if (!sales.isSalesAdmin) {
+        return {
+          error: "This account is a Sales Employee. Use the Employee login.",
+        } as ActionState;
+      }
+      await createAdminSession(email, { userId, role });
+      redirect(await getStaffLandingPath(email, { portal: "sales_admin", next }));
+    }
+
+    // sales_employee
+    if (!sales) {
+      return {
+        error: "No Sales Employee account found for this email.",
+      } as ActionState;
+    }
+    if (sales.isSalesAdmin) {
+      return {
+        error: "This account is a Sales Admin. Use the Sales Admin login.",
+      } as ActionState;
+    }
+    await createAdminSession(email, { userId, role });
+    redirect(await getStaffLandingPath(email, { portal: "sales_employee", next }));
+  };
 
   if (staff?.passwordHash) {
     if (!verifyPassword(password, staff.passwordHash)) {
@@ -171,11 +236,9 @@ export async function adminLogin(
     }
     staff.lastLoginAt = new Date();
     await staff.save();
-    await createAdminSession(email, {
-      userId: staff._id.toString(),
-      role: staff.role,
-    });
-    redirect((await getSalesLandingPath(email)) || "/admin/os");
+    const maybeError = await finish(staff._id.toString(), staff.role as StaffRole);
+    if (maybeError) return maybeError;
+    return {};
   }
 
   const passwordOk = isEGAAdminEmail(email)
@@ -201,14 +264,22 @@ export async function adminLogin(
   }
 
   const ctx = await loadStaffByEmail(email);
-  await createAdminSession(email, {
-    userId: ctx?.userId,
-    role: ctx?.role,
-  });
-  redirect((await getSalesLandingPath(email)) || "/admin/os");
+  const maybeError = await finish(ctx?.userId, ctx?.role);
+  if (maybeError) return maybeError;
+  return {};
 }
 
 export async function logoutAdmin() {
   await clearAdminSession();
   redirect("/admin/login");
+}
+
+export async function logoutSalesAdmin() {
+  await clearAdminSession();
+  redirect("/sales/login/admin");
+}
+
+export async function logoutSalesEmployee() {
+  await clearAdminSession();
+  redirect("/sales/login/employee");
 }

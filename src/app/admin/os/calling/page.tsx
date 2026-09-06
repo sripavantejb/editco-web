@@ -14,6 +14,8 @@ import {
 } from "@/lib/os/constants";
 import { formatDateTime } from "@/lib/utils";
 import { hasPermission } from "@/lib/os/permissions";
+import { RowDeleteButton } from "@/components/os/RowDeleteButton";
+import { archiveLead } from "@/actions/os/leads";
 
 function toDateTimeLocalValue(d: Date | string | undefined) {
   if (!d) return "";
@@ -51,6 +53,7 @@ export default async function CallingPage() {
       <Th>Status</Th>
       <Th>Contact</Th>
       <Th>Call outcome</Th>
+      <Th>Delete</Th>
       </tr>
       </thead>
       <tbody>
@@ -105,6 +108,15 @@ export default async function CallingPage() {
                 ) : (
                   <p className="text-xs text-[var(--dash-muted)]">No permission to record calls.</p>
                 )}
+              </Td>
+              <Td>
+                {canWrite ? (
+                  <RowDeleteButton
+                    action={archiveLead}
+                    id={String(lead._id)}
+                    confirmMessage={`Delete lead "${lead.name}"?`}
+                  />
+                ) : null}
               </Td>
       </tr>
           ))}

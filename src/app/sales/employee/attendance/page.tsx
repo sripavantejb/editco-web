@@ -21,15 +21,25 @@ export default async function SalesAttendancePage() {
       title="Attendance"
       subtitle="Self check-in/out for now — connect an HR/biometric system to automate this without changing anything downstream."
     >
-      <section className="mb-8 rounded-[20px] border border-[var(--dash-border)] p-5">
-        <h2 className="mb-3 font-archivo text-sm uppercase tracking-wide text-[var(--dash-text)]">Today</h2>
-        <p className="mb-4 font-inter text-sm text-[var(--dash-muted)]">
-          {todayRecord?.checkInAt ? `Checked in ${formatDateTime(todayRecord.checkInAt)}` : "Not checked in yet."}
-          {todayRecord?.checkOutAt ? ` · Checked out ${formatDateTime(todayRecord.checkOutAt)}` : ""}
+      <section className="mb-6 rounded-xl border border-[var(--dash-border)] bg-white p-5">
+        <h2 className="mb-3 font-inter text-[15px] font-semibold tracking-[-0.01em] text-[#111111]">
+          Today
+        </h2>
+        <p className="mb-4 font-inter text-sm text-[#6b7280]">
+          {todayRecord?.checkInAt
+            ? `Checked in ${formatDateTime(todayRecord.checkInAt)}`
+            : "Not checked in yet."}
+          {todayRecord?.checkOutAt
+            ? ` · Checked out ${formatDateTime(todayRecord.checkOutAt)}`
+            : ""}
         </p>
-        <div className="flex gap-3">
-          <OsActionForm action={checkInSalesAttendance} submitLabel="Check in" showSubmit className="inline">{null}</OsActionForm>
-          <OsActionForm action={checkOutSalesAttendance} submitLabel="Check out" showSubmit className="inline">{null}</OsActionForm>
+        <div className="flex flex-wrap gap-3">
+          <OsActionForm action={checkInSalesAttendance} submitLabel="Check in" showSubmit className="inline">
+            {null}
+          </OsActionForm>
+          <OsActionForm action={checkOutSalesAttendance} submitLabel="Check out" showSubmit className="inline">
+            {null}
+          </OsActionForm>
         </div>
       </section>
 

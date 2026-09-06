@@ -111,7 +111,7 @@ export function WhyEditcoSection() {
           trigger: stage,
           start: "top top",
           end: "bottom bottom",
-          scrub: 1.6,
+          scrub: 2.1,
           invalidateOnRefresh: true,
           onRefresh: () => {
             syncStageHeight();

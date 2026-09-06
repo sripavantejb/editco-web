@@ -1,27 +1,24 @@
 export const dynamic = "force-dynamic";
 
-import { redirect } from "next/navigation";
-import { getAdminSession } from "@/lib/session";
-import { connectDB } from "@/lib/db";
-import { getEffectiveSalesPermissions, getSalesEmployeeContext } from "@/lib/sales/permissions";
-import { defaultModuleMapForRole } from "@/lib/sales/modules";
+import { requireSalesEmployeeSession } from "@/lib/sales/page";
 import { SalesShell } from "@/components/sales/SalesShell";
 import { SalesEmployeeSidebar } from "@/components/sales/SalesEmployeeSidebar";
 import "@/models/sales/register";
 
 export default async function SalesEmployeeLayout({ children }: { children: React.ReactNode }) {
-  const session = await getAdminSession();
-  if (!session) redirect("/admin/login?next=/sales/employee");
-  await connectDB();
-  const employee = await getSalesEmployeeContext(session.email);
-  if (!employee) redirect("/admin/login?next=/sales/employee");
-
-  const effective = employee!.isSalesAdmin
-    ? defaultModuleMapForRole(true)
-    : await getEffectiveSalesPermissions(employee!.employeeId, false);
+  // Shared with page guards via React.cache + short TTL — one auth path per nav.
+  const employee = await requireSalesEmployeeSession();
 
   return (
-    <SalesShell sidebar={<SalesEmployeeSidebar name={employee!.name} effective={effective} />}>
+    <SalesShell
+      sidebar={
+        <SalesEmployeeSidebar
+          name={employee.name}
+          email={employee.email}
+          effective={employee.effective}
+        />
+      }
+    >
       {children}
     </SalesShell>
   );

@@ -1,16 +1,17 @@
 export const dynamic = "force-dynamic";
 
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { requireOsPage } from "@/lib/os/page";
 import { Invoice } from "@/models/os/Invoice";
 import { Payment } from "@/models/os/Payment";
 import { Conversion } from "@/models/os/Conversion";
 import { Vendor } from "@/models/os/Vendor";
 import { AuditLog } from "@/models/os/AuditLog";
-import { updateInvoice } from "@/actions/os/invoices";
-import { recordPayment } from "@/actions/os/payments";
+import { updateInvoice, archiveInvoice } from "@/actions/os/invoices";
+import { recordPayment, archivePayment } from "@/actions/os/payments";
 import { displayInvoiceStatus, outstandingOf } from "@/lib/os/money";
 import { OsActionForm } from "@/components/os/OsActionForm";
+import { RowDeleteButton } from "@/components/os/RowDeleteButton";
 import {
   Field,
   OsLink,
@@ -25,6 +26,16 @@ import { ShareInvoiceForm } from "@/components/os/ShareInvoiceForm";
 import { INVOICE_STATUS_LABELS } from "@/lib/os/constants";
 import { formatCurrencyINR, formatDate } from "@/lib/utils";
 import { hasPermission } from "@/lib/os/permissions";
+
+async function deleteInvoiceAndLeave(
+  _prev: { error?: string; success?: string },
+  formData: FormData
+) {
+  "use server";
+  const result = await archiveInvoice({}, formData);
+  if (!result.error) redirect("/admin/os/invoices");
+  return result;
+}
 
 export default async function InvoiceDetailPage({
   params,
@@ -71,9 +82,18 @@ export default async function InvoiceDetailPage({
       backHref="/admin/os/invoices"
       backLabel="Back to invoices"
       actions={
-        conversion ? (
-          <OsLink href={`/admin/os/c/${conversion.publicCode}`}>Hub</OsLink>
-        ) : null
+        <div className="flex flex-wrap items-center gap-2">
+          {conversion ? (
+            <OsLink href={`/admin/os/c/${conversion.publicCode}`}>Hub</OsLink>
+          ) : null}
+          {canWrite ? (
+            <RowDeleteButton
+              action={deleteInvoiceAndLeave}
+              id={id}
+              confirmMessage={`Delete invoice ${invoice.invoiceNumber}?`}
+            />
+          ) : null}
+        </div>
       }
     >
       <p className="mb-6">
@@ -166,13 +186,28 @@ export default async function InvoiceDetailPage({
       ) : null}
 
       <h2 className="mb-2 font-archivo text-sm uppercase">Payments</h2>
-      <ul className="mb-8 font-inter text-sm">
+      <ul className="mb-8 space-y-2 font-inter text-sm">
         {payments.map((p) => (
-          <li key={String(p._id)}>
-            {formatCurrencyINR(p.amount)} · {p.method} · {formatDate(p.paidAt)}{" "}
-            · {p.reference}
+          <li
+            key={String(p._id)}
+            className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--dash-border)] px-3 py-2"
+          >
+            <span>
+              {formatCurrencyINR(p.amount)} · {p.method} · {formatDate(p.paidAt)}{" "}
+              · {p.reference || "—"}
+            </span>
+            {canPay ? (
+              <RowDeleteButton
+                action={archivePayment}
+                id={String(p._id)}
+                confirmMessage="Delete this payment? Invoice paid amount will be adjusted."
+              />
+            ) : null}
           </li>
         ))}
+        {payments.length === 0 ? (
+          <li className="text-[var(--dash-muted)]">No payments yet.</li>
+        ) : null}
       </ul>
       <h2 className="mb-2 font-archivo text-sm uppercase">Audit</h2>
       <ul className="font-inter text-xs text-[var(--dash-muted)]">

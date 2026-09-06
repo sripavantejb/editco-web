@@ -4,108 +4,194 @@ import Link from "next/link";
 import { requireSalesAdminPage } from "@/lib/sales/page";
 import { SalesEmployee } from "@/models/sales/SalesEmployee";
 import { SalesLead } from "@/models/sales/SalesLead";
-import { SalesActivityEvent } from "@/models/sales/SalesActivityEvent";
+import { SalesTask } from "@/models/sales/SalesTask";
+import { SalesApproval } from "@/models/sales/SalesApproval";
+import { StaffUser } from "@/models/os/StaffUser";
 import { SALES_LEAD_STATUS_LABELS, type SalesLeadStatus } from "@/lib/sales/constants";
-import { OsPage, OsStat, OsLink } from "@/components/os/ui";
-import { formatDateTime } from "@/lib/utils";
+import { CardTitle, OsPage, OsStat, OsLink, OsGhostLink } from "@/components/os/ui";
 
 export default async function SalesAdminDashboardPage() {
   await requireSalesAdminPage();
 
-  const [employees, leads, activity] = await Promise.all([
-    SalesEmployee.find({}).lean(),
-    SalesLead.find({ recordStatus: "active" }).lean(),
-    SalesActivityEvent.find({}).sort({ createdAt: -1 }).limit(10).lean(),
+  const statusKeys = Object.keys(SALES_LEAD_STATUS_LABELS) as SalesLeadStatus[];
+  const now = new Date();
+
+  const [
+    activeEmployeeCount,
+    totalLeads,
+    openLeads,
+    convertedCount,
+    unassignedCount,
+    pendingApprovals,
+    overdueTasks,
+    statusAgg,
+    employees,
+  ] = await Promise.all([
+    SalesEmployee.countDocuments({ status: "active" }),
+    SalesLead.countDocuments({ recordStatus: "active" }),
+    SalesLead.countDocuments({
+      recordStatus: "active",
+      status: { $nin: ["converted", "lost"] },
+    }),
+    SalesLead.countDocuments({ recordStatus: "active", status: "converted" }),
+    SalesLead.countDocuments({
+      recordStatus: "active",
+      status: { $nin: ["converted", "lost"] },
+      $or: [{ assignedEmployeeId: { $exists: false } }, { assignedEmployeeId: null }],
+    }),
+    SalesApproval.countDocuments({ status: "pending" }),
+    SalesTask.countDocuments({
+      status: { $ne: "completed" },
+      dueDate: { $lt: now },
+    }),
+    SalesLead.aggregate<{ _id: string; count: number }>([
+      { $match: { recordStatus: "active" } },
+      { $group: { _id: "$status", count: { $sum: 1 } } },
+    ]),
+    SalesEmployee.find({ status: "active", isSalesAdmin: false })
+      .select("employeeCode staffUserId status")
+      .sort({ employeeCode: 1 })
+      .limit(12)
+      .lean(),
   ]);
 
-  const activeEmployees = employees.filter((e) => e.status === "active");
-  const statusCounts = Object.fromEntries(
-    (Object.keys(SALES_LEAD_STATUS_LABELS) as SalesLeadStatus[]).map((s) => [
-      s,
-      leads.filter((l) => l.status === s).length,
-    ])
+  const staffUsers = await StaffUser.find({
+    _id: { $in: employees.map((e) => e.staffUserId) },
+  })
+    .select("name email")
+    .lean();
+  const staffById = new Map(staffUsers.map((s) => [String(s._id), s]));
+
+  const openLeadDocs = await SalesLead.find({
+    recordStatus: "active",
+    status: { $nin: ["converted", "lost"] },
+  })
+    .select("assignedEmployeeId")
+    .lean();
+
+  const maxLoad = Math.max(
+    1,
+    ...employees.map(
+      (e) => openLeadDocs.filter((l) => String(l.assignedEmployeeId) === String(e._id)).length
+    )
   );
-  const openLeads = leads.filter((l) => !["converted", "lost"].includes(l.status));
+
+  const workload = employees.map((e) => {
+    const count = openLeadDocs.filter(
+      (l) => String(l.assignedEmployeeId) === String(e._id)
+    ).length;
+    return {
+      id: String(e._id),
+      name: staffById.get(String(e.staffUserId))?.name || e.employeeCode || "—",
+      count,
+      pct: count === 0 ? 0 : Math.max(20, Math.round((count / maxLoad) * 100)),
+    };
+  });
+
+  const statusCounts = Object.fromEntries(
+    statusKeys.map((s) => [s, statusAgg.find((r) => r._id === s)?.count || 0])
+  );
+
+  const conversionRate =
+    totalLeads === 0 ? 0 : Math.round((convertedCount / totalLeads) * 100);
 
   return (
     <OsPage
-      title="Sales Admin"
-      subtitle="Team overview, lead distribution, and access control for the Editco Sales CRM."
+      title="Dashboard"
+      subtitle="Team overview, lead load, and what needs your attention today."
       actions={
         <>
-          <OsLink href="/sales/admin/team">Manage employees</OsLink>
+          <OsGhostLink href="/sales/admin/approvals">
+            Approvals{pendingApprovals ? ` (${pendingApprovals})` : ""}
+          </OsGhostLink>
           <OsLink href="/sales/admin/leads">All leads</OsLink>
         </>
       }
     >
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <OsStat label="Sales employees" value={String(activeEmployees.length)} />
-        <OsStat label="Total leads" value={String(leads.length)} />
-        <OsStat label="Open leads" value={String(openLeads.length)} />
-        <OsStat label="Converted" value={String(statusCounts.converted || 0)} />
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <OsStat label="Sales employees" value={String(activeEmployeeCount)} />
+        <OsStat label="Open leads" value={String(openLeads)} />
+        <OsStat label="Unassigned" value={String(unassignedCount)} />
+        <OsStat label="Converted" value={String(convertedCount)} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-[20px] border border-[var(--dash-border)] p-5">
-          <h2 className="mb-3 font-archivo text-sm uppercase tracking-wide text-[var(--dash-text)]">
-            Lead status breakdown
-          </h2>
-          <ul className="space-y-2 font-inter text-sm text-[var(--dash-muted)]">
-            {(Object.keys(SALES_LEAD_STATUS_LABELS) as SalesLeadStatus[]).map((s) => (
+      <div className="mb-6 grid gap-4 sm:grid-cols-3">
+        <Link
+          href="/sales/admin/approvals"
+          className="block rounded-xl border border-[var(--dash-border)] bg-white p-4 transition-colors hover:border-[#111111]"
+        >
+          <p className="font-inter text-[11px] uppercase tracking-[0.14em] text-[var(--dash-faint)]">
+            Pending approvals
+          </p>
+          <p className="mt-2 font-archivo text-2xl text-[var(--dash-text)]">{pendingApprovals}</p>
+          <p className="mt-1 font-inter text-xs text-[var(--dash-muted)]">Review now →</p>
+        </Link>
+        <Link
+          href="/sales/admin/tasks"
+          className="block rounded-xl border border-[var(--dash-border)] bg-white p-4 transition-colors hover:border-[#111111]"
+        >
+          <p className="font-inter text-[11px] uppercase tracking-[0.14em] text-[var(--dash-faint)]">
+            Overdue tasks
+          </p>
+          <p className="mt-2 font-archivo text-2xl text-[var(--dash-text)]">{overdueTasks}</p>
+          <p className="mt-1 font-inter text-xs text-[var(--dash-muted)]">Task board →</p>
+        </Link>
+        <Link
+          href="/sales/admin/leads/assignment"
+          className="block rounded-xl border border-[var(--dash-border)] bg-white p-4 transition-colors hover:border-[#111111]"
+        >
+          <p className="font-inter text-[11px] uppercase tracking-[0.14em] text-[var(--dash-faint)]">
+            Team load
+          </p>
+          <p className="mt-2 font-archivo text-2xl text-[var(--dash-text)]">{employees.length}</p>
+          <p className="mt-1 font-inter text-xs text-[var(--dash-muted)]">Assignment →</p>
+        </Link>
+      </div>
+
+      <div className="mb-6 grid gap-4 lg:grid-cols-2">
+        <section className="rounded-xl border border-[var(--dash-border)] bg-white p-5">
+          <CardTitle title="Lead status" href="/sales/admin/leads" />
+          <ul className="space-y-2.5 font-inter text-sm text-[#6b7280]">
+            {statusKeys.map((s) => (
               <li key={s} className="flex justify-between">
                 <span>{SALES_LEAD_STATUS_LABELS[s]}</span>
-                <span className="text-[var(--dash-text)]">{statusCounts[s] || 0}</span>
+                <span className="font-medium text-[#111111]">{statusCounts[s] || 0}</span>
               </li>
             ))}
+            <li className="flex justify-between border-t border-[#f3f4f6] pt-2.5 font-medium text-[#111111]">
+              Conversion rate <span>{conversionRate}%</span>
+            </li>
           </ul>
         </section>
 
-        <section className="rounded-[20px] border border-[var(--dash-border)] p-5">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-archivo text-sm uppercase tracking-wide text-[var(--dash-text)]">
-              Team
-            </h2>
-            <Link href="/sales/admin/team" className="font-inter text-sm text-[var(--dash-accent)]">
-              View all
-            </Link>
-          </div>
-          <ul className="space-y-2 font-inter text-sm">
-            {employees.map((e) => (
-              <li key={String(e._id)} className="flex items-center justify-between">
-                <Link href={`/sales/admin/team/${e._id}`} className="text-[var(--dash-text)]">
-                  {e.employeeCode || String(e._id).slice(-6)}
-                  {e.isSalesAdmin ? " (Admin)" : ""}
-                </Link>
-                <span className="capitalize text-[var(--dash-muted)]">{e.status}</span>
+        <section className="rounded-xl border border-[var(--dash-border)] bg-white p-5">
+          <CardTitle title="Team workload" href="/sales/admin/leads/assignment" />
+          <ul className="space-y-4">
+            {workload.map((w) => (
+              <li key={w.id}>
+                <div className="mb-1.5 flex items-center justify-between gap-3 font-inter text-sm">
+                  <Link
+                    href={`/sales/admin/team/${w.id}`}
+                    className="truncate font-medium text-[#111111] hover:underline"
+                  >
+                    {w.name}
+                  </Link>
+                  <span className="shrink-0 text-[12px] text-[#6b7280]">{w.count}</span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-[#f3f4f6]">
+                  <div
+                    className="h-full rounded-full bg-[#111111]"
+                    style={{ width: `${w.pct}%` }}
+                  />
+                </div>
               </li>
             ))}
-            {employees.length === 0 ? (
-              <li className="text-[var(--dash-muted)]">No sales employees yet.</li>
+            {workload.length === 0 ? (
+              <li className="font-inter text-sm text-[#6b7280]">No sales employees yet.</li>
             ) : null}
           </ul>
         </section>
       </div>
-
-      <section className="mt-8">
-        <h2 className="mb-3 font-archivo text-sm uppercase tracking-wide text-[var(--dash-text)]">
-          Latest activity
-        </h2>
-        <ul className="space-y-2">
-          {activity.map((a) => (
-            <li
-              key={String(a._id)}
-              className="rounded-xl border border-[var(--dash-border)] px-4 py-3 font-inter text-sm"
-            >
-              <span className="font-medium text-[var(--dash-text)]">{a.actorName || "System"}</span>
-              <span className="ml-2 text-[var(--dash-text)]">{a.title}</span>
-              <span className="ml-2 text-[var(--dash-faint)]">{formatDateTime(a.createdAt)}</span>
-            </li>
-          ))}
-          {activity.length === 0 ? (
-            <li className="font-inter text-sm text-[var(--dash-muted)]">No activity yet.</li>
-          ) : null}
-        </ul>
-      </section>
     </OsPage>
   );
 }

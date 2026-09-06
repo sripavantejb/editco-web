@@ -8,6 +8,8 @@ import { buildLeadListQuery } from "@/lib/os/services/lead-list-service";
 import { OsPage, OsTable, Td, Th } from "@/components/os/ui";
 import { formatDate } from "@/lib/utils";
 import { hasPermission } from "@/lib/os/permissions";
+import { RowDeleteButton } from "@/components/os/RowDeleteButton";
+import { archiveLeadList } from "@/actions/os/lead-lists";
 
 export default async function LeadListsPage() {
   const staff = await requireOsPage("leads:read");
@@ -49,6 +51,7 @@ export default async function LeadListsPage() {
       <Th>Filters</Th>
       <Th>Lead count</Th>
       <Th>Updated</Th>
+      <Th>Delete</Th>
       </tr>
       </thead>
       <tbody>
@@ -63,11 +66,11 @@ export default async function LeadListsPage() {
                 </Link>
       </Td>
       <Td>
-      <span className="text-xs text-[var(--dash-muted)]">
+                <span className="text-xs text-[var(--dash-muted)]">
                   {l.filters && Object.keys(l.filters).length
                     ? Object.entries(l.filters)
                         .slice(0, 3)
-                        .map(([k, v]) => `${k}`)
+                        .map(([k]) => `${k}`)
                         .join(", ")
                     : "—"}
                 </span>
@@ -76,7 +79,16 @@ export default async function LeadListsPage() {
                 {count}
               </Td>
       <Td>{formatDate(l.updatedAt)}</Td>
-      </tr>
+              <Td>
+                {canWrite ? (
+                  <RowDeleteButton
+                    action={archiveLeadList}
+                    id={String(l._id)}
+                    confirmMessage={`Delete list "${l.name}"?`}
+                  />
+                ) : null}
+              </Td>
+            </tr>
           ))}
         </tbody>
       </OsTable>

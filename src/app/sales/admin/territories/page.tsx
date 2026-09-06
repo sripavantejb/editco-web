@@ -2,9 +2,10 @@ export const dynamic = "force-dynamic";
 
 import { requireSalesAdminPage } from "@/lib/sales/page";
 import { SalesTerritory } from "@/models/sales/SalesTerritory";
-import { createSalesTerritory } from "@/actions/sales/territories";
+import { createSalesTerritory, deleteSalesTerritory } from "@/actions/sales/territories";
 import { OsActionForm } from "@/components/os/OsActionForm";
-import { SalesModal } from "@/components/sales/SalesModal";
+import { OsSlideOver } from "@/components/os/OsSlideOver";
+import { RowDeleteButton } from "@/components/os/RowDeleteButton";
 import { OsSelect } from "@/components/os/OsSelect";
 import { Field, OsPage, OsTable, Td, Th, osInputClass } from "@/components/os/ui";
 
@@ -22,12 +23,12 @@ export default async function SalesTerritoriesPage() {
 
   return (
     <OsPage
-      title="Territory Management"
+      title="Territories"
       subtitle="Regions leads and customers can be assigned to."
       backHref="/sales/admin"
-      backLabel="Back to dashboard"
+      backLabel="Dashboard"
       actions={
-        <SalesModal triggerLabel="Add territory" title="Add territory">
+        <OsSlideOver triggerLabel="Add territory" title="Add territory">
           <OsActionForm action={createSalesTerritory} submitLabel="Add territory" className="grid gap-3">
             <Field label="Name">
               <input name="name" required className={osInputClass()} />
@@ -39,12 +40,17 @@ export default async function SalesTerritoriesPage() {
               <input name="description" className={osInputClass()} />
             </Field>
           </OsActionForm>
-        </SalesModal>
+        </OsSlideOver>
       }
     >
       <OsTable>
         <thead>
-          <tr><Th>Name</Th><Th>Type</Th><Th>Description</Th></tr>
+          <tr>
+            <Th>Name</Th>
+            <Th>Type</Th>
+            <Th>Description</Th>
+            <Th>{null}</Th>
+          </tr>
         </thead>
         <tbody>
           {territories.map((t) => (
@@ -52,11 +58,21 @@ export default async function SalesTerritoriesPage() {
               <Td>{t.name}</Td>
               <Td className="capitalize">{t.type}</Td>
               <Td>{t.description || "—"}</Td>
+              <Td>
+                <RowDeleteButton
+                  action={deleteSalesTerritory}
+                  id={String(t._id)}
+                  confirmMessage="Delete this territory?"
+                  label="Delete territory"
+                />
+              </Td>
             </tr>
           ))}
         </tbody>
       </OsTable>
-      {territories.length === 0 ? <p className="mt-6 font-inter text-sm text-[var(--dash-muted)]">No territories yet.</p> : null}
+      {territories.length === 0 ? (
+        <p className="mt-6 font-inter text-sm text-[#6b7280]">No territories yet.</p>
+      ) : null}
     </OsPage>
   );
 }

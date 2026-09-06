@@ -8,6 +8,7 @@ import { SalesPermissionOverride } from "@/models/sales/SalesPermissionOverride"
 import { requireSalesAdminAction } from "@/lib/sales/guard";
 import { logSalesActivity, writeSalesAudit } from "@/lib/sales/activity";
 import { defaultModuleMapForRole, SALES_MODULE_KEYS, type SalesModuleKey } from "@/lib/sales/modules";
+import { invalidateSalesPermissionCache } from "@/lib/sales/permissions";
 import type { ActionState } from "@/actions/auth";
 
 const saveSchema = z.object({
@@ -56,6 +57,8 @@ export async function saveSalesPermissions(_prev: ActionState, formData: FormDat
     { overrides, updatedBy: gate.employee.email },
     { upsert: true }
   );
+
+  invalidateSalesPermissionCache(employee._id.toString());
 
   await writeSalesAudit({
     action: "permission_changed",

@@ -39,6 +39,7 @@ export function OsSelect({
     top: number;
     left: number;
     width: number;
+    openUp: boolean;
   } | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -64,7 +65,8 @@ export function OsSelect({
       setMenuPos({
         top: openUp ? rect.top - 4 : rect.bottom + 4,
         left: rect.left,
-        width: rect.width,
+        width: Math.max(rect.width, 160),
+        openUp,
       });
     }
 
@@ -116,15 +118,9 @@ export function OsSelect({
               width: menuPos.width,
               maxHeight: 240,
               zIndex: 9999,
-              backgroundColor: "#121212",
-              border: "1px solid rgba(255,255,255,0.12)",
-              color: "#f5f5f5",
-              transform:
-                menuPos.top < (buttonRef.current?.getBoundingClientRect().top ?? 0)
-                  ? "translateY(-100%)"
-                  : undefined,
+              transform: menuPos.openUp ? "translateY(-100%)" : undefined,
             }}
-            className="overflow-auto rounded-xl py-1 shadow-[0_16px_40px_rgba(0,0,0,0.65)]"
+            className="os-custom-select-menu overflow-auto rounded-xl border border-[#e5e7eb] bg-white py-1 text-[#111111] shadow-[0_12px_40px_rgba(0,0,0,0.12)]"
           >
             {options.map((opt) => {
               const active = opt.value === selected;
@@ -136,10 +132,10 @@ export function OsSelect({
                     aria-selected={active}
                     onClick={() => choose(opt.value)}
                     className={cn(
-                      "flex w-full px-3 py-2.5 text-left text-sm transition-colors",
+                      "flex w-full px-3 py-2.5 text-left font-inter text-sm transition-colors",
                       active
-                        ? "bg-[rgba(200,245,66,0.16)] text-[#c8f542]"
-                        : "text-[#f5f5f5] hover:bg-white/10"
+                        ? "bg-[#f5f5f5] font-medium text-[#111111]"
+                        : "text-[#374151] hover:bg-[#f8f9fa]"
                     )}
                   >
                     {opt.label}
@@ -166,12 +162,11 @@ export function OsSelect({
         aria-controls={listId}
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          "flex h-11 w-full items-center justify-between rounded-xl border border-[var(--dash-border)] px-3 text-left text-sm text-[var(--dash-text)]",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gaude-orange",
+          "os-custom-select-trigger flex h-11 w-full items-center justify-between rounded-xl border border-[#e5e7eb] bg-white px-3 text-left font-inter text-sm text-[#111111]",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111111]/20",
           "disabled:cursor-not-allowed disabled:opacity-50",
-          !selected && "text-[var(--dash-faint)]"
+          !selected && "text-[#898989]"
         )}
-        style={{ backgroundColor: "#1a1a1a" }}
       >
         <span className="truncate">{selectedLabel}</span>
         <svg
@@ -182,7 +177,7 @@ export function OsSelect({
           stroke="currentColor"
           strokeWidth="2"
           className={cn(
-            "ml-2 shrink-0 text-[var(--dash-muted)] transition-transform",
+            "ml-2 shrink-0 text-[#6b7280] transition-transform",
             open && "rotate-180"
           )}
           aria-hidden

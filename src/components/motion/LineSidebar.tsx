@@ -191,34 +191,62 @@ export function LineSidebar({
         onPointerLeave={handlePointerLeave}
         className="m-0 flex list-none flex-col py-4 [gap:var(--item-gap)]"
       >
-        {items.map((label, index) => (
-          <li
-            key={`${label}-${index}`}
-            ref={(el) => {
-              itemRefs.current[index] = el;
-            }}
-            aria-current={activeIndex === index ? "true" : undefined}
-            onClick={() => handleClick(index, label)}
-            className={`relative cursor-pointer before:absolute before:-inset-y-[6px] before:content-[''] ${
-              showMarker ? "before:-inset-x-12" : "before:-inset-x-2"
-            } ${tickClass}`}
-          >
-            {showMarker && (
-              <span
-                aria-hidden="true"
-                className="absolute top-1/2 left-[calc(-1*var(--marker-length)-var(--marker-gap))] h-px w-[length:var(--marker-length)] origin-left [background-color:color-mix(in_srgb,var(--accent-color)_calc(var(--effect,0)*100%),var(--marker-color))] [transform:translateY(-50%)_scaleX(calc(0.7+var(--effect,0)*0.5))]"
-              />
-            )}
-            <span className="relative inline-flex max-w-full items-baseline leading-[1.2] break-words [color:color-mix(in_srgb,var(--accent-color)_calc(var(--effect,0)*100%),var(--text-color))] [font-size:var(--font-size)] [transform:translateX(calc(var(--effect,0)*var(--max-shift)))]">
-              {showIndex && (
-                <span className="mr-[0.6rem] shrink-0 font-mono text-[0.85em] [opacity:calc(0.55+var(--effect,0)*0.45)]">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
+        {items.map((label, index) => {
+          const isActive = activeIndex === index;
+          return (
+            <li
+              key={`${label}-${index}`}
+              ref={(el) => {
+                itemRefs.current[index] = el;
+              }}
+              aria-current={isActive ? "true" : undefined}
+              onClick={() => handleClick(index, label)}
+              className={`relative cursor-pointer before:absolute before:-inset-y-[6px] before:content-[''] ${
+                showMarker ? "before:-inset-x-12" : "before:-inset-x-2"
+              } ${tickClass}`}
+            >
+              {showMarker && (
+                <span
+                  aria-hidden="true"
+                  className={`absolute top-1/2 left-[calc(-1*var(--marker-length)-var(--marker-gap))] h-0.5 w-[var(--marker-length)] origin-left transition-[background-color,transform] duration-300 ease-out ${
+                    isActive
+                      ? "bg-[var(--accent-color)] [transform:translateY(-50%)_scaleX(1)]"
+                      : "[background-color:color-mix(in_srgb,var(--accent-color)_calc(var(--effect,0)*100%),var(--marker-color))] [transform:translateY(-50%)_scaleX(calc(0.55+var(--effect,0)*0.45))]"
+                  }`}
+                />
               )}
-              <span className="min-w-0">{label}</span>
-            </span>
-          </li>
-        ))}
+              <span
+                className={`relative inline-flex max-w-full origin-left items-baseline leading-[1.2] break-words transition-[color,transform,font-size] duration-300 ease-out ${
+                  isActive
+                    ? "font-black text-[var(--accent-color)]"
+                    : "font-bold [color:color-mix(in_srgb,var(--accent-color)_calc(var(--effect,0)*100%),var(--text-color))] [font-size:calc(var(--font-size)*(1+var(--effect,0)*0.22))] [transform:translateX(calc(var(--effect,0)*var(--max-shift)))_scale(calc(1+var(--effect,0)*0.12))]"
+                }`}
+                style={
+                  isActive
+                    ? ({
+                        color: "var(--accent-color)",
+                        transform: "translateX(var(--max-shift)) scale(1.14)",
+                        fontSize: "calc(var(--font-size) * 1.22)",
+                      } as CSSProperties)
+                    : undefined
+                }
+              >
+                {showIndex && (
+                  <span
+                    className={`mr-[0.6rem] shrink-0 font-mono text-[0.85em] ${
+                      isActive
+                        ? "opacity-100"
+                        : "[opacity:calc(0.55+var(--effect,0)*0.45)]"
+                    }`}
+                  >
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                )}
+                <span className="min-w-0">{label}</span>
+              </span>
+            </li>
+          );
+        })}
       </ul>
     </nav>
   );

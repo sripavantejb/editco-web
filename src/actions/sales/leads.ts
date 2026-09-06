@@ -212,7 +212,7 @@ export async function deleteSalesLead(_prev: ActionState, formData: FormData): P
   const gate = await requireSalesAction("leads.management");
   if (!gate.ok) return { error: gate.error };
 
-  const leadId = String(formData.get("leadId") || "");
+  const leadId = String(formData.get("leadId") || formData.get("id") || "");
   if (!leadId) return { error: "Invalid lead" };
 
   await connectDB();

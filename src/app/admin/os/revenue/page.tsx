@@ -4,15 +4,20 @@ import { requireOsPage } from "@/lib/os/page";
 import { Invoice } from "@/models/os/Invoice";
 import { SalesDeal } from "@/models/sales/SalesDeal";
 import { ManualRevenue } from "@/models/os/ManualRevenue";
-import { createManualRevenue } from "@/actions/os/revenue";
+import { createManualRevenue, archiveManualRevenue } from "@/actions/os/revenue";
+import { archiveInvoice } from "@/actions/os/invoices";
 import { OsActionForm } from "@/components/os/OsActionForm";
+import { RowDeleteButton } from "@/components/os/RowDeleteButton";
 import { Field, OsBadge, OsPage, OsStat, OsTable, Td, Th, osInputClass, osTextareaClass } from "@/components/os/ui";
 import { SalesModal } from "@/components/sales/SalesModal";
 import { formatCurrencyINR, formatDate } from "@/lib/utils";
+import { hasPermission } from "@/lib/os/permissions";
 import "@/models/sales/register";
 
 export default async function RevenuePage() {
-  await requireOsPage("finance:read");
+  const staff = await requireOsPage("finance:read");
+  const canDeleteManual = hasPermission(staff.permissions, "payments:write");
+  const canDeleteInvoice = hasPermission(staff.permissions, "invoices:write");
 
   const [invoices, wonDeals, manualEntries] = await Promise.all([
     Invoice.find({ recordStatus: "active" }).select("amountPaid paymentDate billToName createdAt").lean(),
@@ -22,7 +27,13 @@ export default async function RevenuePage() {
     ManualRevenue.find({ recordStatus: "active" }).sort({ receivedAt: -1 }).lean(),
   ]);
 
-  type RevenueRow = { id: string; label: string; source: "Sales CRM" | "Editco OS" | "Manual"; amount: number; date: Date };
+  type RevenueRow = {
+    id: string;
+    label: string;
+    source: "Sales CRM" | "Editco OS" | "Manual";
+    amount: number;
+    date: Date;
+  };
 
   const osRows: RevenueRow[] = invoices
     .filter((i) => (i.amountPaid || 0) > 0)
@@ -103,6 +114,7 @@ export default async function RevenuePage() {
             <Th>Label</Th>
             <Th>Amount</Th>
             <Th>Date</Th>
+            <Th>Delete</Th>
           </tr>
         </thead>
         <tbody>
@@ -116,6 +128,23 @@ export default async function RevenuePage() {
               <Td>{r.label}</Td>
               <Td>{formatCurrencyINR(r.amount)}</Td>
               <Td className="whitespace-nowrap">{formatDate(r.date)}</Td>
+              <Td>
+                {r.source === "Manual" && canDeleteManual ? (
+                  <RowDeleteButton
+                    action={archiveManualRevenue}
+                    id={r.id}
+                    confirmMessage={`Delete manual revenue "${r.label}"?`}
+                  />
+                ) : r.source === "Editco OS" && canDeleteInvoice ? (
+                  <RowDeleteButton
+                    action={archiveInvoice}
+                    id={r.id}
+                    confirmMessage={`Delete invoice revenue row for "${r.label}"?`}
+                  />
+                ) : (
+                  <span className="text-xs text-[var(--dash-muted)]">—</span>
+                )}
+              </Td>
             </tr>
           ))}
         </tbody>

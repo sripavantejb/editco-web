@@ -40,11 +40,11 @@ export function ProcessSection() {
           `+=${Math.max(
             steps.length *
               window.innerHeight *
-              (window.matchMedia("(max-width: 1023px)").matches ? 0.45 : 0.7),
+              (window.matchMedia("(max-width: 1023px)").matches ? 0.55 : 0.95),
             1
           )}`,
         pin: sticky,
-        scrub: true,
+        scrub: 1.25,
         anticipatePin: 1,
         invalidateOnRefresh: true,
         onUpdate: (self) => {
@@ -94,15 +94,15 @@ export function ProcessSection() {
               showIndex
               showMarker={!compact}
               proximityRadius={compact ? 70 : 100}
-              maxShift={compact ? 0 : 28}
+              maxShift={compact ? 0 : 36}
               falloff="smooth"
-              markerLength={compact ? 0 : 56}
-              markerGap={compact ? 0 : 8}
-              tickScale={0.45}
+              markerLength={compact ? 0 : 64}
+              markerGap={compact ? 0 : 10}
+              tickScale={0.5}
               scaleTick
-              itemGap={compact ? 14 : 28}
-              fontSize={compact ? 0.85 : 1.15}
-              smoothing={100}
+              itemGap={compact ? 14 : 30}
+              fontSize={compact ? 0.9 : 1.2}
+              smoothing={80}
               defaultActive={0}
               activeIndex={active}
               onItemClick={(index) => setActive(index)}

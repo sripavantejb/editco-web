@@ -41,7 +41,7 @@ export function WhySection() {
   return (
     <section
       id={crew.id}
-      className={`relative overflow-hidden bg-white px-4 py-16 md:px-8 md:py-24 ${sectionFlowAfter}`}
+      className={`relative overflow-hidden bg-white px-4 py-24 md:px-8 md:py-36 ${sectionFlowAfter}`}
     >
       <div className="absolute top-20 right-[5%] h-64 w-64 rounded-full border-4 border-gaude-black bg-gaude-orange/10 blur-3xl" />
       <div className="absolute bottom-20 left-[5%] h-80 w-80 rounded-full border-4 border-gaude-black bg-gaude-purple/10 blur-3xl" />

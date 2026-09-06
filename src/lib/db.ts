@@ -31,7 +31,9 @@ export async function connectDB() {
   if (!cached.promise) {
     cached.promise = mongoose.connect(getMongoUri(), {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 8000,
+      maxPoolSize: 20,
+      minPoolSize: 2,
       retryWrites: false,
     });
   }

@@ -9,20 +9,41 @@ import { formatCurrencyINR, formatDate } from "@/lib/utils";
 export default async function SalesTargetsPage() {
   const staff = await requireSalesPage("perf.targets");
   const now = new Date();
-  const targets = await SalesTarget.find({ employeeId: staff.employeeId }).sort({ periodStart: -1 }).lean();
+  const targets = await SalesTarget.find({ employeeId: staff.employeeId })
+    .sort({ periodStart: -1 })
+    .lean();
 
-  const rows = await Promise.all(
-    targets.map(async (t) => {
-      const won = await SalesDeal.find({
-        ownerEmployeeId: staff.employeeId,
-        stage: "won",
-        closedAt: { $gte: t.periodStart, $lte: t.periodEnd },
-      }).lean();
-      const actual = won.reduce((s, d) => s + (d.finalOffer || d.value || 0), 0);
-      const daysRemaining = Math.max(0, Math.ceil((new Date(t.periodEnd).getTime() - now.getTime()) / 86400000));
-      return { ...t, actual, daysRemaining };
-    })
-  );
+  // One deals query instead of N+1 per target
+  const rangeStart = targets.length
+    ? new Date(Math.min(...targets.map((t) => new Date(t.periodStart).getTime())))
+    : null;
+  const rangeEnd = targets.length
+    ? new Date(Math.max(...targets.map((t) => new Date(t.periodEnd).getTime())))
+    : null;
+
+  const wonDeals =
+    rangeStart && rangeEnd
+      ? await SalesDeal.find({
+          ownerEmployeeId: staff.employeeId,
+          stage: "won",
+          closedAt: { $gte: rangeStart, $lte: rangeEnd },
+        })
+          .select("finalOffer value closedAt")
+          .lean()
+      : [];
+
+  const rows = targets.map((t) => {
+    const start = new Date(t.periodStart).getTime();
+    const end = new Date(t.periodEnd).getTime();
+    const actual = wonDeals
+      .filter((d) => {
+        const closed = d.closedAt ? new Date(d.closedAt).getTime() : 0;
+        return closed >= start && closed <= end;
+      })
+      .reduce((s, d) => s + (d.finalOffer || d.value || 0), 0);
+    const daysRemaining = Math.max(0, Math.ceil((end - now.getTime()) / 86400000));
+    return { ...t, actual, daysRemaining };
+  });
 
   return (
     <OsPage title="Sales Targets" subtitle="Target vs actual, tracked against closed-won deals in the period.">
@@ -38,17 +59,17 @@ export default async function SalesTargetsPage() {
                 <Td className="capitalize">{t.period} · {formatDate(t.periodStart)} – {formatDate(t.periodEnd)}</Td>
                 <Td>{formatCurrencyINR(t.targetValue)}</Td>
                 <Td>{formatCurrencyINR(t.actual)}</Td>
-                <Td>
-                  <OsBadge tone={pct >= 100 ? "ok" : pct >= 60 ? "accent" : "warn"}>{pct}%</OsBadge>
-                </Td>
+                <Td><OsBadge tone={pct >= 100 ? "ok" : pct >= 70 ? "warn" : "neutral"}>{pct}%</OsBadge></Td>
                 <Td>{formatCurrencyINR(Math.max(0, t.targetValue - t.actual))}</Td>
                 <Td>{t.daysRemaining}</Td>
               </tr>
             );
           })}
+          {rows.length === 0 ? (
+            <tr><Td className="text-[var(--dash-muted)]">No targets yet.</Td></tr>
+          ) : null}
         </tbody>
       </OsTable>
-      {rows.length === 0 ? <p className="mt-6 font-inter text-sm text-[var(--dash-muted)]">No targets set yet — your admin sets these.</p> : null}
     </OsPage>
   );
 }

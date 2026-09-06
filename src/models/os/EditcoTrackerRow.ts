@@ -1,46 +1,30 @@
 import { Schema, models, model, type InferSchemaType, Types } from "mongoose";
+import {
+  EDITCO_TRACKER_STATUSES,
+  type EditcoTrackerStatus,
+} from "@/lib/os/editco-tracker";
 
-/** The only 3 people who own rows in the master tracker — used for the POC / Dependency pickers. */
-export const EDITCO_TEAM_NAMES = ["Harsha", "Tej", "Deepika"] as const;
-export type EditcoTeamName = (typeof EDITCO_TEAM_NAMES)[number];
+export {
+  EDITCO_TEAM_NAMES,
+  EDITCO_TEAM_EMAILS,
+  EDITCO_TRACKER_STATUSES,
+  EDITCO_TRACKER_STATUS_LABELS,
+  EDITCO_TRACKER_STATUS_CLASSES,
+  type EditcoTeamName,
+  type EditcoTrackerStatus,
+} from "@/lib/os/editco-tracker";
 
-export const EDITCO_TEAM_EMAILS: Record<EditcoTeamName, string> = {
-  Harsha: "harshapolina1@gmail.com",
-  Tej: "sripavantejb@gmail.com",
-  Deepika: "deepikamundla54@gmail.com",
-};
-
-export const EDITCO_TRACKER_STATUSES = [
-  "started",
-  "in_progress",
-  "completed",
-  "not_needed",
-  "blocked",
-  "recursive",
-  "not_yet_started",
-] as const;
-export type EditcoTrackerStatus = (typeof EDITCO_TRACKER_STATUSES)[number];
-
-export const EDITCO_TRACKER_STATUS_LABELS: Record<EditcoTrackerStatus, string> = {
-  started: "Started",
-  in_progress: "In Progress",
-  completed: "Completed",
-  not_needed: "Not needed / cancelled",
-  blocked: "Blocked",
-  recursive: "Recursive",
-  not_yet_started: "Not Yet started",
-};
-
-/** Matches the team's spreadsheet status chip colors. */
-export const EDITCO_TRACKER_STATUS_CLASSES: Record<EditcoTrackerStatus, string> = {
-  started: "bg-rose-400/20 text-rose-300",
-  in_progress: "bg-amber-400/20 text-amber-300",
-  completed: "bg-emerald-400/20 text-emerald-300",
-  not_needed: "bg-slate-400/20 text-slate-300",
-  blocked: "bg-purple-400/20 text-purple-300",
-  recursive: "bg-pink-400/20 text-pink-300",
-  not_yet_started: "bg-red-400/20 text-red-300",
-};
+const historyEntrySchema = new Schema(
+  {
+    at: { type: Date, default: Date.now },
+    byEmail: { type: String, default: "" },
+    byName: { type: String, default: "" },
+    field: { type: String, default: "" },
+    from: { type: String, default: "" },
+    to: { type: String, default: "" },
+  },
+  { _id: false }
+);
 
 const editcoTrackerRowSchema = new Schema(
   {
@@ -52,6 +36,8 @@ const editcoTrackerRowSchema = new Schema(
     status: { type: String, enum: EDITCO_TRACKER_STATUSES, default: "not_yet_started", index: true },
     remarks: { type: String, default: "" },
     createdBy: { type: String, default: "" },
+    updatedBy: { type: String, default: "" },
+    history: { type: [historyEntrySchema], default: [] },
   },
   { timestamps: true }
 );
@@ -66,3 +52,23 @@ export type EditcoTrackerRowDoc = InferSchemaType<typeof editcoTrackerRowSchema>
 };
 
 export const EditcoTrackerRow = models.EditcoTrackerRow || model("EditcoTrackerRow", editcoTrackerRowSchema);
+
+/** One check-in per person per calendar day when they open Master Tracker. */
+const editcoTrackerCheckInSchema = new Schema(
+  {
+    email: { type: String, required: true, lowercase: true, index: true },
+    dayKey: { type: String, required: true, index: true }, // YYYY-MM-DD
+    checkedInAt: { type: Date, required: true },
+    name: { type: String, default: "" },
+  },
+  { timestamps: true }
+);
+
+editcoTrackerCheckInSchema.index({ email: 1, dayKey: 1 }, { unique: true });
+
+export type EditcoTrackerCheckInDoc = InferSchemaType<typeof editcoTrackerCheckInSchema> & {
+  _id: Types.ObjectId;
+};
+
+export const EditcoTrackerCheckIn =
+  models.EditcoTrackerCheckIn || model("EditcoTrackerCheckIn", editcoTrackerCheckInSchema);

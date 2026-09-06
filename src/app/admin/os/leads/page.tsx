@@ -18,6 +18,8 @@ import {
 import { hasPermission } from "@/lib/os/permissions";
 import { LeadStageMoveForm } from "@/components/os/LeadStageMoveForm";
 import { LeadsFilterForm } from "@/components/os/LeadsFilterForm";
+import { RowDeleteButton } from "@/components/os/RowDeleteButton";
+import { archiveLead } from "@/actions/os/leads";
 import type { StaffContext } from "@/lib/os/staff";
 import { Types } from "mongoose";
 
@@ -153,6 +155,7 @@ export default async function LeadsPage({
             <Th>Source</Th>
             <Th>Created</Th>
             <Th>Open</Th>
+            <Th>Delete</Th>
           </tr>
         </thead>
         <tbody>
@@ -204,6 +207,15 @@ export default async function LeadsPage({
                   >
                     Open
                   </Link>
+                </Td>
+                <Td>
+                  {canWrite && lead.status !== "converted" ? (
+                    <RowDeleteButton
+                      action={archiveLead}
+                      id={String(lead._id)}
+                      confirmMessage={`Delete lead "${lead.name}"?`}
+                    />
+                  ) : null}
                 </Td>
               </tr>
             );

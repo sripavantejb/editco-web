@@ -5,7 +5,7 @@ import { SalesFollowUp } from "@/models/sales/SalesFollowUp";
 import { SalesLead } from "@/models/sales/SalesLead";
 import { createSalesFollowUp, updateSalesFollowUpStatus } from "@/actions/sales/followups";
 import { OsActionForm } from "@/components/os/OsActionForm";
-import { SalesModal } from "@/components/sales/SalesModal";
+import { OsSlideOver } from "@/components/os/OsSlideOver";
 import { OsSelect } from "@/components/os/OsSelect";
 import { Field, OsBadge, OsPage, Td, Th, OsTable, osInputClass, osTextareaClass } from "@/components/os/ui";
 import { SALES_FOLLOWUP_TYPES } from "@/lib/sales/constants";
@@ -49,7 +49,7 @@ export default async function SalesFollowUpsPage() {
       title="Follow-up Management"
       subtitle="Stay on top of every promised next touch."
       actions={
-        <SalesModal triggerLabel="Schedule a follow-up" title="Schedule a follow-up">
+        <OsSlideOver triggerLabel="Schedule follow-up" title="Schedule a follow-up">
           <OsActionForm action={createSalesFollowUp} submitLabel="Schedule" className="grid gap-3">
             <Field label="Lead">
               <OsSelect name="leadId" options={leadOptions} defaultValue="" />
@@ -66,15 +66,18 @@ export default async function SalesFollowUpsPage() {
               <textarea name="notes" className={osTextareaClass()} />
             </Field>
           </OsActionForm>
-        </SalesModal>
+        </OsSlideOver>
       }
     >
-      <div className="space-y-8">
+      <div className="space-y-6">
         {groups.map((group) => (
-          <section key={group.title}>
-            <h2 className="mb-3 flex items-center gap-2 font-archivo text-sm uppercase tracking-wide text-[var(--dash-text)]">
-              {group.title} <OsBadge tone={group.tone}>{group.items.length}</OsBadge>
-            </h2>
+          <section key={group.title} className="rounded-xl border border-[var(--dash-border)] bg-white p-5">
+            <div className="mb-4 flex items-center gap-2">
+              <h2 className="font-inter text-[15px] font-semibold tracking-[-0.01em] text-[#111111]">
+                {group.title}
+              </h2>
+              <OsBadge tone={group.tone}>{group.items.length}</OsBadge>
+            </div>
             <OsTable>
               <thead>
                 <tr>
@@ -93,10 +96,10 @@ export default async function SalesFollowUpsPage() {
                     <Td>
                       <form action={updateFollowUpStatusForm} className="flex gap-1">
                         <input type="hidden" name="followUpId" value={String(f._id)} />
-                        <button type="submit" name="status" value="completed" className="rounded-full border border-[var(--dash-border)] px-2 py-1 font-inter text-[10px] text-[var(--dash-muted)] hover:border-[var(--dash-accent)] hover:text-[var(--dash-accent)]">
+                        <button type="submit" name="status" value="completed" className="inline-flex h-7 items-center rounded-lg border border-[#e5e7eb] bg-white px-2 font-inter text-[11px] font-medium text-[#6b7280] hover:border-[#111111] hover:text-[#111111]">
                           Complete
                         </button>
-                        <button type="submit" name="status" value="cancelled" className="rounded-full border border-[var(--dash-border)] px-2 py-1 font-inter text-[10px] text-[var(--dash-muted)] hover:border-red-400 hover:text-red-400">
+                        <button type="submit" name="status" value="cancelled" className="inline-flex h-7 items-center rounded-lg border border-[#e5e7eb] bg-white px-2 font-inter text-[11px] font-medium text-[#6b7280] hover:border-red-500 hover:text-red-500">
                           Cancel
                         </button>
                       </form>

@@ -105,6 +105,30 @@ export async function assignSalesTask(_prev: ActionState, formData: FormData): P
   return { success: "Task assigned." };
 }
 
+export async function deleteSalesTask(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const gate = await requireSalesAction("tasks.management");
+  if (!gate.ok) return { error: gate.error };
+
+  const id = String(formData.get("id") || formData.get("taskId") || "");
+  if (!id) return { error: "Invalid task" };
+
+  await connectDB();
+  const task = await SalesTask.findById(id);
+  if (!task) return { error: "Task not found" };
+  if (
+    !gate.employee.isSalesAdmin &&
+    String(task.ownerEmployeeId) !== gate.employee.employeeId
+  ) {
+    return { error: "You can only delete your own tasks" };
+  }
+
+  await SalesTask.deleteOne({ _id: id });
+
+  revalidatePath("/sales/admin/tasks");
+  revalidatePath("/sales/employee/tasks");
+  return { success: "Task deleted." };
+}
+
 const statusSchema = z.object({
   taskId: z.string().min(1),
   status: z.enum(["todo", "in_progress", "completed", "overdue"]),

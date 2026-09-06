@@ -1,15 +1,13 @@
 export const dynamic = "force-dynamic";
 
-import Link from "next/link";
 import { headers } from "next/headers";
 import { requireOsPage } from "@/lib/os/page";
-import { Vendor, VENDOR_ACTIVE_STATUS_CLASSES, VENDOR_ACTIVE_STATUS_LABELS, type VendorActiveStatus } from "@/models/os/Vendor";
+import { Vendor } from "@/models/os/Vendor";
 import { Conversion } from "@/models/os/Conversion";
 import { PortalAccess } from "@/models/os/PortalAccess";
 import { conversionRollupsFor } from "@/lib/os/rollups";
-import { formatCurrencyINR, cn } from "@/lib/utils";
-import { OsLink, OsPage, OsTable, Td, Th } from "@/components/os/ui";
-import { CopyPortalUrl } from "@/components/os/CopyPortalUrl";
+import { OsLink, OsPage } from "@/components/os/ui";
+import { ClientsTable, type ClientRowView } from "@/components/os/ClientsTable";
 import { hasPermission } from "@/lib/os/permissions";
 
 function appOrigin(host: string | null, proto: string | null) {
@@ -42,82 +40,37 @@ export default async function VendorsPage() {
   );
   const rollupByUuid = await conversionRollupsFor(vendors.map((v) => v.conversionUuid));
 
+  const rows: ClientRowView[] = vendors.map((v) => {
+    const portal = portalByUuid[v.conversionUuid];
+    const rollup = rollupByUuid.get(v.conversionUuid);
+    return {
+      id: String(v._id),
+      companyName: v.companyName,
+      contactPerson: v.contactPerson || "",
+      location: v.location || "",
+      activeStatus: (v.activeStatus as string) || "active",
+      conversionUuid: v.conversionUuid,
+      publicCode: codeByUuid[v.conversionUuid] || "",
+      accountOwner: v.accountOwner || "",
+      received: rollup?.received || 0,
+      outstanding: rollup?.outstanding || 0,
+      portalUrl:
+        portal?.isActive ? `${origin}/client-portal/${v.conversionUuid}` : null,
+      canWrite,
+    };
+  });
+
   return (
     <OsPage
       title="Clients"
-      subtitle="Onboarded business relationships. Prefer converting a lead when the deal came through sales; use Add client for already-won / existing accounts."
+      subtitle="Onboarded business relationships. Click a client for conversion code and portal — without leaving this page."
       backHref="/admin/os"
       backLabel="Back to dashboard"
       actions={
         canWrite ? <OsLink href="/admin/os/vendors/new">Add client</OsLink> : null
       }
     >
-      <OsTable>
-        <thead>
-          <tr>
-            <Th>Company</Th>
-            <Th>Contact</Th>
-            <Th>Location</Th>
-            <Th>Active Status</Th>
-            <Th>Conversion</Th>
-            <Th>Owner</Th>
-            <Th>Received</Th>
-            <Th>Outstanding</Th>
-            <Th>Portal</Th>
-          </tr>
-        </thead>
-        <tbody>
-          {vendors.map((v) => {
-            const portal = portalByUuid[v.conversionUuid];
-            const portalUrl =
-              portal?.isActive
-                ? `${origin}/client-portal/${v.conversionUuid}`
-                : null;
-            const rollup = rollupByUuid.get(v.conversionUuid);
-            return (
-              <tr key={String(v._id)}>
-                <Td>
-                  <Link
-                    href={`/admin/os/vendors/${v._id}`}
-                    className="text-[var(--dash-accent)]"
-                  >
-                    {v.companyName}
-                  </Link>
-                </Td>
-                <Td>{v.contactPerson || "—"}</Td>
-                <Td>{v.location || "—"}</Td>
-                <Td>
-                  <span
-                    className={cn(
-                      "inline-flex rounded-full px-2.5 py-1 font-inter text-[11px] font-medium",
-                      VENDOR_ACTIVE_STATUS_CLASSES[(v.activeStatus as VendorActiveStatus) || "active"]
-                    )}
-                  >
-                    {VENDOR_ACTIVE_STATUS_LABELS[(v.activeStatus as VendorActiveStatus) || "active"]}
-                  </span>
-                </Td>
-                <Td>
-                  <Link href={`/admin/os/c/${codeByUuid[v.conversionUuid]}`}>
-                    {codeByUuid[v.conversionUuid]}
-                  </Link>
-                </Td>
-                <Td>{v.accountOwner || "—"}</Td>
-                <Td>{formatCurrencyINR(rollup?.received || 0)}</Td>
-                <Td>{formatCurrencyINR(rollup?.outstanding || 0)}</Td>
-                <Td>
-                  {portalUrl ? (
-                    <CopyPortalUrl url={portalUrl} />
-                  ) : (
-                    <span className="font-inter text-xs text-[var(--dash-faint)]">
-                      —
-                    </span>
-                  )}
-                </Td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </OsTable>
+      <ClientsTable rows={rows} />
     </OsPage>
   );
 }

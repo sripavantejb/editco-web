@@ -372,5 +372,7 @@ export async function deleteVendor(_prev: ActionState, formData: FormData): Prom
   });
 
   revalidatePath("/admin/os", "layout");
-  redirect("/admin/os/vendors");
+  revalidatePath("/admin/os/vendors");
+  revalidatePath("/admin/os/clients");
+  return { success: "Client deleted" };
 }

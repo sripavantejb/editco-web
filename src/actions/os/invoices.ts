@@ -247,3 +247,31 @@ export async function shareInvoiceByEmail(
   revalidatePath(clientPortalPath(invoice.conversionUuid, "/invoices"));
   return { success: `Invoice link sent to ${to}` };
 }
+
+export async function archiveInvoice(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const gate = await requireStaff("invoices:write");
+  if (!gate.ok) return { error: gate.error };
+  await connectDB();
+  const invoice = await Invoice.findById(str(formData, "id"));
+  if (!invoice || invoice.recordStatus !== "active") {
+    return { error: "Invoice not found" };
+  }
+  invoice.recordStatus = "archived";
+  invoice.updatedBy = gate.staff.email;
+  await invoice.save();
+  await logActivity({
+    title: "Invoice deleted",
+    detail: invoice.invoiceNumber,
+    createdBy: gate.staff.email,
+    conversionUuid: invoice.conversionUuid,
+    projectId: invoice.projectId?.toString(),
+    entityType: "invoice",
+    entityId: invoice._id.toString(),
+  });
+  revalidatePath("/admin/os", "layout");
+  revalidatePath("/admin/os/invoices");
+  return { success: "Invoice deleted" };
+}

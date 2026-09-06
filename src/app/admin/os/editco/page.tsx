@@ -1,33 +1,61 @@
 export const dynamic = "force-dynamic";
 
 import { requireOsPage } from "@/lib/os/page";
-import { EditcoTrackerRow, EDITCO_TRACKER_STATUSES, EDITCO_TRACKER_STATUS_LABELS, EDITCO_TRACKER_STATUS_CLASSES, EDITCO_TEAM_NAMES, type EditcoTrackerStatus } from "@/models/os/EditcoTrackerRow";
-import { createEditcoTrackerRow, updateEditcoTrackerRowStatus, deleteEditcoTrackerRow } from "@/actions/os/editco-tracker";
+import { EditcoTrackerRow } from "@/models/os/EditcoTrackerRow";
+import {
+  createEditcoTrackerRow,
+  ensureEditcoTrackerCheckIn,
+  getTodayEditcoCheckIns,
+} from "@/actions/os/editco-tracker";
 import { OsActionForm } from "@/components/os/OsActionForm";
 import { SalesModal } from "@/components/sales/SalesModal";
-import { Field, OsPage, OsTable, Td, Th, osInputClass, osTextareaClass } from "@/components/os/ui";
+import { Field, OsPage, osInputClass, osTextareaClass } from "@/components/os/ui";
 import { OsSelect } from "@/components/os/OsSelect";
-import { cn, formatDate } from "@/lib/utils";
-import { Trash2 } from "lucide-react";
-
-async function updateStatusForm(formData: FormData) {
-  "use server";
-  await updateEditcoTrackerRowStatus({}, formData);
-}
-
-async function deleteRowForm(formData: FormData) {
-  "use server";
-  await deleteEditcoTrackerRow({}, formData);
-}
+import { EditcoTrackerClient, type TrackerRowView } from "@/components/os/EditcoTrackerClient";
+import {
+  EDITCO_TEAM_NAMES,
+  EDITCO_TRACKER_STATUSES,
+  EDITCO_TRACKER_STATUS_LABELS,
+} from "@/lib/os/editco-tracker";
 
 export default async function EditcoTrackerPage() {
   await requireOsPage("*");
-  const rows = await EditcoTrackerRow.find({}).sort({ date: -1, createdAt: -1 }).limit(300).lean();
+  const [rows, checkIn, todayCheckIns] = await Promise.all([
+    EditcoTrackerRow.find({}).sort({ date: -1, createdAt: -1 }).limit(300).lean(),
+    ensureEditcoTrackerCheckIn(),
+    getTodayEditcoCheckIns(),
+  ]);
+
+  const viewRows: TrackerRowView[] = rows.map((r) => ({
+    id: String(r._id),
+    date: new Date(r.date).toISOString(),
+    projectName: r.projectName,
+    taskName: r.taskName,
+    dependency: (r.dependency as string[]) || [],
+    poc: r.poc || "",
+    status: r.status,
+    remarks: r.remarks || "",
+    history: ((r.history as Array<{
+      at: Date;
+      byEmail: string;
+      byName: string;
+      field: string;
+      from: string;
+      to: string;
+    }>) || []).map((h) => ({
+      at: new Date(h.at).toISOString(),
+      byEmail: h.byEmail || "",
+      byName: h.byName || "",
+      field: h.field || "",
+      from: h.from || "",
+      to: h.to || "",
+    })),
+  }));
 
   return (
     <OsPage
-      title="Editco"
-      subtitle="The master tracker — every project and task across the company, one row at a time."
+      title="Master Tracker"
+      subtitle="Every project and task — editable dropdowns, history, and daily clock-in."
       backHref="/admin/os"
       backLabel="Back to dashboard"
       actions={
@@ -70,7 +98,10 @@ export default async function EditcoTrackerPage() {
             <Field label="Status">
               <OsSelect
                 name="status"
-                options={EDITCO_TRACKER_STATUSES.map((s) => ({ value: s, label: EDITCO_TRACKER_STATUS_LABELS[s] }))}
+                options={EDITCO_TRACKER_STATUSES.map((s) => ({
+                  value: s,
+                  label: EDITCO_TRACKER_STATUS_LABELS[s],
+                }))}
                 defaultValue="not_yet_started"
               />
             </Field>
@@ -81,82 +112,15 @@ export default async function EditcoTrackerPage() {
         </SalesModal>
       }
     >
-      <OsTable>
-        <thead>
-          <tr>
-            <Th>Date</Th>
-            <Th>Project Name</Th>
-            <Th>Task Name</Th>
-            <Th>Dependency</Th>
-            <Th>POC</Th>
-            <Th>Status</Th>
-            <Th>Remarks</Th>
-            <Th>{null}</Th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => (
-            <tr key={String(r._id)}>
-              <Td className="whitespace-nowrap">{formatDate(r.date)}</Td>
-              <Td>{r.projectName}</Td>
-              <Td>{r.taskName}</Td>
-              <Td>
-                <div className="flex flex-wrap gap-1">
-                  {(r.dependency as string[]).map((d) => (
-                    <span key={d} className="rounded-full bg-white/10 px-2 py-0.5 font-inter text-[11px] text-[var(--dash-text)]">
-                      {d}
-                    </span>
-                  ))}
-                  {r.dependency.length === 0 ? "—" : null}
-                </div>
-              </Td>
-              <Td className="whitespace-nowrap">{r.poc || "—"}</Td>
-              <Td>
-                <details>
-                  <summary
-                    className={cn(
-                      "inline-flex cursor-pointer list-none rounded-full px-2.5 py-1 font-inter text-[11px] font-medium",
-                      EDITCO_TRACKER_STATUS_CLASSES[r.status as EditcoTrackerStatus]
-                    )}
-                  >
-                    {EDITCO_TRACKER_STATUS_LABELS[r.status as EditcoTrackerStatus]}
-                  </summary>
-                  <form action={updateStatusForm} className="mt-2 flex flex-wrap gap-1">
-                    <input type="hidden" name="rowId" value={String(r._id)} />
-                    {EDITCO_TRACKER_STATUSES.filter((s) => s !== r.status).map((s) => (
-                      <button
-                        key={s}
-                        type="submit"
-                        name="status"
-                        value={s}
-                        className={cn("rounded-full px-2 py-1 font-inter text-[10px]", EDITCO_TRACKER_STATUS_CLASSES[s])}
-                      >
-                        {EDITCO_TRACKER_STATUS_LABELS[s]}
-                      </button>
-                    ))}
-                  </form>
-                </details>
-              </Td>
-              <Td className="max-w-xs">{r.remarks || "—"}</Td>
-              <Td>
-                <form action={deleteRowForm}>
-                  <input type="hidden" name="rowId" value={String(r._id)} />
-                  <button
-                    type="submit"
-                    aria-label="Delete row"
-                    className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--dash-muted)] transition-colors hover:bg-red-500/10 hover:text-red-400"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </form>
-              </Td>
-            </tr>
-          ))}
-        </tbody>
-      </OsTable>
-      {rows.length === 0 ? (
-        <p className="mt-6 font-inter text-sm text-[var(--dash-muted)]">No rows yet. Add the first one.</p>
-      ) : null}
+      <EditcoTrackerClient
+        rows={viewRows}
+        myCheckInAt={checkIn?.checkedInAt ?? null}
+        todayCheckIns={todayCheckIns.map((c) => ({
+          email: c.email,
+          name: c.name || c.email,
+          checkedInAt: c.checkedInAt,
+        }))}
+      />
     </OsPage>
   );
 }

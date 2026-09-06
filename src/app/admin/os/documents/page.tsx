@@ -4,12 +4,13 @@ import { requireOsPage } from "@/lib/os/page";
 import { OsDocument } from "@/models/os/Document";
 import { Conversion } from "@/models/os/Conversion";
 import { Project } from "@/models/os/Project";
-import { uploadDocument } from "@/actions/os/documents";
+import { uploadDocument, archiveDocument } from "@/actions/os/documents";
 import { OsActionForm } from "@/components/os/OsActionForm";
 import { OsPage, osInputClass } from "@/components/os/ui";
 import { OsSelect } from "@/components/os/OsSelect";
 import { formatDate } from "@/lib/utils";
 import { hasPermission } from "@/lib/os/permissions";
+import { RowDeleteButton } from "@/components/os/RowDeleteButton";
 
 export default async function DocumentsPage() {
   const staff = await requireOsPage("documents:read");
@@ -45,17 +46,29 @@ export default async function DocumentsPage() {
       ) : null}
       <ul className="space-y-2 font-inter text-sm">
         {docs.map((d) => (
-          <li key={String(d._id)} className="rounded-xl border border-[var(--dash-border)] px-4 py-3">
-            {d.title} {d.fileName ? `· ${d.fileName}` : ""} · {formatDate(d.createdAt)}
-            {d.visibleToClient ? " · client" : " · internal"}
-            {d.dataBase64 ? (
-              <a
-                className="ml-2 text-[var(--dash-accent)]"
-                href={`data:${d.mimeType};base64,${d.dataBase64}`}
-                download={d.fileName || d.title}
-              >
-                Download
-              </a>
+          <li
+            key={String(d._id)}
+            className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--dash-border)] px-4 py-3"
+          >
+            <span>
+              {d.title} {d.fileName ? `· ${d.fileName}` : ""} · {formatDate(d.createdAt)}
+              {d.visibleToClient ? " · client" : " · internal"}
+              {d.dataBase64 ? (
+                <a
+                  className="ml-2 text-[var(--dash-accent)]"
+                  href={`data:${d.mimeType};base64,${d.dataBase64}`}
+                  download={d.fileName || d.title}
+                >
+                  Download
+                </a>
+              ) : null}
+            </span>
+            {hasPermission(staff.permissions, "documents:write") ? (
+              <RowDeleteButton
+                action={archiveDocument}
+                id={String(d._id)}
+                confirmMessage={`Delete document "${d.title}"?`}
+              />
             ) : null}
           </li>
         ))}

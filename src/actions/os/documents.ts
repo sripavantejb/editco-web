@@ -76,3 +76,31 @@ export async function toggleDocumentVisibility(formData: FormData) {
   revalidatePath("/admin/os", "layout");
   return { success: "Updated" };
 }
+
+export async function archiveDocument(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const gate = await requireStaff("documents:write");
+  if (!gate.ok) return { error: gate.error };
+  await connectDB();
+  const doc = await OsDocument.findById(str(formData, "id"));
+  if (!doc || doc.recordStatus !== "active") {
+    return { error: "Document not found" };
+  }
+  doc.recordStatus = "archived";
+  doc.updatedBy = gate.staff.email;
+  await doc.save();
+  await logActivity({
+    title: "Document deleted",
+    detail: doc.title,
+    createdBy: gate.staff.email,
+    conversionUuid: doc.conversionUuid,
+    projectId: doc.projectId?.toString(),
+    entityType: "document",
+    entityId: doc._id.toString(),
+  });
+  revalidatePath("/admin/os", "layout");
+  revalidatePath("/admin/os/documents");
+  return { success: "Document deleted" };
+}

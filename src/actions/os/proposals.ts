@@ -181,3 +181,22 @@ export async function updateProposalStatus(
   return { success: "Proposal updated" };
 }
 
+export async function archiveProposal(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const gate = await requireStaff("proposals:write");
+  if (!gate.ok) return { error: gate.error };
+  await connectDB();
+  const proposal = await Proposal.findById(str(formData, "id"));
+  if (!proposal || proposal.recordStatus !== "active") {
+    return { error: "Proposal not found" };
+  }
+  proposal.recordStatus = "archived";
+  proposal.updatedBy = gate.staff.email;
+  await proposal.save();
+  revalidateSales();
+  revalidatePath("/admin/os/proposals");
+  return { success: "Proposal deleted" };
+}
+

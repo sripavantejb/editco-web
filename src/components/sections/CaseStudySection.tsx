@@ -20,7 +20,7 @@ export function CaseStudySection() {
   return (
     <section
       id={caseStudy.id}
-      className={`relative min-h-screen bg-gaude-black py-24 ${sectionFlow}`}
+      className={`relative min-h-screen bg-gaude-black py-28 md:py-36 ${sectionFlow}`}
     >
       <div className="mx-auto max-w-[1400px] px-4 md:px-8">
         <div className="mb-10 md:mb-16">

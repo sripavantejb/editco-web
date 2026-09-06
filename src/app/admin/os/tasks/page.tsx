@@ -8,10 +8,10 @@ import { StaffUser } from "@/models/os/StaffUser";
 import { TaskDependency } from "@/models/os/TaskDependency";
 import { TaskComment } from "@/models/os/TaskComment";
 import { TaskWorkSession } from "@/models/os/TaskWorkSession";
-import { createTask, migrateTaskStatuses } from "@/actions/os/tasks";
-import { OsActionForm } from "@/components/os/OsActionForm";
+import { migrateTaskStatuses } from "@/actions/os/tasks";
 import { TaskCard } from "@/components/os/TaskCard";
-import { Field, OsPage, OsLink, osInputClass } from "@/components/os/ui";
+import { AddTaskDrawer } from "@/components/os/AddTaskDrawer";
+import { OsPage, OsLink } from "@/components/os/ui";
 import { OsSelect } from "@/components/os/OsSelect";
 import {
   TASK_STATUSES,
@@ -22,7 +22,6 @@ import {
 import { hasPermission } from "@/lib/os/permissions";
 import { projectIdsForStaff, staffCanManageAllProjects } from "@/lib/os/project-access";
 import { sumSessionDurations } from "@/lib/os/task-timing";
-import { OsDateInput } from "@/components/os/OsDateInput";
 
 function startOfDay(d = new Date()) {
   const x = new Date(d);
@@ -175,7 +174,20 @@ export default async function TasksPage({
       subtitle="Project execution — assignments, timing, and daily work."
       backHref="/admin/os"
       backLabel="Back to dashboard"
-      actions={<OsLink href="/admin/os/tasks?view=my">My tasks</OsLink>}
+      actions={
+        <div className="flex flex-wrap items-center gap-2">
+          <OsLink href="/admin/os/tasks?view=my">My tasks</OsLink>
+          {canWrite ? (
+            <AddTaskDrawer
+              projects={allProjects.map((p) => ({ id: String(p._id), name: p.name }))}
+              staffUsers={staffUsers.map((u) => ({
+                id: String(u._id),
+                label: u.name || u.email,
+              }))}
+            />
+          ) : null}
+        </div>
+      }
     >
       <nav className="mb-6 flex flex-wrap gap-2">
         {views.map((v) => (
@@ -228,49 +240,6 @@ export default async function TasksPage({
         </button>
       </form>
 
-      {canWrite ? (
-        <OsActionForm
-          action={createTask}
-          submitLabel="Add task"
-          className="mb-8 grid max-w-xl gap-2 rounded-2xl border border-[var(--dash-border)] p-4"
-        >
-          <Field label="Project">
-            <OsSelect
-              name="projectId"
-              required
-              defaultValue=""
-              placeholder="Select project"
-              options={allProjects.map((p) => ({ value: String(p._id), label: p.name }))}
-            />
-          </Field>
-          <Field label="Title">
-            <input name="title" required className={osInputClass()} />
-          </Field>
-          <Field label="Assign to">
-            <OsSelect
-              name="assignedToId"
-              required
-              defaultValue=""
-              placeholder="Select assignee"
-              options={staffUsers.map((u) => ({ value: String(u._id), label: u.name || u.email }))}
-            />
-          </Field>
-          <Field label="Priority">
-            <OsSelect
-              name="priority"
-              defaultValue="medium"
-              options={TASK_PRIORITIES.map((p) => ({ value: p, label: TASK_PRIORITY_LABELS[p] }))}
-            />
-          </Field>
-          <Field label="Due date">
-            <OsDateInput name="dueDate" />
-          </Field>
-          <p className="font-inter text-xs text-[var(--dash-muted)]">
-            Assignee must be a member of the selected project.
-          </p>
-        </OsActionForm>
-      ) : null}
-
       {byProject ? (
         <div className="space-y-8">
           {byProject.map(([pid, list]) => (
@@ -295,6 +264,7 @@ export default async function TasksPage({
                     dependencyCount={depCount.get(String(t._id)) || 0}
                     commentCount={commentCount.get(String(t._id)) || 0}
                     actualDurationMs={durationByTask.get(String(t._id)) || 0}
+                    canDelete={canWrite}
                   />
                 ))}
               </div>
@@ -319,6 +289,7 @@ export default async function TasksPage({
               dependencyCount={depCount.get(String(t._id)) || 0}
               commentCount={commentCount.get(String(t._id)) || 0}
               actualDurationMs={durationByTask.get(String(t._id)) || 0}
+              canDelete={canWrite}
             />
           ))}
           {tasks.length === 0 ? (

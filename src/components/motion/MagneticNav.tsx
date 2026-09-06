@@ -1,14 +1,27 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { desktopNavLinks, navLinks } from "@/content/nav";
 import { site } from "@/content/site";
 import { motion, AnimatePresence } from "framer-motion";
+import { PrefetchNavRoutes } from "@/components/portal/PrefetchNavRoutes";
+
+const PUBLIC_PREFETCH = [
+  "/blog",
+  "/careers",
+  "/refer",
+  "/services",
+  "/work",
+  "/sales/login",
+  "/sales/login/employee",
+];
 
 export function MagneticNav() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const hideOnAppRoutes =
@@ -41,6 +54,12 @@ export function MagneticNav() {
     };
   }, [isOpen, hideOnAppRoutes]);
 
+  // Close overlay after the route actually changes — closing on click used to
+  // unmount the <Link> mid-navigation (Staff / Careers / etc. felt dead).
+  useEffect(() => {
+    closeMenu();
+  }, [pathname, closeMenu]);
+
   if (hideOnAppRoutes) return null;
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -52,9 +71,14 @@ export function MagneticNav() {
         if (el) el.scrollIntoView({ behavior: "smooth" });
       }
       closeMenu();
-    } else {
-      closeMenu();
+      return;
     }
+    // Push before unmounting the overlay so Staff / Blog / Careers always navigate.
+    e.preventDefault();
+    startTransition(() => {
+      router.push(href);
+    });
+    closeMenu();
   };
 
   const getActiveHref = (href: string) => {
@@ -62,6 +86,28 @@ export function MagneticNav() {
       return `/${href}`;
     }
     return href;
+  };
+
+  const renderNavHref = (
+    href: string,
+    className: string,
+    label: string,
+    onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void
+  ) => {
+    const to = getActiveHref(href);
+    const click = onClick ?? ((e: React.MouseEvent<HTMLAnchorElement>) => handleNavClick(e, href));
+    if (href.startsWith("#")) {
+      return (
+        <a key={label} href={to} onClick={click} className={className}>
+          {label}
+        </a>
+      );
+    }
+    return (
+      <Link key={label} href={to} prefetch onClick={click} className={className}>
+        {label}
+      </Link>
+    );
   };
 
   const smoothSpring = {
@@ -73,6 +119,7 @@ export function MagneticNav() {
 
   return (
     <>
+      <PrefetchNavRoutes hrefs={PUBLIC_PREFETCH} />
       {/* 1. Main Centered Pill - Hides on scroll */}
       <div className="fixed inset-x-0 top-6 z-[200] flex justify-center px-4 pointer-events-none sm:top-8 sm:px-6">
         <AnimatePresence mode="wait">
@@ -111,26 +158,18 @@ export function MagneticNav() {
                       ? "hidden lg:inline-flex"
                       : "inline-flex";
                   if (isReferral) {
-                    return (
-                      <a
-                        key={link.label}
-                        href={getActiveHref(link.href)}
-                        onClick={(e) => handleNavClick(e, link.href)}
-                        className={`nav-referral shrink-0 font-archivo text-[9px] font-bold uppercase tracking-widest text-white/70 transition-colors hover:text-white lg:text-[10px] ${visibility}`}
-                      >
-                        <span className="px-2.5 py-2 lg:px-3.5">{link.label}</span>
-                      </a>
+                    return renderNavHref(
+                      link.href,
+                      `nav-referral shrink-0 px-2.5 py-2 font-archivo text-[9px] font-bold uppercase tracking-widest text-white/70 transition-colors hover:text-white lg:px-3.5 lg:text-[10px] ${visibility}`,
+                      link.label,
+                      (e) => handleNavClick(e, link.href)
                     );
                   }
-                  return (
-                    <a
-                      key={link.label}
-                      href={getActiveHref(link.href)}
-                      onClick={(e) => handleNavClick(e, link.href)}
-                      className={`shrink-0 items-center rounded-full px-2.5 py-2 font-archivo text-[9px] font-bold uppercase tracking-widest whitespace-nowrap text-white/70 transition-all hover:bg-white/10 hover:text-white lg:px-3.5 lg:text-[10px] ${visibility}`}
-                    >
-                      {link.label}
-                    </a>
+                  return renderNavHref(
+                    link.href,
+                    `shrink-0 items-center rounded-full px-2.5 py-2 font-archivo text-[9px] font-bold uppercase tracking-widest whitespace-nowrap text-white/70 transition-all hover:bg-white/10 hover:text-white lg:px-3.5 lg:text-[10px] ${visibility}`,
+                    link.label,
+                    (e) => handleNavClick(e, link.href)
                   );
                 })}
               </div>
@@ -266,17 +305,13 @@ export function MagneticNav() {
                 <nav className="flex flex-col items-start md:items-end">
                   {navLinks.map((link) => {
                     const isReferral = link.href === "/refer";
-                    return (
-                      <a
-                        key={link.href}
-                        href={getActiveHref(link.href)}
-                        onClick={(e) => handleNavClick(e, link.href)}
-                        className={`font-inter text-[clamp(1.5rem,4.2vw,2.55rem)] font-medium leading-[1.12] tracking-[-0.02em] text-black transition-opacity hover:opacity-45 ${
-                          isReferral ? "text-gaude-orange hover:opacity-80" : ""
-                        }`}
-                      >
-                        {link.label}
-                      </a>
+                    return renderNavHref(
+                      link.href,
+                      `font-inter text-[clamp(1.5rem,4.2vw,2.55rem)] font-medium leading-[1.12] tracking-[-0.02em] text-black transition-opacity hover:opacity-45 ${
+                        isReferral ? "text-gaude-orange hover:opacity-80" : ""
+                      }`,
+                      link.label,
+                      (e) => handleNavClick(e, link.href)
                     );
                   })}
                 </nav>

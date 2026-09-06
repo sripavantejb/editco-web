@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { requireSalesEmployeeSession } from "@/lib/sales/page";
 import { SalesLead } from "@/models/sales/SalesLead";
-import { OsBadge, OsPage, OsStat } from "@/components/os/ui";
+import { OsBadge, OsPage, OsStat, OsLink, CardTitle } from "@/components/os/ui";
 import { SALES_LEAD_STATUS_LABELS, type SalesLeadStatus } from "@/lib/sales/constants";
 import { salesLeadTone } from "@/lib/sales/tone";
 import { formatDate } from "@/lib/utils";
@@ -12,69 +12,82 @@ export default async function SalesEmployeeDashboardPage() {
   const staff = await requireSalesEmployeeSession();
   const canSeeLeads = staff.isSalesAdmin || staff.effective["leads.management"];
 
-  const myLeads = canSeeLeads
-    ? await SalesLead.find({
-        ...(staff.isSalesAdmin ? {} : { assignedEmployeeId: staff.employeeId }),
-        recordStatus: "active",
+  const scope = staff.isSalesAdmin ? {} : { assignedEmployeeId: staff.employeeId };
+  const baseFilter = { ...scope, recordStatus: "active" as const };
+
+  let openLeads = 0;
+  let newCount = 0;
+  let dueFollowUps = 0;
+  let totalCount = 0;
+  let recentOpen: {
+    _id: unknown;
+    contactPerson?: string;
+    company?: string;
+    status: string;
+    nextFollowUpAt?: Date | null;
+  }[] = [];
+
+  if (canSeeLeads) {
+    [openLeads, newCount, dueFollowUps, totalCount, recentOpen] = await Promise.all([
+      SalesLead.countDocuments({
+        ...baseFilter,
+        status: { $nin: ["converted", "lost"] },
+      }),
+      SalesLead.countDocuments({ ...baseFilter, status: "new" }),
+      SalesLead.countDocuments({
+        ...baseFilter,
+        nextFollowUpAt: { $lte: new Date() },
+        status: { $nin: ["converted", "lost"] },
+      }),
+      SalesLead.countDocuments(baseFilter),
+      SalesLead.find({
+        ...baseFilter,
+        status: { $nin: ["converted", "lost"] },
       })
         .sort({ updatedAt: -1 })
-        .lean()
-    : [];
-
-  const openLeads = myLeads.filter((l) => !["converted", "lost"].includes(l.status));
-  const dueFollowUps = myLeads.filter(
-    (l) => l.nextFollowUpAt && new Date(l.nextFollowUpAt) <= new Date()
-  );
-  const newLeads = myLeads.filter((l) => l.status === "new");
+        .limit(8)
+        .select("contactPerson company status nextFollowUpAt")
+        .lean(),
+    ]);
+  }
 
   return (
     <OsPage
-      title={`Welcome back, ${staff.name.split(" ")[0]}`}
-      subtitle="Here's what needs your attention today."
+      title="Dashboard"
+      subtitle={`Welcome back, ${staff.name.split(" ")[0]} — here's what needs attention today.`}
       actions={
-        canSeeLeads ? (
-          <Link
-            href="/sales/employee/leads/new"
-            className="inline-flex min-h-11 items-center rounded-full bg-[var(--dash-accent)] px-5 font-archivo text-xs uppercase tracking-[0.08em] text-[var(--dash-on-accent)]"
-          >
-            Add lead
-          </Link>
-        ) : undefined
+        canSeeLeads ? <OsLink href="/sales/employee/leads/new">Add lead</OsLink> : undefined
       }
     >
       {!canSeeLeads ? (
-        <div className="rounded-[20px] border border-dashed border-[var(--dash-border)] p-10 text-center">
-          <p className="font-inter text-sm text-[var(--dash-muted)]">
+        <div className="rounded-xl border border-dashed border-[var(--dash-border)] bg-white p-10 text-center">
+          <p className="font-inter text-sm text-[#6b7280]">
             Your admin hasn&apos;t enabled the Sales Dashboard widgets for your account yet.
             Use the sidebar to get to work.
           </p>
         </div>
       ) : (
         <>
-          <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <OsStat label="My open leads" value={String(openLeads.length)} />
-            <OsStat label="New leads" value={String(newLeads.length)} />
-            <OsStat label="Follow-ups due" value={String(dueFollowUps.length)} />
-            <OsStat label="Total leads" value={String(myLeads.length)} />
+          <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <OsStat label="My open leads" value={String(openLeads)} />
+            <OsStat label="New leads" value={String(newCount)} />
+            <OsStat label="Follow-ups due" value={String(dueFollowUps)} />
+            <OsStat label="Total leads" value={String(totalCount)} />
           </div>
 
-          <section className="rounded-[20px] border border-[var(--dash-border)] p-5">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="font-archivo text-sm uppercase tracking-wide text-[var(--dash-text)]">
-                Today's leads
-              </h2>
-              <Link href="/sales/employee/leads" className="font-inter text-sm text-[var(--dash-accent)]">
-                View all
-              </Link>
-            </div>
-            <ul className="space-y-2 font-inter text-sm">
-              {openLeads.slice(0, 8).map((lead) => (
-                <li key={String(lead._id)} className="flex items-center justify-between">
-                  <Link href={`/sales/employee/leads/${lead._id}`} className="text-[var(--dash-text)]">
+          <section className="flex max-h-72 flex-col overflow-hidden rounded-xl border border-[var(--dash-border)] bg-white p-5">
+            <CardTitle title="Open leads" href="/sales/employee/leads" />
+            <ul className="min-h-0 flex-1 space-y-2.5 overflow-y-auto pr-3 font-inter text-sm [scrollbar-gutter:stable]">
+              {recentOpen.map((lead) => (
+                <li key={String(lead._id)} className="flex items-center justify-between gap-3">
+                  <Link
+                    href={`/sales/employee/leads/${lead._id}`}
+                    className="truncate font-medium text-[#111111]"
+                  >
                     {lead.contactPerson}
                     {lead.company ? ` · ${lead.company}` : ""}
                   </Link>
-                  <span className="flex items-center gap-2 text-[var(--dash-muted)]">
+                  <span className="flex shrink-0 items-center gap-2 text-[12px] text-[#6b7280]">
                     <OsBadge tone={salesLeadTone(lead.status)}>
                       {SALES_LEAD_STATUS_LABELS[lead.status as SalesLeadStatus]}
                     </OsBadge>
@@ -82,10 +95,10 @@ export default async function SalesEmployeeDashboardPage() {
                   </span>
                 </li>
               ))}
-              {openLeads.length === 0 ? (
-                <li className="text-[var(--dash-muted)]">
+              {recentOpen.length === 0 ? (
+                <li className="text-[#6b7280]">
                   No open leads right now.{" "}
-                  <Link href="/sales/employee/leads/new" className="text-[var(--dash-accent)]">
+                  <Link href="/sales/employee/leads/new" className="font-medium text-[#111111]">
                     Add your first lead
                   </Link>
                   .

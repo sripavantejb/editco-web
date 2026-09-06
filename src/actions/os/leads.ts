@@ -269,7 +269,10 @@ export async function changeLeadStatus(
   return { success: "Status recorded" };
 }
 
-export async function archiveLead(formData: FormData): Promise<ActionState> {
+export async function archiveLead(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
   const gate = await requireStaff("leads:write");
   if (!gate.ok) return { error: gate.error };
   await connectDB();
@@ -277,11 +280,11 @@ export async function archiveLead(formData: FormData): Promise<ActionState> {
   const lead = await Lead.findById(id);
   if (!lead) return { error: "Lead not found" };
   if (lead.status === "converted") {
-    return { error: "Cannot archive a converted lead" };
+    return { error: "Cannot delete a converted lead" };
   }
   lead.recordStatus = "archived";
   lead.updatedBy = gate.staff.email;
   await lead.save();
   revalidateLeads();
-  redirect("/admin/os/leads");
+  return { success: "Lead deleted" };
 }

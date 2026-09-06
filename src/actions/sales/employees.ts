@@ -140,7 +140,7 @@ export async function deleteSalesEmployee(_prev: ActionState, formData: FormData
   const gate = await requireSalesAdminAction();
   if (!gate.ok) return { error: gate.error };
 
-  const employeeId = String(formData.get("employeeId") || "");
+  const employeeId = String(formData.get("employeeId") || formData.get("id") || "");
   if (!employeeId) return { error: "Invalid employee" };
 
   await connectDB();

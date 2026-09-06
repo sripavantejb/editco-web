@@ -339,6 +339,7 @@ export async function setVaultProjectStatus(
 }
 
 export async function archiveVaultProject(
+  _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
   const gate = await requireStaff("vault:write");
@@ -352,14 +353,14 @@ export async function archiveVaultProject(
   project.updatedBy = gate.staff.email;
   await project.save();
   await logActivity({
-    title: "Vault project archived",
+    title: "Vault project deleted",
     detail: project.name,
     createdBy: gate.staff.email,
     entityType: "vault_project",
     entityId: id,
   });
   revalidateVault();
-  redirect("/admin/os/projects-vault");
+  return { success: "Vault project deleted" };
 }
 
 export async function updateVaultProjectMessages(

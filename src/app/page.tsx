@@ -1,4 +1,5 @@
 import { SlamVisibilityProvider } from "@/components/motion/SlamVisibilityProvider";
+import { HomeSmoothScroll } from "@/components/motion/HomeSmoothScroll";
 import { CaseStudySection } from "@/components/sections/CaseStudySection";
 import { CalculatorSection } from "@/components/sections/CalculatorSection";
 import { ClientsSection } from "@/components/sections/ClientsSection";
@@ -19,6 +20,7 @@ import { WhySection } from "@/components/sections/WhySection";
 export default function Home() {
   return (
     <SlamVisibilityProvider>
+      <HomeSmoothScroll />
       <main id="main" className="relative w-full overflow-x-clip">
         <HeroSection />
         <ProblemSection />

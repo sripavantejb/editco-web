@@ -8,7 +8,7 @@ import { SalesActivityEvent } from "@/models/sales/SalesActivityEvent";
 import { updateSalesLeadStatus, updateSalesLeadQualification, deleteSalesLead } from "@/actions/sales/leads";
 import { OsActionForm } from "@/components/os/OsActionForm";
 import { OsSelect } from "@/components/os/OsSelect";
-import { Field, OsBadge, OsPage, osInputClass, osTextareaClass } from "@/components/os/ui";
+import { CardTitle, Field, OsBadge, OsPage, osInputClass, osTextareaClass } from "@/components/os/ui";
 import { SALES_LEAD_STATUS_LABELS, type SalesLeadStatus } from "@/lib/sales/constants";
 import { salesLeadTone } from "@/lib/sales/tone";
 import { formatDateTime } from "@/lib/utils";
@@ -33,16 +33,16 @@ export default async function SalesLeadDetailPage({
       title={lead.contactPerson}
       subtitle={lead.company || "No company on file"}
       backHref="/sales/employee/leads"
-      backLabel="Back to leads"
+      backLabel="Leads"
     >
       <div className="mb-6 flex items-center gap-2">
         <OsBadge tone={salesLeadTone(lead.status)}>{SALES_LEAD_STATUS_LABELS[lead.status as SalesLeadStatus]}</OsBadge>
-        <span className="font-inter text-sm text-[var(--dash-muted)]">{lead.email || lead.phone || "No contact info"}</span>
+        <span className="font-inter text-sm text-[#6b7280]">{lead.email || lead.phone || "No contact info"}</span>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-[20px] border border-[var(--dash-border)] p-5">
-          <h2 className="mb-3 font-archivo text-sm uppercase tracking-wide text-[var(--dash-text)]">Status</h2>
+        <section className="rounded-xl border border-[var(--dash-border)] bg-white p-5">
+          <CardTitle title="Status" />
           <OsActionForm action={updateSalesLeadStatus} submitLabel="Update status" className="grid gap-3">
             <input type="hidden" name="leadId" value={leadId} />
             <Field label="Status">
@@ -54,14 +54,12 @@ export default async function SalesLeadDetailPage({
             </Field>
           </OsActionForm>
           <OsActionForm action={deleteSalesLead} submitLabel="Remove lead" className="mt-4">
-            <input type="hidden" name="leadId" value={leadId} />
+            <input type="hidden" name="id" value={leadId} />
           </OsActionForm>
         </section>
 
-        <section className="rounded-[20px] border border-[var(--dash-border)] p-5">
-          <h2 className="mb-3 font-archivo text-sm uppercase tracking-wide text-[var(--dash-text)]">
-            Qualification
-          </h2>
+        <section className="rounded-xl border border-[var(--dash-border)] bg-white p-5">
+          <CardTitle title="Qualification" />
           <OsActionForm action={updateSalesLeadQualification} submitLabel="Save qualification" className="grid gap-3">
             <input type="hidden" name="leadId" value={leadId} />
             <Field label="Requirements / business need">
@@ -91,16 +89,21 @@ export default async function SalesLeadDetailPage({
         </section>
       </div>
 
-      <section className="mt-8">
-        <h2 className="mb-3 font-archivo text-sm uppercase tracking-wide text-[var(--dash-text)]">Activity timeline</h2>
+      <section className="mt-6 rounded-xl border border-[var(--dash-border)] bg-white p-5">
+        <CardTitle title="Activity" />
         <ul className="space-y-2">
           {timeline.map((event) => (
-            <li key={String(event._id)} className="rounded-xl border border-[var(--dash-border)] px-4 py-3 font-inter text-sm">
-              <span className="text-[var(--dash-text)]">{event.title}</span>
-              <span className="ml-2 text-[var(--dash-faint)]">{formatDateTime(event.createdAt)}</span>
+            <li
+              key={String(event._id)}
+              className="rounded-xl border border-[#e5e7eb] px-4 py-3 font-inter text-sm"
+            >
+              <span className="text-[#111111]">{event.title}</span>
+              <span className="ml-2 text-[#898989]">{formatDateTime(event.createdAt)}</span>
             </li>
           ))}
-          {timeline.length === 0 ? <li className="font-inter text-sm text-[var(--dash-muted)]">No activity yet.</li> : null}
+          {timeline.length === 0 ? (
+            <li className="font-inter text-sm text-[#6b7280]">No activity yet.</li>
+          ) : null}
         </ul>
       </section>
     </OsPage>

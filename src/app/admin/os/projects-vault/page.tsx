@@ -19,6 +19,8 @@ import {
 import { VaultPasswordReveal } from "@/components/os/VaultPasswordReveal";
 import { hasPermission } from "@/lib/os/permissions";
 import type { StaffContext } from "@/lib/os/staff";
+import { RowDeleteButton } from "@/components/os/RowDeleteButton";
+import { archiveVaultProject } from "@/actions/os/vault-projects";
 
 function vaultTone(
   status: string
@@ -194,6 +196,13 @@ export default async function ProjectsVaultPage({
                     >
                       Edit
                     </Link>
+                  ) : null}
+                  {canWrite ? (
+                    <RowDeleteButton
+                      action={archiveVaultProject}
+                      id={id}
+                      confirmMessage={`Delete vault project "${p.name}"?`}
+                    />
                   ) : null}
                 </div>
               </div>

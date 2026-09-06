@@ -1,6 +1,5 @@
 export const dynamic = "force-dynamic";
 
-import { getAdminSession } from "@/lib/session";
 import { getStaffContext } from "@/lib/os/guard";
 import { AdminShell } from "@/components/referral/AdminShell";
 
@@ -9,12 +8,13 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getAdminSession();
-  const staff = session ? await getStaffContext() : null;
+  // getStaffContext is React.cache()'d and already reads the admin session —
+  // one JWT verify + one staff lookup shared with page guards.
+  const staff = await getStaffContext();
 
   return (
     <AdminShell
-      email={session?.email ?? null}
+      email={staff?.email ?? null}
       role={staff?.role}
       permissions={staff?.permissions}
     >

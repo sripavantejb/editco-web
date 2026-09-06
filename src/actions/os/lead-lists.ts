@@ -63,3 +63,28 @@ export async function createLeadList(
   redirect(`/admin/os/leads/lists/${list._id}`);
 }
 
+export async function archiveLeadList(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const gate = await requireStaff("leads:write");
+  if (!gate.ok) return { error: gate.error };
+  await connectDB();
+  const list = await LeadList.findById(str(formData, "id"));
+  if (!list || list.recordStatus !== "active") {
+    return { error: "Lead list not found" };
+  }
+  list.recordStatus = "archived";
+  list.updatedBy = gate.staff.email;
+  await list.save();
+  await logActivity({
+    title: "Lead list deleted",
+    detail: list.name,
+    createdBy: gate.staff.email,
+    entityType: "lead_list",
+    entityId: list._id.toString(),
+  });
+  revalidateLeads();
+  return { success: "Lead list deleted" };
+}
+

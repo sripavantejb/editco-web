@@ -53,7 +53,7 @@ export function TechSection() {
   return (
     <section
       id={tech.id}
-      className={`flex min-h-[60svh] flex-col justify-center overflow-x-clip bg-white px-4 py-16 md:min-h-[70svh] md:px-8 md:py-24 ${sectionFlowAfter}`}
+      className={`flex min-h-[60svh] flex-col justify-center overflow-x-clip bg-white px-4 py-24 md:min-h-[70svh] md:px-8 md:py-32 ${sectionFlowAfter}`}
     >
       <div className="mx-auto w-full max-w-6xl">
         <div className="mb-12">

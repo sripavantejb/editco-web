@@ -505,24 +505,104 @@ iframe {
   background-color: #1a1a1a !important;
 }
 
-/* Admin portal — same lime green as partner dashboard */
+/* Admin / Sales portals — CrewCo HRMS white + black professional theme */
 .admin-theme {
-  --color-gaude-orange: #c8f542;
-  --dash-accent: #c8f542;
-  --dash-on-accent: #0a0a0a;
-  --dash-accent-soft: rgba(200, 245, 66, 0.16);
-  --dash-muted: rgba(245, 245, 245, 0.55);
-  --dash-text: #f5f5f5;
-  --dash-faint: rgba(245, 245, 245, 0.36);
-  --dash-border: rgba(255, 255, 255, 0.1);
-  --dash-surface: rgba(255, 255, 255, 0.035);
-  --dash-hover: rgba(255, 255, 255, 0.05);
-  --dash-bg: #0c0c0c;
+  color-scheme: light;
+  --color-gaude-orange: #111111;
+  --dash-accent: #111111;
+  --dash-accent-hover: #242424;
+  --dash-on-accent: #ffffff;
+  --dash-accent-soft: #f5f5f5;
+  --dash-accent-glow: rgba(17, 17, 17, 0.08);
+  --dash-bg: #f8f9fa;
+  --dash-surface: #ffffff;
+  --dash-surface-strong: #f5f5f5;
+  --dash-border: #e5e7eb;
+  --dash-text: #111111;
+  --dash-muted: #6b7280;
+  --dash-faint: #898989;
+  --dash-nav: #ffffff;
+  --dash-input: #ffffff;
+  --dash-hover: #f5f5f5;
+  --dash-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  background-color: var(--dash-bg);
+  color: var(--dash-text);
 }
 
 .admin-theme .dash-pill-active {
+  background-color: var(--dash-surface-strong);
+  color: var(--dash-text);
+}
+
+.admin-theme .dash-cta {
   background-color: var(--dash-accent);
   color: var(--dash-on-accent);
+  box-shadow: none;
+}
+.admin-theme .dash-cta:hover {
+  background-color: var(--dash-accent-hover);
+}
+
+.admin-theme .bg-gaude-orange {
+  background-color: #111111 !important;
+  color: #ffffff;
+}
+.admin-theme .bg-gaude-orange:hover {
+  background-color: #242424 !important;
+}
+
+.admin-theme select,
+.admin-theme .os-select {
+  background-color: #ffffff;
+  color: var(--dash-text);
+  border-color: var(--dash-border);
+  color-scheme: light;
+}
+.admin-theme select option,
+.admin-theme .os-select option {
+  background-color: #ffffff;
+  color: #111111;
+}
+.admin-theme .os-custom-select-trigger {
+  background-color: #ffffff !important;
+  color: var(--dash-text);
+  border-color: var(--dash-border);
+}
+.admin-theme .os-custom-select-menu {
+  background-color: #ffffff !important;
+  border-color: var(--dash-border);
+  color: #111111;
+}
+.admin-theme input[type="date"],
+.admin-theme input[type="datetime-local"],
+.admin-theme .os-date-input {
+  color-scheme: light;
+  color: var(--dash-text);
+}
+.admin-theme input[type="date"]::-webkit-calendar-picker-indicator,
+.admin-theme input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: none;
+}
+
+/* Thin portal scrollbars — keep scrolling without big chrome */
+.admin-theme,
+.admin-theme * {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+}
+.admin-theme::-webkit-scrollbar,
+.admin-theme *::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.admin-theme::-webkit-scrollbar-thumb,
+.admin-theme *::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 9999px;
+}
+.admin-theme::-webkit-scrollbar-track,
+.admin-theme *::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 /* EGA admin — same violet as /ega public form, not referral lime */

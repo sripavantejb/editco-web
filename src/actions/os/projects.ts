@@ -499,6 +499,37 @@ export async function removeProjectMember(
   return { success: "Member removed" };
 }
 
+export async function archiveProject(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const gate = await requireStaff("projects:write");
+  if (!gate.ok) return { error: gate.error };
+  await connectDB();
+  const id = str(formData, "id");
+  const project = await Project.findById(id);
+  if (!project || project.recordStatus !== "active") {
+    return { error: "Project not found" };
+  }
+  if (!(await canManageProject(gate.staff, project))) {
+    return { error: "You cannot delete this project" };
+  }
+  project.recordStatus = "archived";
+  project.updatedBy = gate.staff.email;
+  await project.save();
+  await logActivity({
+    title: "Project deleted",
+    detail: project.name,
+    createdBy: gate.staff.email,
+    conversionUuid: project.conversionUuid,
+    projectId: String(project._id),
+    entityType: "project",
+    entityId: String(project._id),
+  });
+  revalidateProject(String(project._id), project.conversionUuid);
+  return { success: "Project deleted" };
+}
+
 export async function assertProjectReadable(
   staff: Parameters<typeof canViewProject>[0],
   projectId: string

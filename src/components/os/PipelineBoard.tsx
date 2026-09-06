@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 import { OsActionForm } from "@/components/os/OsActionForm";
 import { Field, OsBadge, leadTone, osInputClass } from "@/components/os/ui";
-import { changeLeadStatus } from "@/actions/os/leads";
+import { changeLeadStatus, archiveLead } from "@/actions/os/leads";
 import { LEAD_STATUS_LABELS, type LeadStatus } from "@/lib/os/constants";
+import { RowDeleteButton } from "@/components/os/RowDeleteButton";
 
 type LeanLead = {
   _id: string;
@@ -148,8 +149,17 @@ export function PipelineBoard({
                       </p>
                     </Link>
 
-                    <div className="mt-2">
-                      <OsBadge tone={leadTone(lead.status)}>{LEAD_STATUS_LABELS[lead.status]}</OsBadge>
+                    <div className="mt-2 flex items-center justify-between gap-2">
+                      <OsBadge tone={leadTone(lead.status)}>
+                        {LEAD_STATUS_LABELS[lead.status]}
+                      </OsBadge>
+                      {canWrite ? (
+                        <RowDeleteButton
+                          action={archiveLead}
+                          id={String(lead._id)}
+                          confirmMessage={`Delete lead "${lead.name}"?`}
+                        />
+                      ) : null}
                     </div>
                   </div>
                 ))}

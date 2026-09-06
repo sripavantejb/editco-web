@@ -2,9 +2,10 @@ export const dynamic = "force-dynamic";
 
 import { requireSalesPage } from "@/lib/sales/page";
 import { SalesTask } from "@/models/sales/SalesTask";
-import { createSalesTask, updateSalesTaskStatus } from "@/actions/sales/tasks";
+import { createSalesTask, deleteSalesTask, updateSalesTaskStatus } from "@/actions/sales/tasks";
 import { OsActionForm } from "@/components/os/OsActionForm";
-import { SalesModal } from "@/components/sales/SalesModal";
+import { OsSlideOver } from "@/components/os/OsSlideOver";
+import { RowDeleteButton } from "@/components/os/RowDeleteButton";
 import { OsSelect } from "@/components/os/OsSelect";
 import { Field, OsBadge, OsPage, OsTable, Td, Th, osInputClass, osTextareaClass } from "@/components/os/ui";
 import { SALES_LEAD_PRIORITIES } from "@/lib/sales/constants";
@@ -29,7 +30,7 @@ export default async function SalesTasksPage() {
       title="Task Management"
       subtitle="Everything you need to get done, with due dates and priority."
       actions={
-        <SalesModal triggerLabel="Add task" title="Add task">
+        <OsSlideOver triggerLabel="Add task" title="Add task">
           <OsActionForm action={createSalesTask} submitLabel="Add task" className="grid gap-3">
             <Field label="Title">
               <input name="title" required className={osInputClass()} />
@@ -46,12 +47,12 @@ export default async function SalesTasksPage() {
               </Field>
             </div>
           </OsActionForm>
-        </SalesModal>
+        </OsSlideOver>
       }
     >
       <OsTable>
         <thead>
-          <tr><Th>Task</Th><Th>Priority</Th><Th>Due</Th><Th>Status</Th><Th>Update</Th></tr>
+          <tr><Th>Task</Th><Th>Priority</Th><Th>Due</Th><Th>Status</Th><Th>Update</Th><Th>{null}</Th></tr>
         </thead>
         <tbody>
           {tasks.map((t) => {
@@ -67,11 +68,25 @@ export default async function SalesTasksPage() {
                   <form action={updateTaskStatusForm} className="flex flex-wrap gap-1">
                     <input type="hidden" name="taskId" value={String(t._id)} />
                     {(["todo", "in_progress", "completed"] as const).filter((s) => s !== t.status).map((s) => (
-                      <button key={s} type="submit" name="status" value={s} className="rounded-full border border-[var(--dash-border)] px-2 py-1 font-inter text-[10px] text-[var(--dash-muted)] hover:border-[var(--dash-accent)] hover:text-[var(--dash-accent)]">
+                      <button
+                        key={s}
+                        type="submit"
+                        name="status"
+                        value={s}
+                        className="inline-flex h-7 items-center rounded-lg border border-[#e5e7eb] bg-white px-2 font-inter text-[11px] font-medium text-[#6b7280] hover:border-[#111111] hover:text-[#111111]"
+                      >
                         {s.replace("_", " ")}
                       </button>
                     ))}
                   </form>
+                </Td>
+                <Td>
+                  <RowDeleteButton
+                    action={deleteSalesTask}
+                    id={String(t._id)}
+                    confirmMessage="Delete this task?"
+                    label="Delete task"
+                  />
                 </Td>
               </tr>
             );

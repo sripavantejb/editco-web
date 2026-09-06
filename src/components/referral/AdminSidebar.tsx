@@ -7,21 +7,28 @@ import { logoutAdmin } from "@/actions/auth";
 import {
   LayoutDashboard,
   Wallet,
-  LogOut,
   Briefcase,
   Inbox,
   Menu,
   X,
-  Gift,
   Users,
-  ChevronRight,
   ListChecks,
   Search,
+  Store,
 } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
 import { osNavSections, type OsNavItem, type OsNavSection } from "@/lib/os/nav";
 import { canAccessLegacyAdmin, hasPermission } from "@/lib/os/permissions";
 import type { StaffRole } from "@/lib/os/constants";
+import { PortalProfileMenu } from "@/components/portal/PortalProfileMenu";
+import { PortalSearchDialog, type NavSearchItem } from "@/components/portal/PortalSearchDialog";
+import { PortalNavProgress } from "@/components/portal/PortalNavProgress";
+import { PrefetchNavRoutes } from "@/components/portal/PrefetchNavRoutes";
+import {
+  SidebarCollapseToggle,
+  portalSidebarWidthClass,
+  usePortalSidebarCollapse,
+} from "@/components/portal/PortalSidebarCollapse";
+import { cn } from "@/lib/utils";
 
 type NavItem = {
   href: string;
@@ -33,14 +40,12 @@ type NavItem = {
 type NavSection = {
   id: string;
   label: string;
-  icon: typeof Gift;
   items: NavItem[];
 };
 
 const growthSection: NavSection = {
   id: "growth",
   label: "Growth",
-  icon: Gift,
   items: [
     {
       href: "/admin",
@@ -58,8 +63,7 @@ const growthSection: NavSection = {
       href: "/admin/jobs",
       label: "Jobs",
       icon: Briefcase,
-      match: (p) =>
-        p.startsWith("/admin/jobs") && !p.includes("/applications"),
+      match: (p) => p.startsWith("/admin/jobs") && !p.includes("/applications"),
     },
     {
       href: "/admin/applications",
@@ -101,7 +105,6 @@ function mapOsItem(item: OsNavItem): NavItem {
           ) === filter
         );
       }
-      // "All projects" must not light up when a filter query is active
       if (item.href === "/admin/os/projects") {
         const filter = new URLSearchParams(
           search.startsWith("?") ? search.slice(1) : search
@@ -119,16 +122,13 @@ function buildSections(permissions: string[], role?: StaffRole): NavSection[] {
     .map((section: OsNavSection) => ({
       id: section.id,
       label: section.label,
-      icon: section.icon,
       items: section.items
         .filter((item) => hasPermission(permissions, item.permission))
         .map(mapOsItem),
     }))
     .filter((s) => s.items.length > 0);
 
-  if (role && canAccessLegacyAdmin(role)) {
-    return [...os, growthSection];
-  }
+  if (role && canAccessLegacyAdmin(role)) return [...os, growthSection];
   if (!role) return [...os, growthSection];
   return os.length ? os : [growthSection];
 }
@@ -136,31 +136,20 @@ function buildSections(permissions: string[], role?: StaffRole): NavSection[] {
 const LOGO_SRC =
   "https://res.cloudinary.com/dxeoibunj/image/upload/v1778782058/editco_logo_transparent_no_watermark_cropped_reb8ht.png";
 
-function activeSectionId(
-  sections: NavSection[],
-  pathname: string,
-  isEgaTab: boolean,
-  search: string
-) {
-  return (
-    sections.find((s) =>
-      s.items.some((item) => item.match(pathname, isEgaTab, search))
-    )?.id ?? null
-  );
-}
-
 function NavLink({
   item,
   pathname,
   isEgaTab,
   search,
   onNavigate,
+  collapsed,
 }: {
   item: NavItem;
   pathname: string;
   isEgaTab: boolean;
   search: string;
   onNavigate?: () => void;
+  collapsed?: boolean;
 }) {
   const active = item.match(pathname, isEgaTab, search);
   const Icon = item.icon;
@@ -169,14 +158,17 @@ function NavLink({
       href={item.href}
       prefetch
       onClick={onNavigate}
-      className={`flex min-h-10 items-center gap-2.5 rounded-lg px-2.5 py-2 font-inter text-[13px] font-medium transition-colors ${
+      title={collapsed ? item.label : undefined}
+      className={cn(
+        "flex min-h-9 items-center gap-2.5 rounded-lg px-2.5 py-2 font-inter text-[13px] font-medium transition-colors",
+        collapsed && "justify-center px-0",
         active
-          ? "bg-[var(--dash-accent)] text-[var(--dash-on-accent)]"
-          : "text-[var(--dash-muted)] hover:bg-[var(--dash-hover)] hover:text-[var(--dash-text)]"
-      }`}
+          ? "bg-[#f5f5f5] text-[#111111]"
+          : "text-[#6b7280] hover:bg-[#f5f5f5] hover:text-[#111111]"
+      )}
     >
-      <Icon className="h-3.5 w-3.5 shrink-0 opacity-85" strokeWidth={1.75} />
-      {item.label}
+      <Icon className="h-4 w-4 shrink-0 opacity-80" strokeWidth={1.75} />
+      {!collapsed ? item.label : null}
     </Link>
   );
 }
@@ -187,156 +179,140 @@ function SidebarBody({
   isEgaTab,
   search,
   sections,
-  openId,
-  onToggle,
   onNavigate,
   showSearch,
+  showSalesAdminJump,
+  onOpenSearch,
+  collapsed,
 }: {
   email: string;
   pathname: string;
   isEgaTab: boolean;
   search: string;
   sections: NavSection[];
-  openId: string | null;
-  onToggle: (id: string) => void;
   onNavigate?: () => void;
   showSearch: boolean;
+  showSalesAdminJump?: boolean;
+  onOpenSearch?: () => void;
+  collapsed?: boolean;
 }) {
-  const initial = (email?.[0] || "A").toUpperCase();
-
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex items-center gap-2.5 border-b border-[var(--dash-border)] px-4 py-3">
+    <div className="flex h-full flex-col bg-white">
+      <div
+        className={cn(
+          "flex items-center gap-2 border-b border-[var(--dash-border)] px-3 py-3.5",
+          collapsed && "flex-col gap-2 px-2"
+        )}
+      >
         <a
           href="https://editcomedia.com"
           target="_blank"
           rel="noreferrer"
           aria-label="Editco Media"
           onClick={onNavigate}
-          className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[var(--dash-border)] bg-[var(--dash-surface)]"
+          className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[#111111]"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={LOGO_SRC} alt="Editco" className="h-5 w-5 object-contain" />
+          <img src={LOGO_SRC} alt="Editco" className="h-5 w-5 object-contain brightness-0 invert" />
         </a>
-        <div className="min-w-0">
-          <p className="font-archivo text-[10px] uppercase tracking-[0.16em] text-[var(--dash-accent)]">
-            Admin
-          </p>
-          <p className="truncate font-inter text-xs text-[var(--dash-text)]">
-            Editco panel
-          </p>
-        </div>
-      </div>
-
-      {showSearch ? (
-        <form action="/admin/os/search" className="border-b border-[var(--dash-border)] px-3 py-3">
-          <label className="relative block">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--dash-faint)]" />
-            <input
-              name="q"
-              placeholder="EC-2026-… / company / invoice"
-              className="h-10 w-full rounded-lg border border-[var(--dash-border)] bg-[var(--dash-input)] pl-9 pr-3 font-inter text-xs text-[var(--dash-text)] placeholder:text-[var(--dash-faint)]"
-            />
-          </label>
-        </form>
-      ) : null}
-
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-        {sections.map((section) => {
-          const SectionIcon = section.icon;
-          const sectionActive = section.items.some((item) =>
-            item.match(pathname, isEgaTab, search)
-          );
-
-          if (section.items.length === 1) {
-            return (
-              <NavLink
-                key={section.id}
-                item={section.items[0]}
-                pathname={pathname}
-                isEgaTab={isEgaTab}
-                search={search}
-                onNavigate={onNavigate}
+        {!collapsed ? (
+          <>
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-inter text-sm font-semibold text-[#111111]">Editco</p>
+              <p className="truncate font-inter text-xs text-[#6b7280]">Super Admin</p>
+            </div>
+            <div className="flex shrink-0 items-center gap-1">
+              {showSearch ? (
+                <button
+                  type="button"
+                  aria-label="Search"
+                  onClick={onOpenSearch}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#6b7280] transition hover:bg-[#f5f5f5] hover:text-[#111111]"
+                >
+                  <Search className="h-4 w-4" />
+                </button>
+              ) : null}
+              {showSalesAdminJump ? (
+                <Link
+                  href="/sales/admin"
+                  prefetch
+                  onClick={onNavigate}
+                  aria-label="Sales Admin"
+                  title="Sales Admin"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#6b7280] transition hover:bg-[#f5f5f5] hover:text-[#111111]"
+                >
+                  <Store className="h-4 w-4" />
+                </Link>
+              ) : null}
+              <PortalProfileMenu
+                email={email}
+                roleLabel="Super Admin"
+                logoutAction={logoutAdmin}
               />
-            );
-          }
-
-          const expanded = openId === section.id;
-
-          return (
-            <div key={section.id}>
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col items-center gap-1">
+            {showSearch ? (
               <button
                 type="button"
-                aria-expanded={expanded}
-                onClick={() => onToggle(section.id)}
-                className={`flex min-h-11 w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left transition-colors ${
-                  sectionActive && !expanded
-                    ? "bg-[var(--dash-hover)]"
-                    : "hover:bg-[var(--dash-hover)]"
-                }`}
+                aria-label="Search"
+                onClick={onOpenSearch}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#6b7280] transition hover:bg-[#f5f5f5] hover:text-[#111111]"
               >
-                <SectionIcon
-                  className="h-4 w-4 shrink-0 text-[var(--dash-accent)]"
-                  strokeWidth={1.75}
-                />
-                <span className="min-w-0 flex-1 truncate font-inter text-[13px] font-medium text-[var(--dash-text)]">
-                  {section.label}
-                </span>
-                <ChevronRight
-                  className={`h-4 w-4 shrink-0 text-[var(--dash-faint)] transition-transform duration-200 ${
-                    expanded ? "rotate-90" : ""
-                  }`}
-                  strokeWidth={1.75}
-                />
+                <Search className="h-4 w-4" />
               </button>
-              <AnimatePresence initial={false}>
-                {expanded ? (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                    className="overflow-hidden"
-                  >
-                    <div className="mb-1 ml-4 mt-0.5 space-y-0.5 border-l border-[var(--dash-border)] pl-2.5">
-                      {section.items.map((item) => (
-                        <NavLink
-                          key={item.href}
-                          item={item}
-                          pathname={pathname}
-                          isEgaTab={isEgaTab}
-                          search={search}
-                          onNavigate={onNavigate}
-                        />
-                      ))}
-                    </div>
-                  </motion.div>
-                ) : null}
-              </AnimatePresence>
-            </div>
-          );
-        })}
-      </nav>
-
-      <div className="border-t border-[var(--dash-border)] p-3">
-        <div className="mb-2 flex items-center gap-2 rounded-xl px-2 py-2">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--dash-accent-soft)] font-inter text-[11px] font-semibold text-[var(--dash-accent)]">
-            {initial}
-          </span>
-          <span className="truncate font-inter text-[12px] text-[var(--dash-muted)]">
-            {email}
-          </span>
-        </div>
-        <form action={logoutAdmin}>
-          <button
-            type="submit"
-            className="inline-flex min-h-11 w-full items-center gap-2 rounded-xl px-3 py-2.5 font-inter text-[13px] font-medium text-[var(--dash-muted)] transition hover:bg-[var(--dash-hover)] hover:text-[var(--dash-text)]"
-          >
-            <LogOut className="h-4 w-4" />
-            Log out
-          </button>
-        </form>
+            ) : null}
+            {showSalesAdminJump ? (
+              <Link
+                href="/sales/admin"
+                prefetch
+                onClick={onNavigate}
+                aria-label="Sales Admin"
+                title="Sales Admin"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#6b7280] transition hover:bg-[#f5f5f5] hover:text-[#111111]"
+              >
+                <Store className="h-4 w-4" />
+              </Link>
+            ) : null}
+            <PortalProfileMenu email={email} roleLabel="Super Admin" logoutAction={logoutAdmin} />
+          </div>
+        )}
       </div>
+
+      <nav
+        className={cn(
+          "flex-1 overflow-y-auto overscroll-contain py-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
+          collapsed ? "px-1.5" : "px-3"
+        )}
+      >
+        <div className="space-y-5">
+          {sections.map((section) => (
+            <div key={section.id}>
+              {!collapsed ? (
+                <p className="mb-1.5 px-2.5 font-inter text-[11px] font-semibold uppercase tracking-[0.12em] text-[#4b5563]">
+                  {section.label}
+                </p>
+              ) : (
+                <div className="mx-auto mb-1.5 h-px w-6 bg-[#e5e7eb]" aria-hidden />
+              )}
+              <div className="space-y-0.5">
+                {section.items.map((item) => (
+                  <NavLink
+                    key={item.href}
+                    item={item}
+                    pathname={pathname}
+                    isEgaTab={isEgaTab}
+                    search={search}
+                    onNavigate={onNavigate}
+                    collapsed={collapsed}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </nav>
     </div>
   );
 }
@@ -358,18 +334,17 @@ export function AdminSidebar({
     () => buildSections(permissions, role),
     [permissions, role]
   );
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [openId, setOpenId] = useState<string | null>(() =>
-    activeSectionId(sections, pathname, isEgaTab, search)
+  const prefetchHrefs = useMemo(
+    () => sections.flatMap((s) => s.items.map((item) => item.href)),
+    [sections]
   );
-
-  useEffect(() => {
-    const active = activeSectionId(sections, pathname, isEgaTab, search);
-    if (active) setOpenId(active);
-  }, [pathname, isEgaTab, search, sections]);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const { collapsed } = usePortalSidebarCollapse();
 
   useEffect(() => {
     setDrawerOpen(false);
+    setSearchOpen(false);
   }, [pathname, isEgaTab]);
 
   useEffect(() => {
@@ -385,86 +360,113 @@ export function AdminSidebar({
     };
   }, [drawerOpen]);
 
-  const toggleSection = (id: string) => {
-    setOpenId((prev) => (prev === id ? null : id));
-  };
-
   const currentLabel =
     sections
       .flatMap((s) => s.items)
       .find((i) => i.match(pathname, isEgaTab, search))?.label || "Admin";
 
   const showSearch = hasPermission(permissions, "search:read");
+  const showSalesAdminJump = role === "super_admin";
+  const navItems: NavSearchItem[] = useMemo(
+    () =>
+      sections.flatMap((s) =>
+        s.items.map((item) => ({
+          href: item.href,
+          label: item.label,
+          section: s.label,
+        }))
+      ),
+    [sections]
+  );
+
   const bodyProps = {
     email,
     pathname,
     isEgaTab,
     search,
     sections,
-    openId,
-    onToggle: toggleSection,
     showSearch,
+    showSalesAdminJump,
+    onOpenSearch: () => setSearchOpen(true),
+    collapsed: false as boolean,
   };
 
   return (
     <>
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[260px] border-r border-[var(--dash-border)] bg-[var(--dash-bg)] lg:block">
-        <SidebarBody {...bodyProps} />
+      <PortalNavProgress />
+      <PrefetchNavRoutes hrefs={prefetchHrefs} />
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-40 hidden border-r border-[var(--dash-border)] bg-white transition-[width] duration-200 ease-out lg:block",
+          portalSidebarWidthClass(collapsed)
+        )}
+      >
+        <SidebarBody {...bodyProps} collapsed={collapsed} />
+        <SidebarCollapseToggle />
       </aside>
 
-      <header className="sticky top-0 z-40 flex items-center gap-3 border-b border-[var(--dash-border)] bg-gaude-black/90 px-4 py-3 backdrop-blur-xl lg:hidden">
+      <header className="sticky top-0 z-40 flex items-center gap-3 border-b border-[var(--dash-border)] bg-white/95 px-4 py-3 backdrop-blur-xl lg:hidden">
         <button
           type="button"
           aria-label={drawerOpen ? "Close menu" : "Open menu"}
           onClick={() => setDrawerOpen((v) => !v)}
-          className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--dash-border)] bg-[var(--dash-surface)] text-[var(--dash-text)]"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-[var(--dash-border)] bg-white text-[#111111]"
         >
           {drawerOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
         <div className="min-w-0 flex-1">
-          <p className="font-archivo text-[10px] uppercase tracking-[0.16em] text-[var(--dash-accent)]">
-            Admin
+          <p className="font-inter text-[10px] font-medium uppercase tracking-[0.12em] text-[#6b7280]">
+            Super Admin
           </p>
-          <p className="truncate font-inter text-sm text-[var(--dash-text)]">
+          <p className="truncate font-inter text-sm font-semibold text-[#111111]">
             {currentLabel}
           </p>
         </div>
-        <Link
-          href="/"
-          className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-[var(--dash-border)] bg-[var(--dash-surface)]"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={LOGO_SRC} alt="Editco" className="h-6 w-6 object-contain" />
-        </Link>
+        {showSearch ? (
+          <button
+            type="button"
+            aria-label="Search"
+            onClick={() => setSearchOpen(true)}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--dash-border)] text-[#6b7280]"
+          >
+            <Search className="h-4 w-4" />
+          </button>
+        ) : null}
+        {showSalesAdminJump ? (
+          <Link
+            href="/sales/admin"
+            prefetch
+            aria-label="Sales Admin"
+            title="Sales Admin"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--dash-border)] text-[#6b7280]"
+          >
+            <Store className="h-4 w-4" />
+          </Link>
+        ) : null}
+        <PortalProfileMenu email={email} roleLabel="Super Admin" logoutAction={logoutAdmin} />
       </header>
 
-      <AnimatePresence>
-        {drawerOpen ? (
-          <>
-            <motion.button
-              type="button"
-              aria-label="Close menu overlay"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 bg-black/60 lg:hidden"
-              onClick={() => setDrawerOpen(false)}
-            />
-            <motion.aside
-              initial={{ x: -280 }}
-              animate={{ x: 0 }}
-              exit={{ x: -280 }}
-              transition={{ type: "spring", stiffness: 380, damping: 36 }}
-              className="fixed inset-y-0 left-0 z-50 w-[min(280px,88vw)] border-r border-[var(--dash-border)] bg-[var(--dash-bg)] lg:hidden"
-            >
-              <SidebarBody
-                {...bodyProps}
-                onNavigate={() => setDrawerOpen(false)}
-              />
-            </motion.aside>
-          </>
-        ) : null}
-      </AnimatePresence>
+      {drawerOpen ? (
+        <>
+          <button
+            type="button"
+            aria-label="Close menu overlay"
+            className="fixed inset-0 z-50 bg-black/40 lg:hidden"
+            onClick={() => setDrawerOpen(false)}
+          />
+          <aside className="fixed inset-y-0 left-0 z-50 w-[min(280px,88vw)] border-r border-[var(--dash-border)] bg-white lg:hidden">
+            <SidebarBody {...bodyProps} onNavigate={() => setDrawerOpen(false)} />
+          </aside>
+        </>
+      ) : null}
+
+      <PortalSearchDialog
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        navItems={navItems}
+        enableOsSearch={showSearch}
+        placeholder="Search pages, EC codes, clients, invoicesâ€¦"
+      />
     </>
   );
 }

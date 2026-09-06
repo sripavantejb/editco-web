@@ -6,9 +6,13 @@ import { Invoice } from "@/models/os/Invoice";
 import { displayInvoiceStatus, outstandingOf } from "@/lib/os/money";
 import { formatCurrencyINR, formatDate } from "@/lib/utils";
 import { OsPage, OsTable, Td, Th } from "@/components/os/ui";
+import { RowDeleteButton } from "@/components/os/RowDeleteButton";
+import { archiveInvoice } from "@/actions/os/invoices";
+import { hasPermission } from "@/lib/os/permissions";
 
 export default async function OutstandingPage() {
-  await requireOsPage("finance:read");
+  const staff = await requireOsPage("finance:read");
+  const canWrite = hasPermission(staff.permissions, "invoices:write");
   const invoices = await Invoice.find({
     recordStatus: "active",
     status: { $nin: ["draft", "cancelled"] },
@@ -27,31 +31,44 @@ export default async function OutstandingPage() {
     .filter((i) => i.due > 0);
 
   return (
-    <OsPage title="Outstanding" subtitle="Issued invoices still owed, including overdue."
+    <OsPage
+      title="Outstanding"
+      subtitle="Issued invoices still owed, including overdue."
       backHref="/admin/os"
-      backLabel="Back to dashboard">
+      backLabel="Back to dashboard"
+    >
       <OsTable>
-      <thead>
-      <tr>
-      <Th>Invoice</Th>
-      <Th>Due date</Th>
-      <Th>Outstanding</Th>
-      <Th>Status</Th>
-      </tr>
-      </thead>
-      <tbody>
+        <thead>
+          <tr>
+            <Th>Invoice</Th>
+            <Th>Due date</Th>
+            <Th>Outstanding</Th>
+            <Th>Status</Th>
+            <Th>Delete</Th>
+          </tr>
+        </thead>
+        <tbody>
           {open.map((i) => (
             <tr key={String(i._id)}>
-      <Td>
-      <Link href={`/admin/os/invoices/${i._id}`}>{i.invoiceNumber}</Link>
-      </Td>
-      <Td>{i.dueDate ? formatDate(i.dueDate) : "—"}</Td>
-      <Td>{formatCurrencyINR(i.due)}</Td>
-      <Td>{i.display}</Td>
-      </tr>
+              <Td>
+                <Link href={`/admin/os/invoices/${i._id}`}>{i.invoiceNumber}</Link>
+              </Td>
+              <Td>{i.dueDate ? formatDate(i.dueDate) : "—"}</Td>
+              <Td>{formatCurrencyINR(i.due)}</Td>
+              <Td>{i.display}</Td>
+              <Td>
+                {canWrite ? (
+                  <RowDeleteButton
+                    action={archiveInvoice}
+                    id={String(i._id)}
+                    confirmMessage={`Delete invoice ${i.invoiceNumber}?`}
+                  />
+                ) : null}
+              </Td>
+            </tr>
           ))}
         </tbody>
       </OsTable>
-      </OsPage>
+    </OsPage>
   );
 }

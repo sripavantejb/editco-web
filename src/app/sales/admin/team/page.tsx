@@ -6,17 +6,12 @@ import { SalesEmployee } from "@/models/sales/SalesEmployee";
 import { StaffUser } from "@/models/os/StaffUser";
 import { createSalesEmployee, deleteSalesEmployee } from "@/actions/sales/employees";
 import { OsActionForm } from "@/components/os/OsActionForm";
-import { SalesModal } from "@/components/sales/SalesModal";
+import { OsSlideOver } from "@/components/os/OsSlideOver";
+import { RowDeleteButton } from "@/components/os/RowDeleteButton";
 import { OsSelect } from "@/components/os/OsSelect";
 import { Field, OsBadge, OsPage, OsTable, Td, Th, osInputClass } from "@/components/os/ui";
 import { SALES_EMPLOYEE_STATUS_LABELS } from "@/lib/sales/constants";
 import { formatDateTime } from "@/lib/utils";
-import { Trash2 } from "lucide-react";
-
-async function deleteEmployeeForm(formData: FormData) {
-  "use server";
-  await deleteSalesEmployee({}, formData);
-}
 
 export default async function SalesTeamPage({
   searchParams,
@@ -48,12 +43,16 @@ export default async function SalesTeamPage({
 
   return (
     <OsPage
-      title="Employee Access / Permissions"
-      subtitle="Search your sales team, then open an employee to enable or disable individual CRM modules."
+      title="Team"
+      subtitle="Search your sales team, then open an employee to manage CRM module access."
       backHref="/sales/admin"
-      backLabel="Back to dashboard"
+      backLabel="Dashboard"
       actions={
-        <SalesModal triggerLabel="Add employee" title="Add employee" subtitle="Creates their login and a Sales Employee profile.">
+        <OsSlideOver
+          triggerLabel="Add employee"
+          title="Add employee"
+          subtitle="Creates their login and a Sales Employee profile."
+        >
           <OsActionForm action={createSalesEmployee} submitLabel="Add employee" className="grid gap-3">
             <Field label="Name">
               <input name="name" required className={osInputClass()} />
@@ -77,10 +76,10 @@ export default async function SalesTeamPage({
               <input name="phone" className={osInputClass()} />
             </Field>
           </OsActionForm>
-        </SalesModal>
+        </OsSlideOver>
       }
     >
-      <form className="mb-6 flex flex-wrap gap-3" method="get">
+      <form className="mb-6 flex flex-wrap items-center gap-3" method="get">
         <input
           name="q"
           defaultValue={q}
@@ -89,13 +88,19 @@ export default async function SalesTeamPage({
         />
         <OsSelect
           name="status"
-          options={[{ value: "all", label: "All statuses" }, ...Object.entries(SALES_EMPLOYEE_STATUS_LABELS).map(([value, label]) => ({ value, label }))]}
+          options={[
+            { value: "all", label: "All statuses" },
+            ...Object.entries(SALES_EMPLOYEE_STATUS_LABELS).map(([value, label]) => ({
+              value,
+              label,
+            })),
+          ]}
           defaultValue={status || "all"}
           className="max-w-xs"
         />
         <button
           type="submit"
-          className="inline-flex min-h-11 items-center rounded-full border border-[var(--dash-border)] px-5 font-archivo text-xs uppercase tracking-[0.08em] text-[var(--dash-text)]"
+          className="inline-flex h-10 items-center rounded-lg bg-[#111111] px-4 font-inter text-[13px] font-medium text-white hover:bg-[#222222]"
         >
           Filter
         </button>
@@ -120,43 +125,54 @@ export default async function SalesTeamPage({
             return (
               <tr key={String(e._id)}>
                 <Td>
-                  <Link href={`/sales/admin/team/${e._id}`} className="font-medium text-[var(--dash-accent)] hover:underline">
+                  <Link
+                    href={`/sales/admin/team/${e._id}`}
+                    className="font-medium text-[#111111] hover:underline"
+                  >
                     {staff?.name || staff?.email || e.employeeCode}
                   </Link>
-                  {e.isSalesAdmin ? <OsBadge tone="accent">Admin</OsBadge> : null}
+                  {e.isSalesAdmin ? (
+                    <span className="ml-2">
+                      <OsBadge tone="accent">Admin</OsBadge>
+                    </span>
+                  ) : null}
                 </Td>
                 <Td>{staff?.email || "—"}</Td>
                 <Td>{e.team || "—"}</Td>
                 <Td>{e.territory || "—"}</Td>
                 <Td>
-                  <OsBadge tone={e.status === "active" ? "ok" : e.status === "on_leave" ? "warn" : "bad"}>
-                    {SALES_EMPLOYEE_STATUS_LABELS[e.status as keyof typeof SALES_EMPLOYEE_STATUS_LABELS]}
+                  <OsBadge
+                    tone={
+                      e.status === "active" ? "ok" : e.status === "on_leave" ? "warn" : "bad"
+                    }
+                  >
+                    {
+                      SALES_EMPLOYEE_STATUS_LABELS[
+                        e.status as keyof typeof SALES_EMPLOYEE_STATUS_LABELS
+                      ]
+                    }
                   </OsBadge>
                 </Td>
                 <Td>{staff?.lastLoginAt ? formatDateTime(staff.lastLoginAt) : "Never"}</Td>
                 <Td>
                   {e.isSalesAdmin ? (
-                    <span className="text-[var(--dash-muted)]">Full access</span>
+                    <span className="text-[#6b7280]">Full access</span>
                   ) : (
                     <Link
                       href={`/sales/admin/team/${e._id}/access`}
-                      className="inline-flex min-h-9 items-center rounded-full border border-[var(--dash-border)] px-3 font-archivo text-[10px] uppercase tracking-[0.08em] text-[var(--dash-text)] hover:border-[var(--dash-accent)] hover:text-[var(--dash-accent)]"
+                      className="font-inter text-[13px] font-medium text-[#6b7280] hover:text-[#111111]"
                     >
-                      Manage permissions
+                      Permissions →
                     </Link>
                   )}
                 </Td>
                 <Td>
-                  <form action={deleteEmployeeForm}>
-                    <input type="hidden" name="employeeId" value={String(e._id)} />
-                    <button
-                      type="submit"
-                      aria-label="Delete employee"
-                      className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--dash-muted)] transition-colors hover:bg-red-500/10 hover:text-red-400"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </form>
+                  <RowDeleteButton
+                    action={deleteSalesEmployee}
+                    id={String(e._id)}
+                    confirmMessage="Remove this sales employee? Their login will be deactivated."
+                    label="Delete employee"
+                  />
                 </Td>
               </tr>
             );
@@ -164,7 +180,7 @@ export default async function SalesTeamPage({
         </tbody>
       </OsTable>
       {filtered.length === 0 ? (
-        <p className="mt-6 font-inter text-sm text-[var(--dash-muted)]">No employees match.</p>
+        <p className="mt-6 font-inter text-sm text-[#6b7280]">No employees match.</p>
       ) : null}
     </OsPage>
   );

@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { requireOsPage } from "@/lib/os/page";
 import { Vendor, VENDOR_ACTIVE_STATUSES, VENDOR_ACTIVE_STATUS_LABELS } from "@/models/os/Vendor";
@@ -21,7 +21,8 @@ import Link from "next/link";
 
 async function deleteVendorForm(formData: FormData) {
   "use server";
-  await deleteVendor({}, formData);
+  const result = await deleteVendor({}, formData);
+  if (!result.error) redirect("/admin/os/vendors");
 }
 
 function appOrigin(host: string | null, proto: string | null) {

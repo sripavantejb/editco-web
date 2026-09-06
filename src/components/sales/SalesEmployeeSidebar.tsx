@@ -1,10 +1,9 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
-  LogOut,
   LayoutDashboard,
   Users,
   Kanban,
@@ -17,13 +16,25 @@ import {
   BarChart3,
   FileBarChart,
   Settings,
-  ChevronRight,
+  Search,
+  Menu,
+  X,
   type LucideIcon,
 } from "lucide-react";
-import { logoutAdmin } from "@/actions/auth";
+import { logoutSalesEmployee } from "@/actions/auth";
 import { SALES_MODULE_GROUPS, salesModulesByGroup, type SalesModuleKey } from "@/lib/sales/modules";
+import { SALES_ADMIN_ONLY_MODULE_SET } from "@/lib/sales/portal";
+import { PortalProfileMenu } from "@/components/portal/PortalProfileMenu";
+import { PortalSearchDialog, type NavSearchItem } from "@/components/portal/PortalSearchDialog";
+import { PortalNavProgress } from "@/components/portal/PortalNavProgress";
+import { PrefetchNavRoutes } from "@/components/portal/PrefetchNavRoutes";
+import {
+  SidebarCollapseToggle,
+  portalSidebarWidthClass,
+  usePortalSidebarCollapse,
+} from "@/components/portal/PortalSidebarCollapse";
+import { cn } from "@/lib/utils";
 
-/** Employee-facing IA per spec §47: only groups/items the admin has enabled render at all. */
 const GROUP_ORDER: (typeof SALES_MODULE_GROUPS)[number][] = [
   "Dashboard",
   "Leads",
@@ -34,12 +45,9 @@ const GROUP_ORDER: (typeof SALES_MODULE_GROUPS)[number][] = [
   "Documents",
   "Performance",
   "Workforce",
-  "Analytics",
-  "Reports",
   "Administration",
 ];
 
-/** "/sales/employee" is the dashboard root AND a prefix of every other route — only exact-match it. */
 function isHrefActive(href: string, pathname: string) {
   if (href === "/sales/employee") return pathname === href;
   return pathname === href || pathname.startsWith(href + "/");
@@ -60,137 +68,273 @@ const GROUP_ICONS: Record<(typeof SALES_MODULE_GROUPS)[number], LucideIcon> = {
   Administration: Settings,
 };
 
-export function SalesEmployeeSidebar({
+function SidebarBody({
   name,
-  effective,
+  email,
+  pathname,
+  sections,
+  collapsed,
+  onNavigate,
+  onOpenSearch,
 }: {
   name: string;
-  effective: Record<SalesModuleKey, boolean>;
+  email: string;
+  pathname: string;
+  sections: { group: (typeof SALES_MODULE_GROUPS)[number]; items: ReturnType<typeof salesModulesByGroup> }[];
+  collapsed?: boolean;
+  onNavigate?: () => void;
+  onOpenSearch: () => void;
 }) {
-  const pathname = usePathname() || "";
-  const initial = (name?.[0] || "S").toUpperCase();
-
-  const sections = GROUP_ORDER.map((group) => ({
-    group,
-    items: salesModulesByGroup(group).filter(
-      (m) => effective[m.key] && m.employeeRoutes.length > 0
-    ),
-  })).filter((s) => s.items.length > 0);
-
-  const activeGroup = sections.find((s) =>
-    s.items.some((item) => isHrefActive(item.employeeRoutes[0], pathname))
-  )?.group;
-
-  const [openGroup, setOpenGroup] = useState<string | null>(activeGroup ?? sections[0]?.group ?? null);
-
-  useEffect(() => {
-    if (activeGroup) setOpenGroup(activeGroup);
-  }, [activeGroup]);
+  const profileEmail = email || name;
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 hidden w-[260px] border-r border-[var(--dash-border)] bg-[var(--dash-bg)] lg:block">
-      <div className="flex h-full flex-col">
-        <div className="flex items-center gap-2.5 border-b border-[var(--dash-border)] px-4 py-3">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--dash-accent-soft)] text-[var(--dash-accent)]">
-            <LayoutDashboard className="h-4 w-4" strokeWidth={1.75} />
-          </span>
-          <div className="min-w-0">
-            <p className="font-archivo text-[10px] uppercase tracking-[0.16em] text-[var(--dash-accent)]">
-              Sales CRM
-            </p>
-            <p className="truncate font-inter text-xs text-[var(--dash-text)]">Editco</p>
+    <div className="flex h-full flex-col">
+      <div
+        className={cn(
+          "flex items-center gap-2 border-b border-[var(--dash-border)] px-3 py-3.5",
+          collapsed && "flex-col gap-2 px-2"
+        )}
+      >
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#111111] text-white">
+          <LayoutDashboard className="h-4 w-4" strokeWidth={1.75} />
+        </span>
+        {!collapsed ? (
+          <>
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-inter text-sm font-semibold text-[#111111]">Editco Sales</p>
+              <p className="truncate font-inter text-xs text-[#6b7280]">Employee</p>
+            </div>
+            <div className="flex shrink-0 items-center gap-1">
+              <button
+                type="button"
+                aria-label="Search"
+                onClick={onOpenSearch}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#6b7280] transition hover:bg-[#f5f5f5] hover:text-[#111111]"
+              >
+                <Search className="h-4 w-4" />
+              </button>
+              <PortalProfileMenu
+                email={profileEmail}
+                roleLabel="Employee"
+                logoutAction={logoutSalesEmployee}
+              />
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col items-center gap-1">
+            <button
+              type="button"
+              aria-label="Search"
+              onClick={onOpenSearch}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#6b7280] transition hover:bg-[#f5f5f5] hover:text-[#111111]"
+            >
+              <Search className="h-4 w-4" />
+            </button>
+            <PortalProfileMenu
+              email={profileEmail}
+              roleLabel="Employee"
+              logoutAction={logoutSalesEmployee}
+            />
           </div>
-        </div>
+        )}
+      </div>
 
-        <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+      <nav
+        className={cn(
+          "flex-1 overflow-y-auto overscroll-contain py-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
+          collapsed ? "px-1.5" : "px-3"
+        )}
+      >
+        <div className="space-y-5">
           {sections.map((section) => {
             const Icon = GROUP_ICONS[section.group];
-
-            if (section.items.length === 1) {
-              const item = section.items[0];
-              const href = item.employeeRoutes[0];
-              const active = isHrefActive(href, pathname);
-              return (
-                <Link
-                  key={section.group}
-                  href={href}
-                  prefetch
-                  className={`flex min-h-10 items-center gap-2.5 rounded-lg px-2.5 py-2 font-inter text-[13px] font-medium transition-colors ${
-                    active
-                      ? "bg-[var(--dash-accent)] text-[var(--dash-on-accent)]"
-                      : "text-[var(--dash-muted)] hover:bg-[var(--dash-hover)] hover:text-[var(--dash-text)]"
-                  }`}
-                >
-                  <Icon className={`h-3.5 w-3.5 shrink-0 ${active ? "" : "text-[var(--dash-accent)]"}`} strokeWidth={1.75} />
-                  {section.group}
-                </Link>
-              );
-            }
-
-            const expanded = openGroup === section.group;
-            const sectionActive = section.group === activeGroup;
             return (
               <div key={section.group}>
-                <button
-                  type="button"
-                  aria-expanded={expanded}
-                  onClick={() => setOpenGroup(expanded ? null : section.group)}
-                  className={`flex min-h-10 w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left font-inter text-[13px] font-medium transition-colors ${
-                    sectionActive && !expanded ? "bg-[var(--dash-hover)]" : "hover:bg-[var(--dash-hover)]"
-                  }`}
-                >
-                  <Icon className="h-3.5 w-3.5 shrink-0 text-[var(--dash-accent)]" strokeWidth={1.75} />
-                  <span className="min-w-0 flex-1 truncate text-[var(--dash-text)]">{section.group}</span>
-                  <ChevronRight
-                    className={`h-3.5 w-3.5 shrink-0 text-[var(--dash-faint)] transition-transform duration-200 ${expanded ? "rotate-90" : ""}`}
-                    strokeWidth={1.75}
-                  />
-                </button>
-                {expanded ? (
-                  <div className="mb-1 ml-4 mt-0.5 space-y-0.5 border-l border-[var(--dash-border)] pl-2.5">
-                    {section.items.map((item) => {
-                      const href = item.employeeRoutes[0];
-                      const active = isHrefActive(href, pathname);
-                      return (
-                        <Link
-                          key={item.key}
-                          href={href}
-                          prefetch
-                          className={`flex min-h-9 items-center rounded-lg px-2.5 py-1.5 font-inter text-[13px] font-medium transition-colors ${
-                            active
-                              ? "bg-[var(--dash-accent)] text-[var(--dash-on-accent)]"
-                              : "text-[var(--dash-muted)] hover:bg-[var(--dash-hover)] hover:text-[var(--dash-text)]"
-                          }`}
-                        >
-                          {item.label}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                ) : null}
+                {!collapsed ? (
+                  <p className="mb-1.5 px-2.5 font-inter text-[11px] font-semibold uppercase tracking-[0.12em] text-[#4b5563]">
+                    {section.group}
+                  </p>
+                ) : (
+                  <div className="mx-auto mb-1.5 h-px w-6 bg-[#e5e7eb]" aria-hidden />
+                )}
+                <div className="space-y-0.5">
+                  {section.items.map((item) => {
+                    const href = item.employeeRoutes[0];
+                    const active = isHrefActive(href, pathname);
+                    return (
+                      <Link
+                        key={item.key}
+                        href={href}
+                        prefetch
+                        onClick={onNavigate}
+                        title={collapsed ? item.label : undefined}
+                        className={cn(
+                          "flex min-h-9 items-center gap-2.5 rounded-lg px-2.5 py-2 font-inter text-[13px] font-medium transition-colors",
+                          collapsed && "justify-center px-0",
+                          active
+                            ? "bg-[#f5f5f5] text-[#111111]"
+                            : "text-[#6b7280] hover:bg-[#f5f5f5] hover:text-[#111111]"
+                        )}
+                      >
+                        <Icon className="h-4 w-4 shrink-0 opacity-80" strokeWidth={1.75} />
+                        {!collapsed ? item.label : null}
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
             );
           })}
-        </nav>
-
-        <div className="border-t border-[var(--dash-border)] p-3">
-          <div className="mb-2 flex items-center gap-2 rounded-xl px-2 py-2">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--dash-accent-soft)] font-inter text-[11px] font-semibold text-[var(--dash-accent)]">
-              {initial}
-            </span>
-            <span className="truncate font-inter text-[12px] text-[var(--dash-muted)]">{name}</span>
-          </div>
-          <form action={logoutAdmin}>
-            <button
-              type="submit"
-              className="inline-flex min-h-11 w-full items-center gap-2 rounded-xl px-3 py-2.5 font-inter text-[13px] font-medium text-[var(--dash-muted)] transition hover:bg-[var(--dash-hover)] hover:text-[var(--dash-text)]"
-            >
-              <LogOut className="h-4 w-4" />
-              Log out
-            </button>
-          </form>
         </div>
-      </div>
-    </aside>
+      </nav>
+    </div>
+  );
+}
+
+export function SalesEmployeeSidebar({
+  name,
+  email,
+  effective,
+}: {
+  name: string;
+  email?: string;
+  effective: Record<SalesModuleKey, boolean>;
+}) {
+  const pathname = usePathname() || "";
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const profileEmail = email || name;
+  const { collapsed } = usePortalSidebarCollapse();
+
+  const sections = useMemo(
+    () =>
+      GROUP_ORDER.map((group) => ({
+        group,
+        items: salesModulesByGroup(group).filter(
+          (m) =>
+            effective[m.key] &&
+            m.employeeRoutes.length > 0 &&
+            !SALES_ADMIN_ONLY_MODULE_SET.has(m.key)
+        ),
+      })).filter((s) => s.items.length > 0),
+    [effective]
+  );
+
+  useEffect(() => {
+    setSearchOpen(false);
+    setDrawerOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setDrawerOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [drawerOpen]);
+
+  const navItems: NavSearchItem[] = useMemo(
+    () =>
+      sections.flatMap((s) =>
+        s.items.map((item) => ({
+          href: item.employeeRoutes[0],
+          label: item.label,
+          section: s.group,
+        }))
+      ),
+    [sections]
+  );
+  const prefetchHrefs = useMemo(() => navItems.map((item) => item.href), [navItems]);
+
+  const currentLabel =
+    navItems.find((i) => isHrefActive(i.href, pathname))?.label || "Employee";
+
+  return (
+    <>
+      <PortalNavProgress />
+      <PrefetchNavRoutes hrefs={prefetchHrefs} />
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-40 hidden border-r border-[var(--dash-border)] bg-white transition-[width] duration-200 ease-out lg:block",
+          portalSidebarWidthClass(collapsed)
+        )}
+      >
+        <SidebarBody
+          name={name}
+          email={profileEmail}
+          pathname={pathname}
+          sections={sections}
+          collapsed={collapsed}
+          onOpenSearch={() => setSearchOpen(true)}
+        />
+        <SidebarCollapseToggle />
+      </aside>
+
+      <header className="sticky top-0 z-40 flex items-center gap-3 border-b border-[var(--dash-border)] bg-white/95 px-4 py-3 backdrop-blur-xl lg:hidden">
+        <button
+          type="button"
+          aria-label={drawerOpen ? "Close menu" : "Open menu"}
+          onClick={() => setDrawerOpen((v) => !v)}
+          className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-[var(--dash-border)] bg-white text-[#111111]"
+        >
+          {drawerOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
+        <div className="min-w-0 flex-1">
+          <p className="font-inter text-[10px] font-medium uppercase tracking-[0.12em] text-[#6b7280]">
+            Employee
+          </p>
+          <p className="truncate font-inter text-sm font-semibold text-[#111111]">{currentLabel}</p>
+        </div>
+        <button
+          type="button"
+          aria-label="Search"
+          onClick={() => setSearchOpen(true)}
+          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--dash-border)] text-[#6b7280]"
+        >
+          <Search className="h-4 w-4" />
+        </button>
+        <PortalProfileMenu
+          email={profileEmail}
+          roleLabel="Employee"
+          logoutAction={logoutSalesEmployee}
+        />
+      </header>
+
+      {drawerOpen ? (
+        <>
+          <button
+            type="button"
+            aria-label="Close menu overlay"
+            className="fixed inset-0 z-50 bg-black/40 lg:hidden"
+            onClick={() => setDrawerOpen(false)}
+          />
+          <aside className="fixed inset-y-0 left-0 z-50 w-[min(280px,88vw)] border-r border-[var(--dash-border)] bg-white lg:hidden">
+            <SidebarBody
+              name={name}
+              email={profileEmail}
+              pathname={pathname}
+              sections={sections}
+              onNavigate={() => setDrawerOpen(false)}
+              onOpenSearch={() => {
+                setDrawerOpen(false);
+                setSearchOpen(true);
+              }}
+            />
+          </aside>
+        </>
+      ) : null}
+
+      <PortalSearchDialog
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        navItems={navItems}
+        placeholder="Search your workspace…"
+      />
+    </>
   );
 }

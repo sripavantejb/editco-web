@@ -1,7 +1,32 @@
 import { cn } from "@/lib/utils";
 import { formatCurrencyINR } from "@/lib/utils";
 import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 import type { ReactNode } from "react";
+
+/** Apple-style back control: chevron + destination name (no pill button). */
+export function OsBackLink({
+  href,
+  label = "Back",
+}: {
+  href: string;
+  label?: string;
+}) {
+  const text = label.replace(/^back(\s+to)?\s+/i, "").trim() || "Back";
+
+  return (
+    <Link
+      href={href}
+      className="group -ml-1.5 inline-flex max-w-full items-center gap-0.5 rounded-md py-1 pr-2 font-inter text-[17px] font-normal leading-none text-[#0071e3] transition-opacity hover:opacity-70 active:opacity-50"
+    >
+      <ChevronLeft
+        className="h-[22px] w-[22px] shrink-0 -translate-x-0.5 stroke-[2.25]"
+        aria-hidden
+      />
+      <span className="truncate capitalize tracking-[-0.01em]">{text}</span>
+    </Link>
+  );
+}
 
 export function OsPage({
   title,
@@ -21,8 +46,8 @@ export function OsPage({
   return (
     <main id="main" className="px-4 py-8 sm:px-8">
       {backHref ? (
-        <div className="mb-4">
-          <OsGhostLink href={backHref}>{backLabel}</OsGhostLink>
+        <div className="mb-5">
+          <OsBackLink href={backHref} label={backLabel} />
         </div>
       ) : null}
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
@@ -77,13 +102,40 @@ export function OsStat({
   value: string | number;
 }) {
   return (
-    <div className="rounded-[20px] border border-[var(--dash-border)] bg-[var(--dash-surface)] p-5">
+    <div className="rounded-xl border border-[var(--dash-border)] bg-white p-5">
       <p className="font-inter text-[11px] uppercase tracking-[0.14em] text-[var(--dash-faint)]">
         {label}
       </p>
       <p className="mt-2 font-archivo text-2xl text-[var(--dash-text)]">
         {typeof value === "number" ? formatCurrencyINR(value) : value}
       </p>
+    </div>
+  );
+}
+
+/** HRMS card heading — sentence case, optional “View all →”. */
+export function CardTitle({
+  title,
+  href,
+  actionLabel = "View all →",
+}: {
+  title: string;
+  href?: string;
+  actionLabel?: string;
+}) {
+  return (
+    <div className="mb-4 flex items-center justify-between gap-3">
+      <h2 className="font-inter text-[15px] font-semibold tracking-[-0.01em] text-[#111111]">
+        {title}
+      </h2>
+      {href ? (
+        <Link
+          href={href}
+          className="shrink-0 font-inter text-[13px] font-medium text-[#6b7280] transition-colors hover:text-[#111111]"
+        >
+          {actionLabel}
+        </Link>
+      ) : null}
     </div>
   );
 }
@@ -98,7 +150,7 @@ export function OsLink({
   return (
     <Link
       href={href}
-      className="inline-flex min-h-11 items-center rounded-full bg-[var(--dash-accent)] px-5 font-archivo text-xs uppercase tracking-[0.08em] text-[var(--dash-on-accent)]"
+      className="inline-flex h-10 items-center rounded-lg bg-[#111111] px-4 font-inter text-[13px] font-medium text-white transition hover:bg-[#222222]"
     >
       {children}
     </Link>
@@ -115,7 +167,7 @@ export function OsGhostLink({
   return (
     <Link
       href={href}
-      className="inline-flex min-h-11 items-center rounded-full border border-[var(--dash-border)] px-5 font-archivo text-xs uppercase tracking-[0.08em] text-[var(--dash-text)] hover:bg-[var(--dash-hover)]"
+      className="inline-flex h-10 items-center rounded-lg border border-[#e5e7eb] bg-white px-4 font-inter text-[13px] font-medium text-[#111111] transition hover:bg-[#f5f5f5]"
     >
       {children}
     </Link>
@@ -124,7 +176,7 @@ export function OsGhostLink({
 
 export function OsTable({ children }: { children: ReactNode }) {
   return (
-    <div className="overflow-x-auto rounded-[20px] border border-[var(--dash-border)]">
+    <div className="overflow-x-auto rounded-xl border border-[var(--dash-border)] bg-white">
       <table className="w-full min-w-[640px] text-left font-inter text-sm">
         {children}
       </table>
