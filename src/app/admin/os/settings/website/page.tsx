@@ -23,6 +23,7 @@ import {
 import { OsActionForm } from "@/components/os/OsActionForm";
 import { OsSlideOver } from "@/components/os/OsSlideOver";
 import { RowDeleteButton } from "@/components/os/RowDeleteButton";
+import { SiteImageFields } from "@/components/os/SiteImageFields";
 import { Field, OsPage, osInputClass, osTextareaClass } from "@/components/os/ui";
 import { OsSelect } from "@/components/os/OsSelect";
 
@@ -62,7 +63,7 @@ export default async function WebsiteSettingsPage() {
   return (
     <OsPage
       title="Website images"
-      subtitle="Update Clients logos, Selected Works, and The Crew photos & portfolio links."
+      subtitle="Update Clients logos, Selected Works, and The Crew photos & portfolio links. Every add/edit form includes an image upload."
       backHref="/admin/os/settings"
       backLabel="Back to settings"
     >
@@ -85,6 +86,10 @@ export default async function WebsiteSettingsPage() {
               <Field label="Title">
                 <input name="title" required className={osInputClass()} />
               </Field>
+              <SiteImageFields
+                label="Logo image"
+                urlPlaceholder="/clients/logo.png or https://…"
+              />
               <Field label="Website URL (optional)">
                 <input name="href" placeholder="https://" className={osInputClass()} />
               </Field>
@@ -122,16 +127,6 @@ export default async function WebsiteSettingsPage() {
                   />
                 </Field>
               </div>
-              <Field label="Image file">
-                <input name="image" type="file" accept="image/*" className={osInputClass()} />
-              </Field>
-              <Field label="Or image URL / path">
-                <input
-                  name="imageUrl"
-                  placeholder="/clients/logo.png or https://…"
-                  className={osInputClass()}
-                />
-              </Field>
             </OsActionForm>
           </OsSlideOver>
         </div>
@@ -156,7 +151,7 @@ export default async function WebsiteSettingsPage() {
                     />
                   ) : (
                     <span className="font-inter text-xs text-[var(--dash-muted)]">
-                      No image
+                      No image — use Edit to add
                     </span>
                   )}
                 </div>
@@ -166,7 +161,7 @@ export default async function WebsiteSettingsPage() {
                 </p>
                 <div className="mt-3 flex items-center gap-2">
                   <OsSlideOver
-                    triggerLabel="Edit"
+                    triggerLabel={src ? "Edit" : "Add image"}
                     title={`Edit · ${logo.title}`}
                     triggerClassName="!h-8 !rounded-lg !px-3 !text-[12px] !normal-case"
                   >
@@ -184,6 +179,12 @@ export default async function WebsiteSettingsPage() {
                           className={osInputClass()}
                         />
                       </Field>
+                      <SiteImageFields
+                        label="Logo image"
+                        currentSrc={src || undefined}
+                        defaultUrl={logo.imageBase64 ? "" : logo.imageUrl || ""}
+                        urlPlaceholder="Leave blank to keep current upload"
+                      />
                       <Field label="Website URL">
                         <input
                           name="href"
@@ -229,17 +230,6 @@ export default async function WebsiteSettingsPage() {
                           />
                         </Field>
                       </div>
-                      <Field label="Replace image">
-                        <input name="image" type="file" accept="image/*" className={osInputClass()} />
-                      </Field>
-                      <Field label="Or image URL / path">
-                        <input
-                          name="imageUrl"
-                          defaultValue={logo.imageBase64 ? "" : logo.imageUrl || ""}
-                          placeholder="Leave blank to keep current upload"
-                          className={osInputClass()}
-                        />
-                      </Field>
                     </OsActionForm>
                   </OsSlideOver>
                   <RowDeleteButton
@@ -264,11 +254,7 @@ export default async function WebsiteSettingsPage() {
               Cards in the hover-expand gallery and /work pages.
             </p>
           </div>
-          <OsSlideOver
-            triggerLabel="Add work"
-            title="Add selected work"
-            wide
-          >
+          <OsSlideOver triggerLabel="Add work" title="Add selected work" wide>
             <OsActionForm
               action={upsertSiteWork}
               submitLabel="Add work"
@@ -286,6 +272,10 @@ export default async function WebsiteSettingsPage() {
                   />
                 </Field>
               </div>
+              <SiteImageFields
+                label="Work image"
+                urlPlaceholder="/works/project.png or https://…"
+              />
               <div className="grid gap-3 sm:grid-cols-2">
                 <Field label="Category">
                   <input name="category" className={osInputClass()} />
@@ -326,16 +316,6 @@ export default async function WebsiteSettingsPage() {
               <Field label="Focus tags (comma-separated)">
                 <input name="focus" placeholder="Website, Booking" className={osInputClass()} />
               </Field>
-              <Field label="Image file">
-                <input name="image" type="file" accept="image/*" className={osInputClass()} />
-              </Field>
-              <Field label="Or image URL / path">
-                <input
-                  name="imageUrl"
-                  placeholder="/works/project.png or https://…"
-                  className={osInputClass()}
-                />
-              </Field>
             </OsActionForm>
           </OsSlideOver>
         </div>
@@ -348,7 +328,7 @@ export default async function WebsiteSettingsPage() {
                 key={String(work._id)}
                 className="overflow-hidden rounded-2xl border border-[var(--dash-border)]"
               >
-                <div className="relative h-40 bg-[#111]">
+                <div className="relative flex h-40 items-center justify-center bg-[#111]">
                   {src ? (
                     <Image
                       src={src}
@@ -357,7 +337,11 @@ export default async function WebsiteSettingsPage() {
                       className="object-cover"
                       unoptimized
                     />
-                  ) : null}
+                  ) : (
+                    <span className="font-inter text-xs text-white/50">
+                      No image — use Add image
+                    </span>
+                  )}
                 </div>
                 <div className="p-4">
                   <p className="font-archivo text-sm uppercase">{work.title}</p>
@@ -366,7 +350,7 @@ export default async function WebsiteSettingsPage() {
                   </p>
                   <div className="mt-3 flex items-center gap-2">
                     <OsSlideOver
-                      triggerLabel="Edit"
+                      triggerLabel={src ? "Edit" : "Add image"}
                       title={`Edit · ${work.title}`}
                       wide
                       triggerClassName="!h-8 !rounded-lg !px-3 !text-[12px] !normal-case"
@@ -394,6 +378,12 @@ export default async function WebsiteSettingsPage() {
                             />
                           </Field>
                         </div>
+                        <SiteImageFields
+                          label="Work image"
+                          currentSrc={src || undefined}
+                          defaultUrl={work.imageBase64 ? "" : work.imageUrl || ""}
+                          urlPlaceholder="Leave blank to keep current upload"
+                        />
                         <div className="grid gap-3 sm:grid-cols-2">
                           <Field label="Category">
                             <input
@@ -461,17 +451,6 @@ export default async function WebsiteSettingsPage() {
                             className={osInputClass()}
                           />
                         </Field>
-                        <Field label="Replace image">
-                          <input name="image" type="file" accept="image/*" className={osInputClass()} />
-                        </Field>
-                        <Field label="Or image URL / path">
-                          <input
-                            name="imageUrl"
-                            defaultValue={work.imageBase64 ? "" : work.imageUrl || ""}
-                            placeholder="Leave blank to keep current upload"
-                            className={osInputClass()}
-                          />
-                        </Field>
                       </OsActionForm>
                     </OsSlideOver>
                     <RowDeleteButton
@@ -511,6 +490,10 @@ export default async function WebsiteSettingsPage() {
                   <input name="slug" placeholder="harsha" className={osInputClass()} />
                 </Field>
               </div>
+              <SiteImageFields
+                label="Photo"
+                urlPlaceholder="/crew/harsha.jpg or https://…"
+              />
               <Field label="Role">
                 <input name="role" className={osInputClass()} />
               </Field>
@@ -544,16 +527,6 @@ export default async function WebsiteSettingsPage() {
               <Field label="Portfolio URL">
                 <input name="portfolio" placeholder="https://…" className={osInputClass()} />
               </Field>
-              <Field label="Photo">
-                <input name="image" type="file" accept="image/*" className={osInputClass()} />
-              </Field>
-              <Field label="Or image URL / path">
-                <input
-                  name="imageUrl"
-                  placeholder="/crew/harsha.jpg"
-                  className={osInputClass()}
-                />
-              </Field>
             </OsActionForm>
           </OsSlideOver>
         </div>
@@ -566,7 +539,7 @@ export default async function WebsiteSettingsPage() {
                 key={String(member._id)}
                 className="overflow-hidden rounded-2xl border border-[var(--dash-border)]"
               >
-                <div className="relative h-48 bg-[#111]">
+                <div className="relative flex h-48 items-center justify-center bg-[#111]">
                   {src ? (
                     <Image
                       src={src}
@@ -575,7 +548,11 @@ export default async function WebsiteSettingsPage() {
                       className="object-cover object-top"
                       unoptimized
                     />
-                  ) : null}
+                  ) : (
+                    <span className="font-inter text-xs text-white/50">
+                      No photo — use Add image
+                    </span>
+                  )}
                 </div>
                 <div className="p-4">
                   <p className="font-archivo text-sm uppercase">{member.name}</p>
@@ -589,7 +566,7 @@ export default async function WebsiteSettingsPage() {
                   ) : null}
                   <div className="mt-3 flex items-center gap-2">
                     <OsSlideOver
-                      triggerLabel="Edit"
+                      triggerLabel={src ? "Edit" : "Add image"}
                       title={`Edit · ${member.name}`}
                       wide
                       triggerClassName="!h-8 !rounded-lg !px-3 !text-[12px] !normal-case"
@@ -617,6 +594,12 @@ export default async function WebsiteSettingsPage() {
                             />
                           </Field>
                         </div>
+                        <SiteImageFields
+                          label="Photo"
+                          currentSrc={src || undefined}
+                          defaultUrl={member.imageBase64 ? "" : member.imageUrl || ""}
+                          urlPlaceholder="Leave blank to keep current upload"
+                        />
                         <Field label="Role">
                           <input
                             name="role"
@@ -664,17 +647,6 @@ export default async function WebsiteSettingsPage() {
                           <input
                             name="portfolio"
                             defaultValue={member.portfolio || ""}
-                            className={osInputClass()}
-                          />
-                        </Field>
-                        <Field label="Replace photo">
-                          <input name="image" type="file" accept="image/*" className={osInputClass()} />
-                        </Field>
-                        <Field label="Or image URL / path">
-                          <input
-                            name="imageUrl"
-                            defaultValue={member.imageBase64 ? "" : member.imageUrl || ""}
-                            placeholder="Leave blank to keep current upload"
                             className={osInputClass()}
                           />
                         </Field>
