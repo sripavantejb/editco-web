@@ -143,14 +143,14 @@ export function ShareReferralModal({
             {/* One top row: logo + QR/text | close + socials */}
             <div className="flex items-start justify-between gap-4 sm:gap-6">
               <div className="flex min-w-0 flex-1 flex-col flex-wrap items-start gap-8 sm:flex-row sm:gap-16 md:gap-24 lg:gap-32">
-                <div className="flex h-12 shrink-0 items-center gap-3">
+                <div className="flex h-10 shrink-0 items-center gap-2.5 sm:h-11 sm:gap-3">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={LOGO_SRC}
                     alt="Editco"
-                    className="h-10 w-auto brightness-0 md:h-12"
+                    className="h-8 w-8 shrink-0 object-contain brightness-0 sm:h-9 sm:w-9"
                   />
-                  <span className="font-inter text-xl font-semibold uppercase tracking-tighter text-black sm:text-2xl">
+                  <span className="font-inter text-lg font-semibold uppercase tracking-tighter text-black sm:text-xl">
                     {site.name}
                   </span>
                 </div>
