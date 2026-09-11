@@ -146,12 +146,20 @@ export function EGAAdminDetail({ app }: { app: EGADetail }) {
             <StatusBadge status={status} />
           </div>
         </div>
-        <Link
-          href="/admin/ega"
-          className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--dash-border)] px-4 font-archivo text-xs uppercase tracking-[0.08em] text-[var(--dash-text)] transition hover:bg-[var(--dash-hover)]"
-        >
-          All applications
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/admin/ega"
+            className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--dash-border)] px-4 font-archivo text-xs uppercase tracking-[0.08em] text-[var(--dash-text)] transition hover:bg-[var(--dash-hover)]"
+          >
+            All applications
+          </Link>
+          <Link
+            href="/sales/admin"
+            className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--dash-border)] px-4 font-archivo text-xs uppercase tracking-[0.08em] text-[var(--dash-muted)] transition hover:text-[var(--dash-text)]"
+          >
+            Sales Admin ↗
+          </Link>
+        </div>
       </div>
 
       <form action={saveAction} className="space-y-6">

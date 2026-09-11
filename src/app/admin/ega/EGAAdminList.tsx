@@ -53,18 +53,42 @@ export function EGAAdminList({
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="font-archivo text-[10px] uppercase tracking-[0.2em] text-[var(--dash-accent)]">
-          Growth Associates
-        </p>
-        <h1 className="mt-1 font-archivo text-2xl uppercase tracking-tighter text-[var(--dash-text)] sm:text-3xl">
-          EGA Applications
-        </h1>
-        <p className="mt-1 text-sm text-[var(--dash-muted)]">
-          Fit signal helps sort — it is not a grade. Click a name to open the
-          profile, then mark Selected, Lookback, or Rejected to load email and
-          WhatsApp.
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="font-archivo text-[10px] uppercase tracking-[0.2em] text-[var(--dash-accent)]">
+            Growth Associates
+          </p>
+          <h1 className="mt-1 font-archivo text-2xl uppercase tracking-tighter text-[var(--dash-text)] sm:text-3xl">
+            EGA Applications
+          </h1>
+          <p className="mt-1 text-sm text-[var(--dash-muted)]">
+            Fit signal helps sort — it is not a grade. Click a name to open the
+            profile, then mark Selected, Lookback, or Rejected to load email and
+            WhatsApp.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/admin/ega/form"
+            className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--dash-border)] bg-[var(--dash-surface)] px-4 font-archivo text-xs uppercase tracking-[0.08em] text-[var(--dash-text)] transition hover:border-[var(--dash-accent)] hover:text-[var(--dash-accent)]"
+          >
+            Form builder
+          </Link>
+          <Link
+            href="/sales/admin"
+            className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--dash-border)] px-4 font-archivo text-xs uppercase tracking-[0.08em] text-[var(--dash-muted)] transition hover:text-[var(--dash-text)]"
+          >
+            Sales Admin ↗
+          </Link>
+          <a
+            href="/editco-growth-associate"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--dash-border)] px-4 font-archivo text-xs uppercase tracking-[0.08em] text-[var(--dash-muted)] transition hover:text-[var(--dash-text)]"
+          >
+            Apply Page ↗
+          </a>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">

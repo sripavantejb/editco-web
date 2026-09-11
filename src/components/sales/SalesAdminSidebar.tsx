@@ -22,6 +22,7 @@ import {
   Search,
   Menu,
   X,
+  ListChecks,
   type LucideIcon,
 } from "lucide-react";
 import { logoutSalesAdmin } from "@/actions/auth";
@@ -67,6 +68,26 @@ const SECTIONS: NavSection[] = [
     ],
   },
   {
+    label: "Growth & EGA",
+    items: [
+      {
+        href: "/admin/ega",
+        label: "EGA Applications",
+        icon: Users,
+        match: (p) =>
+          (p.startsWith("/admin/ega") && !p.startsWith("/admin/ega/form")) ||
+          p.startsWith("/admin-ega") ||
+          p.startsWith("/sales/admin/ega"),
+      },
+      {
+        href: "/admin/ega/form",
+        label: "EGA Form Builder",
+        icon: ListChecks,
+        match: (p) => p.startsWith("/admin/ega/form"),
+      },
+    ],
+  },
+  {
     label: "Workforce",
     items: [
       { href: "/sales/admin/attendance/dashboard", label: "Attendance", icon: ClipboardList, match: (p) => p.startsWith("/sales/admin/attendance") },
@@ -88,7 +109,7 @@ const SECTIONS: NavSection[] = [
     items: [
       { href: "/admin/os", label: "Admin OS Hub", icon: LayoutDashboard, match: (p) => p.startsWith("/admin/os") && !p.startsWith("/admin/os/editco") },
       { href: "/admin/os/editco", label: "Master Tracker", icon: ScrollText, match: (p) => p.startsWith("/admin/os/editco") },
-      { href: "/admin", label: "Super Admin", icon: Target, match: (p) => p === "/admin" || p.startsWith("/admin/rewards") || p.startsWith("/admin/ega") },
+      { href: "/admin", label: "Super Admin", icon: Target, match: (p) => p === "/admin" || p.startsWith("/admin/rewards") || p.startsWith("/admin/jobs") || p.startsWith("/admin/applications") || p.startsWith("/admin/referrals") },
       { href: "/track", label: "Client Tracker", icon: CheckCircle2, match: (p) => p.startsWith("/track") },
     ],
   },

@@ -42,9 +42,27 @@ export async function requireOsPage(permission: string): Promise<StaffContext> {
 export async function requireLegacyPage(): Promise<AdminSession> {
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
+  await connectDB();
+
+  // Super admins have access to all legacy/growth domains
+  if (isSuperAdminEmail(session.email)) {
+    return session;
+  }
+
+  // Sales admins have access to EGA & growth domains
+  const sales = await getSalesEmployeeContext(session.email);
+  if (sales?.isSalesAdmin) {
+    return session;
+  }
+
+  // Dedicated EGA admins
+  const { isEGAAdminEmail } = await import("@/lib/admin");
+  if (isEGAAdminEmail(session.email)) {
+    return session;
+  }
+
   const staff = await getStaffContext();
   if (!staff) {
-    await connectDB();
     await bounceNonOsUser(session.email);
   }
   if (staff!.role === "sales" && !isSuperAdminEmail(staff!.email)) {
@@ -53,6 +71,5 @@ export async function requireLegacyPage(): Promise<AdminSession> {
   if (staff && !canAccessLegacyAdmin(staff.role)) {
     redirect("/admin/os");
   }
-  await connectDB();
   return session;
 }

@@ -7,6 +7,7 @@ import { SalesLead } from "@/models/sales/SalesLead";
 import { SalesTask } from "@/models/sales/SalesTask";
 import { SalesApproval } from "@/models/sales/SalesApproval";
 import { StaffUser } from "@/models/os/StaffUser";
+import { EGAApplication } from "@/models/EGAApplication";
 import { SALES_LEAD_STATUS_LABELS, type SalesLeadStatus } from "@/lib/sales/constants";
 import { CardTitle, OsPage, OsStat, OsLink, OsGhostLink } from "@/components/os/ui";
 
@@ -24,6 +25,8 @@ export default async function SalesAdminDashboardPage() {
     unassignedCount,
     pendingApprovals,
     overdueTasks,
+    pendingEgaCount,
+    totalEgaCount,
     statusAgg,
     employees,
   ] = await Promise.all([
@@ -44,6 +47,8 @@ export default async function SalesAdminDashboardPage() {
       status: { $ne: "completed" },
       dueDate: { $lt: now },
     }),
+    EGAApplication.countDocuments({ status: "pending" }),
+    EGAApplication.countDocuments(),
     SalesLead.aggregate<{ _id: string; count: number }>([
       { $match: { recordStatus: "active" } },
       { $group: { _id: "$status", count: { $sum: 1 } } },
@@ -98,9 +103,12 @@ export default async function SalesAdminDashboardPage() {
   return (
     <OsPage
       title="Dashboard"
-      subtitle="Team overview, lead load, and what needs your attention today."
+      subtitle="Team overview, lead load, EGA applications, and what needs your attention today."
       actions={
         <>
+          <OsGhostLink href="/admin/ega">
+            EGA Applications{pendingEgaCount ? ` (${pendingEgaCount})` : ""}
+          </OsGhostLink>
           <OsGhostLink href="/sales/admin/approvals">
             Approvals{pendingApprovals ? ` (${pendingApprovals})` : ""}
           </OsGhostLink>
@@ -115,7 +123,24 @@ export default async function SalesAdminDashboardPage() {
         <OsStat label="Converted" value={String(convertedCount)} />
       </div>
 
-      <div className="mb-6 grid gap-4 sm:grid-cols-3">
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Link
+          href="/admin/ega"
+          className="block rounded-xl border border-[var(--dash-border)] bg-white p-4 transition-colors hover:border-[#111111]"
+        >
+          <div className="flex items-center justify-between">
+            <p className="font-inter text-[11px] uppercase tracking-[0.14em] text-[var(--dash-faint)]">
+              EGA Candidates
+            </p>
+            {pendingEgaCount > 0 ? (
+              <span className="inline-flex rounded-full bg-amber-500/15 px-2 py-0.5 font-inter text-[10px] font-semibold text-amber-600">
+                {pendingEgaCount} pending
+              </span>
+            ) : null}
+          </div>
+          <p className="mt-2 font-archivo text-2xl text-[var(--dash-text)]">{totalEgaCount}</p>
+          <p className="mt-1 font-inter text-xs text-[var(--dash-muted)]">Review applications →</p>
+        </Link>
         <Link
           href="/sales/admin/approvals"
           className="block rounded-xl border border-[var(--dash-border)] bg-white p-4 transition-colors hover:border-[#111111]"

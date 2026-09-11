@@ -129,9 +129,7 @@ function buildSections(permissions: string[], role?: StaffRole): NavSection[] {
     }))
     .filter((s) => s.items.length > 0);
 
-  if (role && canAccessLegacyAdmin(role)) return [...os, growthSection];
-  if (!role) return [...os, growthSection];
-  return os.length ? os : [growthSection];
+  return [...os, growthSection];
 }
 
 const LOGO_SRC =
@@ -367,7 +365,7 @@ export function AdminSidebar({
       .find((i) => i.match(pathname, isEgaTab, search))?.label || "Admin";
 
   const showSearch = hasPermission(permissions, "search:read");
-  const showSalesAdminJump = role === "super_admin";
+  const showSalesAdminJump = role === "super_admin" || role === "sales" || !role;
   const navItems: NavSearchItem[] = useMemo(
     () =>
       sections.flatMap((s) =>
