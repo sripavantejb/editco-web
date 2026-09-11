@@ -1,15 +1,21 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  Building2,
+  CalendarDays,
   ChevronRight,
   Filter,
+  LayoutDashboard,
+  PackageSearch,
   SlidersHorizontal,
+  Sparkles,
+  Table,
   TrendingUp,
   Users,
   Wallet,
-  CalendarDays,
   X,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -217,6 +223,49 @@ export function AdminOverviewPanel({
 
   return (
     <div className="space-y-6">
+      {/* Workspace Quick-Jump Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--dash-border)] bg-[var(--dash-surface)] p-3.5 backdrop-blur-md">
+        <div className="flex items-center gap-2">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#c8f542]/10 text-[var(--dash-accent)]">
+            <Sparkles className="h-4 w-4" />
+          </span>
+          <span className="font-archivo text-xs font-bold uppercase tracking-[0.12em] text-[var(--dash-text)]">
+            Editco Command Center
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-2 font-inter text-xs">
+          <Link
+            href="/admin/os"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--dash-border)] bg-black/30 px-3 py-1.5 text-[var(--dash-text)] transition hover:border-[var(--dash-accent)]/50 hover:text-[var(--dash-accent)]"
+          >
+            <LayoutDashboard className="h-3.5 w-3.5" />
+            <span>Admin OS</span>
+          </Link>
+          <Link
+            href="/sales/admin"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--dash-border)] bg-black/30 px-3 py-1.5 text-[var(--dash-text)] transition hover:border-[var(--dash-accent)]/50 hover:text-[var(--dash-accent)]"
+          >
+            <Building2 className="h-3.5 w-3.5" />
+            <span>Sales CRM</span>
+          </Link>
+          <Link
+            href="/admin/os/editco"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--dash-border)] bg-black/30 px-3 py-1.5 text-[var(--dash-text)] transition hover:border-[var(--dash-accent)]/50 hover:text-[var(--dash-accent)]"
+          >
+            <Table className="h-3.5 w-3.5" />
+            <span>Master Tracker</span>
+          </Link>
+          <Link
+            href="/track"
+            target="_blank"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--dash-border)] bg-black/30 px-3 py-1.5 text-[var(--dash-text)] transition hover:border-[var(--dash-accent)]/50 hover:text-[var(--dash-accent)]"
+          >
+            <PackageSearch className="h-3.5 w-3.5" />
+            <span>Live Tracker ↗</span>
+          </Link>
+        </div>
+      </div>
+
       {/* Metric cards */}
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {metricCards.map((card, i) => {

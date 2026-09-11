@@ -224,7 +224,10 @@ export default async function TrackDetailPage({
             <img
               src={EDITCO_LOGO_URL}
               alt="Editco Media"
-              className="h-6 w-auto max-w-[100px] object-contain object-left"
+              width={100}
+              height={26}
+              style={{ height: "26px", width: "auto", maxHeight: "26px" }}
+              className="h-[26px] w-auto object-contain object-left"
             />
           </a>
           <div className="min-w-0 flex-1">

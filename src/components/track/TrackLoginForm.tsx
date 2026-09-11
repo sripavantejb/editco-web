@@ -1,8 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { ArrowRight, Loader2, ShieldCheck } from "lucide-react";
+import { AlertCircle, ArrowRight, Hash, KeyRound, Loader2, Mail, ShieldCheck } from "lucide-react";
 import { startTracking, type TrackFormState } from "@/actions/os/track";
 import { TRACK_REQUIRE_EMAIL } from "@/lib/os/tracking-stages";
 
@@ -12,19 +12,21 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className="group mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--dash-accent)] px-5 py-3 font-archivo text-sm font-semibold uppercase tracking-[0.08em] text-[#0c0c0c] transition-all hover:bg-[var(--dash-accent-hover)] disabled:opacity-60"
+      className="group relative mt-2 flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-[var(--dash-accent)] px-6 py-3.5 font-archivo text-sm font-bold uppercase tracking-[0.08em] text-[#0a0a0a] shadow-[0_0_24px_rgba(200,245,66,0.3)] transition-all duration-200 hover:bg-[var(--dash-accent-hover)] hover:shadow-[0_0_32px_rgba(200,245,66,0.45)] active:scale-[0.99] disabled:opacity-60 disabled:shadow-none"
     >
-      {pending ? (
-        <>
-          <Loader2 className="h-4 w-4 animate-spin" />
-          Checking
-        </>
-      ) : (
-        <>
-          Track my project
-          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-        </>
-      )}
+      <span className="relative z-10 flex items-center gap-2">
+        {pending ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin text-[#0a0a0a]" />
+            Verifying Code...
+          </>
+        ) : (
+          <>
+            Track My Project
+            <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+          </>
+        )}
+      </span>
     </button>
   );
 }
@@ -34,33 +36,44 @@ export function TrackLoginForm({ defaultCode = "" }: { defaultCode?: string }) {
     startTracking,
     undefined
   );
+  const [codeValue, setCodeValue] = useState(defaultCode);
 
   return (
-    <form action={formAction} className="grid gap-3">
+    <form action={formAction} className="grid gap-4">
       <div className="grid gap-1.5">
         <label
           htmlFor="code"
-          className="font-archivo text-[11px] uppercase tracking-[0.16em] text-[var(--dash-faint)]"
+          className="flex items-center justify-between font-archivo text-[11px] uppercase tracking-[0.14em] text-white/70"
         >
-          Tracking code
+          <span className="flex items-center gap-1.5">
+            <KeyRound className="h-3 w-3 text-[var(--dash-accent)]" />
+            Tracking Code
+          </span>
+          <span className="font-mono text-[10px] text-white/40">e.g. ECM-2026-001</span>
         </label>
-        <input
-          id="code"
-          name="code"
-          required
-          autoComplete="off"
-          spellCheck={false}
-          defaultValue={defaultCode}
-          placeholder="ECM2026001"
-          className="w-full rounded-xl border border-[var(--dash-border)] bg-[var(--dash-surface)] px-4 py-3 font-mono text-[15px] uppercase tracking-[0.12em] text-[var(--dash-text)] placeholder:tracking-normal placeholder:text-[var(--dash-faint)] focus:border-[var(--dash-accent)] focus:outline-none"
-        />
+        <div className="relative">
+          <input
+            id="code"
+            name="code"
+            required
+            autoFocus
+            autoComplete="off"
+            spellCheck={false}
+            value={codeValue}
+            onChange={(e) => setCodeValue(e.target.value.toUpperCase())}
+            placeholder="ECM-2026-001"
+            className="w-full rounded-xl border border-white/15 bg-black/40 px-4 py-3.5 font-mono text-[16px] uppercase tracking-[0.12em] text-white placeholder:font-sans placeholder:tracking-normal placeholder:text-white/30 transition-all duration-150 focus:border-[var(--dash-accent)] focus:bg-black/60 focus:outline-none focus:ring-1 focus:ring-[var(--dash-accent)]/50"
+          />
+        </div>
       </div>
+
       {TRACK_REQUIRE_EMAIL ? (
         <div className="grid gap-1.5">
           <label
             htmlFor="email"
-            className="font-archivo text-[11px] uppercase tracking-[0.16em] text-[var(--dash-faint)]"
+            className="flex items-center gap-1.5 font-archivo text-[11px] uppercase tracking-[0.14em] text-white/70"
           >
+            <Mail className="h-3 w-3 text-[var(--dash-accent)]" />
             Email on your project
           </label>
           <input
@@ -70,27 +83,30 @@ export function TrackLoginForm({ defaultCode = "" }: { defaultCode?: string }) {
             required
             autoComplete="email"
             placeholder="you@company.com"
-            className="w-full rounded-xl border border-[var(--dash-border)] bg-[var(--dash-surface)] px-4 py-3 font-inter text-[15px] text-[var(--dash-text)] placeholder:text-[var(--dash-faint)] focus:border-[var(--dash-accent)] focus:outline-none"
+            className="w-full rounded-xl border border-white/15 bg-black/40 px-4 py-3.5 font-inter text-[15px] text-white placeholder:text-white/30 transition-all duration-150 focus:border-[var(--dash-accent)] focus:bg-black/60 focus:outline-none focus:ring-1 focus:ring-[var(--dash-accent)]/50"
           />
         </div>
       ) : null}
 
       {state?.error ? (
-        <p
+        <div
           role="alert"
-          className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 font-inter text-sm text-rose-200"
+          className="flex items-center gap-2.5 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3.5 font-inter text-sm text-rose-200"
         >
-          {state.error}
-        </p>
+          <AlertCircle className="h-4 w-4 shrink-0 text-rose-400" />
+          <span>{state.error}</span>
+        </div>
       ) : null}
 
       <SubmitButton />
 
-      <p className="flex items-start gap-2 font-inter text-xs leading-relaxed text-[var(--dash-faint)]">
-        <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-        {TRACK_REQUIRE_EMAIL
-          ? "We ask for both so a forwarded code can't expose your project. Access lasts 7 days on this device."
-          : "Keep your code private — anyone who has it can view your project. Access lasts 7 days on this device."}
+      <p className="flex items-start gap-2 pt-1 font-inter text-[11px] leading-relaxed text-white/45">
+        <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--dash-accent)]/70" />
+        <span>
+          {TRACK_REQUIRE_EMAIL
+            ? "We verify both code and email to ensure your project details remain strictly confidential."
+            : "Keep your code confidential — anyone with this code can view milestone status & invoices."}
+        </span>
       </p>
     </form>
   );

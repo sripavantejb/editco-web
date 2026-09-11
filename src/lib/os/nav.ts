@@ -74,8 +74,14 @@ export const osNavSections: OsNavSection[] = [
     id: "sales",
     label: "Sales",
     icon: Users,
-    hidden: true,
     items: [
+      {
+        href: "/sales/admin",
+        label: "Sales CRM Admin",
+        icon: Building2,
+        permission: "*",
+        match: (p) => p.startsWith("/sales/admin"),
+      },
       {
         href: "/admin/os/leads",
         label: "Leads",
@@ -85,25 +91,11 @@ export const osNavSections: OsNavSection[] = [
           p.startsWith("/admin/os/leads") && !p.startsWith("/admin/os/leads/lists"),
       },
       {
-        href: "/admin/os/leads/lists",
-        label: "Lead Lists",
-        icon: ListTodo,
-        permission: "leads:read",
-        match: (p) => p.startsWith("/admin/os/leads/lists"),
-      },
-      {
         href: "/admin/os/pipeline",
         label: "Pipeline",
         icon: Kanban,
         permission: "leads:read",
         match: (p) => p.startsWith("/admin/os/pipeline"),
-      },
-      {
-        href: "/admin/os/calling",
-        label: "Calling",
-        icon: Calendar,
-        permission: "calls:read",
-        match: (p) => p.startsWith("/admin/os/calling"),
       },
       {
         href: "/admin/os/follow-ups",
@@ -157,32 +149,11 @@ export const osNavSections: OsNavSection[] = [
       },
       {
         href: "/admin/os/projects",
-        label: "All projects",
+        label: "Projects",
         icon: FolderKanban,
         permission: "projects:read",
         match: (p) =>
           p === "/admin/os/projects" || p.startsWith("/admin/os/projects/"),
-      },
-      {
-        href: "/admin/os/projects?filter=active",
-        label: "Active",
-        icon: FolderKanban,
-        permission: "projects:read",
-        match: () => false,
-      },
-      {
-        href: "/admin/os/projects?filter=due",
-        label: "Due soon",
-        icon: FolderKanban,
-        permission: "projects:read",
-        match: () => false,
-      },
-      {
-        href: "/admin/os/projects?filter=completed",
-        label: "Completed",
-        icon: FolderKanban,
-        permission: "projects:read",
-        match: () => false,
       },
       {
         href: "/admin/os/tasks",
