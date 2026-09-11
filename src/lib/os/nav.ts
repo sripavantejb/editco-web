@@ -37,6 +37,8 @@ export type OsNavSection = {
   label: string;
   icon: LucideIcon;
   items: OsNavItem[];
+  /** Temporarily keep a section out of the sidebar without deleting its routes. */
+  hidden?: boolean;
 };
 
 export const osNavSections: OsNavSection[] = [
@@ -72,6 +74,7 @@ export const osNavSections: OsNavSection[] = [
     id: "sales",
     label: "Sales",
     icon: Users,
+    hidden: true,
     items: [
       {
         href: "/admin/os/leads",
@@ -123,13 +126,6 @@ export const osNavSections: OsNavSection[] = [
         permission: "vault:read",
         match: (p) => p.startsWith("/admin/os/projects-vault"),
       },
-      {
-        href: "/admin/os/conversions",
-        label: "Conversions",
-        icon: Link2,
-        permission: "conversions:read",
-        match: (p) => p.startsWith("/admin/os/conversions"),
-      },
     ],
   },
   {
@@ -152,6 +148,13 @@ export const osNavSections: OsNavSection[] = [
     label: "Delivery",
     icon: FolderKanban,
     items: [
+      {
+        href: "/admin/os/conversions",
+        label: "Conversions",
+        icon: Link2,
+        permission: "conversions:read",
+        match: (p) => p.startsWith("/admin/os/conversions"),
+      },
       {
         href: "/admin/os/projects",
         label: "All projects",

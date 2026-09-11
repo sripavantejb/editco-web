@@ -26,7 +26,7 @@ export default async function SearchPage({
         backLabel="Back to dashboard"
       >
       <form className="max-w-xl">
-      <input name="q" className="h-11 w-full rounded-xl border border-[var(--dash-border)] bg-[var(--dash-input)] px-3" placeholder="EC-2026-8F4A2C91" />
+      <input name="q" className="h-11 w-full rounded-xl border border-[var(--dash-border)] bg-[var(--dash-input)] px-3" placeholder="ECM2026001" />
       </form>
       </OsPage>
     );

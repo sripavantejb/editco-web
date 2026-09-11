@@ -12,6 +12,7 @@ const PUBLIC_PREFETCH = [
   "/blog",
   "/careers",
   "/refer",
+  "/track",
   "/services",
   "/work",
   "/sales/login/employee",
@@ -29,7 +30,8 @@ export function MagneticNav() {
     pathname?.startsWith("/dashboard") ||
     pathname?.startsWith("/admin") ||
     pathname?.startsWith("/sales") ||
-    pathname?.startsWith("/client");
+    pathname?.startsWith("/client") ||
+    pathname?.startsWith("/track");
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = useCallback(() => setIsOpen(false), []);

@@ -17,6 +17,7 @@ import { SalesCustomer } from "@/models/sales/SalesCustomer";
 import {
   ACTIVE_PROJECT_STATUSES,
   LEAD_PIPELINE,
+  TASK_STATUS_LABELS,
   normalizeProjectStatus,
 } from "@/lib/os/constants";
 import { displayInvoiceStatus, outstandingOf } from "@/lib/os/money";
@@ -27,12 +28,15 @@ import { staffCanManageAllProjects } from "@/lib/os/project-access";
 import { migrateTaskStatuses } from "@/actions/os/tasks";
 import { DashboardActivityButton } from "@/components/os/DashboardActivityButton";
 import { EmailAlertsButton, TeamWorkloadCard } from "@/components/os/TeamWorkloadCard";
+import { DashboardListCard } from "@/components/os/DashboardListCard";
 import { FollowUp } from "@/models/os/FollowUp";
 import { EditcoTrackerRow } from "@/models/os/EditcoTrackerRow";
 import {
   EDITCO_TEAM_EMAILS,
   EDITCO_TEAM_NAMES,
+  EDITCO_TRACKER_STATUS_LABELS,
   type EditcoTeamName,
+  type EditcoTrackerStatus,
 } from "@/lib/os/editco-tracker";
 import Link from "next/link";
 import "@/models/sales/register";
@@ -77,6 +81,10 @@ export default async function OsDashboardPage() {
   todayEnd.setHours(23, 59, 59, 999);
 
   const canSeeAll = staffCanManageAllProjects(staff);
+  /** Super admins run the whole board, so their task cards span the team. */
+  const taskScope: Record<string, unknown> = canSeeAll
+    ? {}
+    : { assignedToId: staff.userId };
 
   const [
     leads,
@@ -92,6 +100,7 @@ export default async function OsDashboardPage() {
     overdueTasks,
     blockedTasks,
     activeStaff,
+    openTaskCount,
     myMemberships,
     salesCustomers,
     referrerCount,
@@ -119,16 +128,16 @@ export default async function OsDashboardPage() {
     }),
     OsTask.find({
       recordStatus: "active",
-      assignedToId: staff.userId,
+      ...taskScope,
       status: { $nin: ["completed", "cancelled"] },
     })
-      .sort({ dueDate: 1 })
-      .limit(8)
-      .select("title dueDate status projectId")
+      .sort({ dueDate: 1, createdAt: -1 })
+      .limit(60)
+      .select("title dueDate status projectId assignedToId assignee")
       .lean(),
     OsTask.find({
       recordStatus: "active",
-      assignedToId: staff.userId,
+      ...taskScope,
       dueDate: { $gte: todayStart, $lte: todayEnd },
       status: { $nin: ["completed", "cancelled"] },
     })
@@ -136,7 +145,7 @@ export default async function OsDashboardPage() {
       .lean(),
     OsTask.find({
       recordStatus: "active",
-      assignedToId: staff.userId,
+      ...taskScope,
       dueDate: { $lt: todayStart },
       status: { $nin: ["completed", "cancelled"] },
     })
@@ -144,17 +153,17 @@ export default async function OsDashboardPage() {
       .lean(),
     OsTask.find({
       recordStatus: "active",
-      assignedToId: staff.userId,
+      ...taskScope,
       status: "blocked",
     })
       .select("_id")
       .lean(),
-    StaffUser.find({
-      isActive: true,
-      email: { $in: Object.values(EDITCO_TEAM_EMAILS).map((e) => e.toLowerCase()) },
-    })
-      .select("name email")
-      .lean(),
+    StaffUser.find({ isActive: true }).select("name email").lean(),
+    OsTask.countDocuments({
+      recordStatus: "active",
+      ...taskScope,
+      status: { $nin: ["completed", "cancelled"] },
+    }),
     ProjectMember.find({ userId: staff.userId }).select("projectId").lean(),
     SalesCustomer.find({ recordStatus: "active" })
       .select("name company customerSince")
@@ -171,7 +180,8 @@ export default async function OsDashboardPage() {
       .select("notes dueAt assigneeEmail")
       .lean(),
     EditcoTrackerRow.find({})
-      .select("poc dependency status")
+      .sort({ date: -1, createdAt: -1 })
+      .select("poc dependency status projectName taskName date")
       .lean(),
   ]);
 
@@ -244,6 +254,46 @@ export default async function OsDashboardPage() {
     return status === "completed" || status === "not_needed";
   }
 
+  const staffNameById = new Map(
+    activeStaff.map((u) => [String(u._id), u.name || u.email || "Unassigned"] as const)
+  );
+
+  /** Master Tracker rows still in play — the other half of "what needs doing". */
+  const openTrackerRows = trackerRows.filter((r) => !trackerDone(String(r.status)));
+
+  /** Tracker rows are owned by POC display name, so map the signed-in email to it. */
+  const myTrackerName =
+    EDITCO_TEAM_NAMES.find(
+      (n) => EDITCO_TEAM_EMAILS[n].toLowerCase() === staff.email.toLowerCase()
+    ) ||
+    EDITCO_TEAM_NAMES.find(
+      (n) => n.toLowerCase() === (staff.name || "").trim().toLowerCase()
+    ) ||
+    null;
+
+  const taskItems = myTasks.map((t) => {
+    const who = t.assignedToId
+      ? staffNameById.get(String(t.assignedToId)) || t.assignee
+      : t.assignee;
+    return {
+      id: String(t._id),
+      href: `/admin/os/tasks/${t._id}`,
+      label: t.title,
+      meta: canSeeAll && who ? String(who) : undefined,
+      status: TASK_STATUS_LABELS[t.status as keyof typeof TASK_STATUS_LABELS] || String(t.status),
+      mine: String(t.assignedToId || "") === staff.userId,
+    };
+  });
+
+  const trackerItems = openTrackerRows.map((r) => ({
+    id: String(r._id),
+    href: "/admin/os/editco",
+    label: r.taskName,
+    meta: [r.projectName, r.poc].filter(Boolean).join(" · ") || undefined,
+    status: EDITCO_TRACKER_STATUS_LABELS[r.status as EditcoTrackerStatus] || String(r.status),
+    mine: myTrackerName ? trackerPocIs(r, myTrackerName) : false,
+  }));
+
   // Team workload bars = Master Tracker POC assignments (POC = person doing the task).
   const workload = EDITCO_TEAM_NAMES.map((displayName) => {
     const email = EDITCO_TEAM_EMAILS[displayName].toLowerCase();
@@ -308,11 +358,12 @@ export default async function OsDashboardPage() {
         </>
       }
     >
-      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <OsStat label="My tasks" value={String(myTasks.length)} />
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <OsStat label={canSeeAll ? "Open tasks" : "My tasks"} value={String(openTaskCount)} />
         <OsStat label="Today" value={String(todayTasks.length)} />
         <OsStat label="Overdue" value={String(overdueTasks.length)} />
         <OsStat label="Blocked" value={String(blockedTasks.length)} />
+        <OsStat label="Tracker open" value={String(openTrackerRows.length)} />
       </div>
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
@@ -329,23 +380,27 @@ export default async function OsDashboardPage() {
         <OsStat label="Sales CRM customers" value={String(salesCustomers.length)} />
       </div>
 
-      <div className="mb-6 grid gap-4 lg:grid-cols-2">
-        <section className="flex max-h-72 flex-col overflow-hidden rounded-xl border border-[var(--dash-border)] bg-white p-5">
-          <CardTitle title="My tasks" href="/admin/os/tasks?view=my" />
-          <ul className="min-h-0 flex-1 space-y-2.5 overflow-y-auto pr-3 font-inter text-sm [scrollbar-gutter:stable]">
-            {myTasks.map((t) => (
-              <li key={String(t._id)} className="flex items-center justify-between gap-3">
-                <Link href={`/admin/os/tasks/${t._id}`} className="truncate font-medium text-[#111111]">
-                  {t.title}
-                </Link>
-                <span className="shrink-0 text-[12px] text-[#6b7280]">{t.status}</span>
-              </li>
-            ))}
-            {myTasks.length === 0 ? (
-              <li className="text-[#6b7280]">No open tasks assigned to you.</li>
-            ) : null}
-          </ul>
-        </section>
+      <div className="mb-6 grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+        <DashboardListCard
+          title={canSeeAll ? "Open tasks" : "My tasks"}
+          href={canSeeAll ? "/admin/os/tasks?view=all" : "/admin/os/tasks?view=my"}
+          items={taskItems}
+          showToggle={canSeeAll}
+          emptyAll={canSeeAll ? "No open tasks." : "No open tasks assigned to you."}
+          emptyMine="No open tasks assigned to you."
+        />
+        <DashboardListCard
+          title="Master Tracker"
+          href="/admin/os/editco"
+          items={trackerItems}
+          showToggle={canSeeAll}
+          emptyAll="No open tracker rows."
+          emptyMine={
+            myTrackerName
+              ? "No open tracker rows with you as POC."
+              : "Your account is not a tracker POC."
+          }
+        />
         <section className="flex max-h-72 flex-col overflow-hidden rounded-xl border border-[var(--dash-border)] bg-white p-5">
           <CardTitle title="My projects" href="/admin/os/projects" />
           <ul className="mb-3 space-y-2 font-inter text-sm text-[#6b7280]">

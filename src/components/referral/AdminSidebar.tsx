@@ -119,6 +119,7 @@ function mapOsItem(item: OsNavItem): NavItem {
 
 function buildSections(permissions: string[], role?: StaffRole): NavSection[] {
   const os: NavSection[] = osNavSections
+    .filter((section: OsNavSection) => !section.hidden)
     .map((section: OsNavSection) => ({
       id: section.id,
       label: section.label,

@@ -30,6 +30,18 @@ export async function ensureSalesDemoSeeded() {
     { email: "sales.priya@editcomedia.com", name: "Priya Nair", isSalesAdmin: false, code: "SE-0002" },
   ];
 
+  try {
+    await seedDemoUsers(demoUsers, password);
+  } catch (err) {
+    // A dev convenience seeder must never block sign-in.
+    console.error("[sales seed] skipped:", err);
+  }
+}
+
+async function seedDemoUsers(
+  demoUsers: { email: string; name: string; isSalesAdmin: boolean; code: string }[],
+  password: string
+) {
   for (const u of demoUsers) {
     let staffId: { toString(): string } | null = null;
     const existingStaff = await StaffUser.findOne({ email: u.email }).select("_id").lean();
@@ -45,18 +57,31 @@ export async function ensureSalesDemoSeeded() {
       });
       staffId = created._id;
     }
+    // Already a sales employee — nothing to do, whatever code the row carries.
     const existing = await SalesEmployee.findOne({ staffUserId: staffId }).select("_id").lean();
-    if (!existing) {
-      await SalesEmployee.create({
-        staffUserId: staffId,
-        employeeCode: u.code,
-        isSalesAdmin: u.isSalesAdmin,
-        department: "Sales",
-        team: "Core",
-        status: "active",
-        createdBy: "seed",
-        updatedBy: "seed",
-      });
+    if (existing) continue;
+
+    // employeeCode is unique too, so an orphan row holding this code (demo StaffUser
+    // deleted and recreated with a new _id) would trip E11000 on create. Repoint it
+    // instead — safe here because no row owns this staffUserId.
+    const orphan = await SalesEmployee.findOne({ employeeCode: u.code }).select("_id").lean();
+    if (orphan) {
+      await SalesEmployee.updateOne(
+        { _id: orphan._id },
+        { $set: { staffUserId: staffId, isSalesAdmin: u.isSalesAdmin, status: "active", updatedBy: "seed" } }
+      );
+      continue;
     }
+
+    await SalesEmployee.create({
+      staffUserId: staffId,
+      employeeCode: u.code,
+      isSalesAdmin: u.isSalesAdmin,
+      department: "Sales",
+      team: "Core",
+      status: "active",
+      createdBy: "seed",
+      updatedBy: "seed",
+    });
   }
 }
