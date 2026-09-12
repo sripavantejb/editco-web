@@ -76,13 +76,6 @@ export const osNavSections: OsNavSection[] = [
     icon: Users,
     items: [
       {
-        href: "/sales/admin",
-        label: "Sales CRM Admin",
-        icon: Building2,
-        permission: "*",
-        match: (p) => p.startsWith("/sales/admin"),
-      },
-      {
         href: "/admin/os/leads",
         label: "Leads",
         icon: Users,
