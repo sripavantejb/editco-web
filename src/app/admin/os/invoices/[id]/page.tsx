@@ -125,21 +125,43 @@ export default async function InvoiceDetailPage({
               discount: invoice.discount,
               status: invoice.status,
               documentNote: invoice.documentNote || "",
+              remarks: (invoice as any).remarks || "",
+              state: (invoice as any).state || "Karnataka",
+              stateCode: (invoice as any).stateCode || "29",
+              placeOfSupply: (invoice as any).placeOfSupply || "Karnataka",
+              buyerRefNo: (invoice as any).buyerRefNo || "",
+              paymentTerms: (invoice as any).paymentTerms || "100% Advance",
               billToName,
               billToAddress:
                 invoice.billToAddress || vendor?.address || "",
               billToEmail,
               billToPhone: invoice.billToPhone || vendor?.phone || "",
               billToGst: invoice.billToGst || vendor?.gstNumber || "",
+              billToPan: (invoice as any).billToPan || "",
+              billToState: (invoice as any).billToState || "Karnataka",
+              billToStateCode: (invoice as any).billToStateCode || "29",
+              shipToName: (invoice as any).shipToName || "",
+              shipToAddress: (invoice as any).shipToAddress || "",
+              shipToGst: (invoice as any).shipToGst || "",
+              shipToState: (invoice as any).shipToState || "Karnataka",
+              shipToStateCode: (invoice as any).shipToStateCode || "29",
               lineItems: (invoice.lineItems || []).map(
                 (item: {
                   description: string;
+                  specifications?: string;
+                  hsnSac?: string;
                   quantity: number;
+                  uom?: string;
                   unitPrice: number;
+                  discountPercent?: number;
                 }) => ({
                   description: item.description,
+                  specifications: item.specifications || "",
+                  hsnSac: item.hsnSac || "998314",
                   quantity: item.quantity,
+                  uom: item.uom || "Nos",
                   unitPrice: item.unitPrice,
+                  discountPercent: item.discountPercent || 0,
                 })
               ),
               requireReason: true,

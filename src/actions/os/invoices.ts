@@ -24,24 +24,50 @@ import type { ActionState } from "@/actions/auth";
 
 function parseLineItems(formData: FormData) {
   const descriptions = formData.getAll("itemDescription").map(String);
+  const specifications = formData.getAll("itemSpecs").map(String);
+  const hsns = formData.getAll("itemHsn").map(String);
   const quantities = formData.getAll("itemQty").map(String);
+  const uoms = formData.getAll("itemUom").map(String);
   const prices = formData.getAll("itemPrice").map(String);
+  const discounts = formData.getAll("itemDisc").map(String);
+
   return descriptions
     .map((description, i) => ({
       description: description.trim(),
+      specifications: (specifications[i] || "").trim(),
+      hsnSac: (hsns[i] || "998314").trim(),
       quantity: Number(quantities[i] || 1) || 1,
+      uom: (uoms[i] || "Nos").trim(),
       unitPrice: Number(prices[i] || 0) || 0,
+      discountPercent: Number(discounts[i] || 0) || 0,
     }))
     .filter((item) => item.description);
 }
 
-function parseBillTo(formData: FormData) {
+function parseInvoiceDetails(formData: FormData) {
   return {
     billToName: str(formData, "billToName"),
     billToAddress: str(formData, "billToAddress"),
     billToEmail: str(formData, "billToEmail"),
     billToPhone: str(formData, "billToPhone"),
     billToGst: str(formData, "billToGst"),
+    billToPan: str(formData, "billToPan"),
+    billToState: str(formData, "billToState") || "Karnataka",
+    billToStateCode: str(formData, "billToStateCode") || "29",
+
+    shipToName: str(formData, "shipToName"),
+    shipToAddress: str(formData, "shipToAddress"),
+    shipToGst: str(formData, "shipToGst"),
+    shipToState: str(formData, "shipToState") || "Karnataka",
+    shipToStateCode: str(formData, "shipToStateCode") || "29",
+
+    state: str(formData, "state") || "Karnataka",
+    stateCode: str(formData, "stateCode") || "29",
+    placeOfSupply: str(formData, "placeOfSupply") || "Karnataka",
+    buyerRefNo: str(formData, "buyerRefNo"),
+    paymentTerms: str(formData, "paymentTerms") || "100% Advance",
+    remarks: str(formData, "remarks"),
+    documentNote: str(formData, "documentNote"),
   };
 }
 
@@ -84,9 +110,10 @@ export async function createInvoice(
   if (lineItems.length === 0) return { error: "Add at least one line item" };
   const taxRate = num(formData, "taxRate") || DEFAULT_TAX_RATE;
   const discount = num(formData, "discount");
-  const totals = invoiceTotals({ lineItems, taxRate, discount });
+  const isInterState = str(formData, "isInterState") === "true";
+  const totals = invoiceTotals({ lineItems, taxRate, discount, isInterState });
   const status = (str(formData, "status") || "draft") as InvoiceStatus;
-  const billTo = parseBillTo(formData);
+  const details = parseInvoiceDetails(formData);
 
   const invoice = await Invoice.create({
     conversionUuid: project.conversionUuid,
@@ -100,8 +127,7 @@ export async function createInvoice(
     taxRate,
     ...totals,
     status: status === "issued" ? "issued" : "draft",
-    documentNote: str(formData, "documentNote"),
-    ...billTo,
+    ...details,
     createdBy: gate.staff.email,
     updatedBy: gate.staff.email,
   });
@@ -135,9 +161,10 @@ export async function updateInvoice(
   if (lineItems.length === 0) return { error: "Add at least one line item" };
   const taxRate = num(formData, "taxRate") || invoice.taxRate;
   const discount = num(formData, "discount");
-  const totals = invoiceTotals({ lineItems, taxRate, discount });
+  const isInterState = str(formData, "isInterState") === "true";
+  const totals = invoiceTotals({ lineItems, taxRate, discount, isInterState });
   const reason = str(formData, "reason");
-  const billTo = parseBillTo(formData);
+  const details = parseInvoiceDetails(formData);
 
   if (invoice.total !== totals.total) {
     if (!reason) {
@@ -163,12 +190,10 @@ export async function updateInvoice(
   invoice.total = totals.total;
   invoice.dueDate = optDate(formData, "dueDate") || invoice.dueDate;
   invoice.issueDate = optDate(formData, "issueDate") || invoice.issueDate;
-  invoice.documentNote = str(formData, "documentNote");
-  invoice.billToName = billTo.billToName;
-  invoice.billToAddress = billTo.billToAddress;
-  invoice.billToEmail = billTo.billToEmail;
-  invoice.billToPhone = billTo.billToPhone;
-  invoice.billToGst = billTo.billToGst;
+  
+  // Assign extra details
+  Object.assign(invoice, details);
+
   const nextStatus = str(formData, "status") as InvoiceStatus;
   if (nextStatus === "issued" || nextStatus === "draft" || nextStatus === "cancelled") {
     invoice.status = nextStatus;
