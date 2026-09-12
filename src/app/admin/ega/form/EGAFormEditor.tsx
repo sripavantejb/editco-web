@@ -29,7 +29,13 @@ function needsOptions(type: EGAQuestionType) {
   return type === "select" || type === "radio" || type === "multi_checkbox";
 }
 
-export function EGAFormEditor({ initial }: { initial: EGAFormConfigData }) {
+export function EGAFormEditor({
+  initial,
+  basePath = "/admin/ega",
+}: {
+  initial: EGAFormConfigData;
+  basePath?: string;
+}) {
   const [copy, setCopy] = useState(initial.copy);
   const [questions, setQuestions] = useState<EGAQuestion[]>(initial.questions);
   const [state, action, pending] = useActionState<ActionState, FormData>(
@@ -101,17 +107,19 @@ export function EGAFormEditor({ initial }: { initial: EGAFormConfigData }) {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Link
-            href="/admin/ega"
+            href={basePath}
             className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--dash-border)] px-4 font-archivo text-xs uppercase tracking-[0.08em] text-[var(--dash-text)] transition hover:bg-[var(--dash-hover)]"
           >
             Applications
           </Link>
-          <Link
-            href="/sales/admin"
-            className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--dash-border)] px-4 font-archivo text-xs uppercase tracking-[0.08em] text-[var(--dash-muted)] transition hover:text-[var(--dash-text)]"
-          >
-            Sales Admin ↗
-          </Link>
+          {basePath.startsWith("/sales") ? null : (
+            <Link
+              href="/sales/admin"
+              className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--dash-border)] px-4 font-archivo text-xs uppercase tracking-[0.08em] text-[var(--dash-muted)] transition hover:text-[var(--dash-text)]"
+            >
+              Sales Admin ↗
+            </Link>
+          )}
         </div>
       </div>
 

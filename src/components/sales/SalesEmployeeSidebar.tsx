@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -65,6 +65,7 @@ const GROUP_ICONS: Record<(typeof SALES_MODULE_GROUPS)[number], LucideIcon> = {
   "Tasks & Calendar": ListTodo,
   Analytics: BarChart3,
   Reports: FileBarChart,
+  Growth: Users,
   Administration: Settings,
 };
 

@@ -16,6 +16,7 @@ export const SALES_MODULE_GROUPS = [
   "Tasks & Calendar",
   "Analytics",
   "Reports",
+  "Growth",
   "Administration",
 ] as const;
 export type SalesModuleGroup = (typeof SALES_MODULE_GROUPS)[number];
@@ -59,6 +60,9 @@ export const SALES_MODULE_KEYS = [
   "analytics.lost_deals",
   "reports.reports",
   "reports.export",
+  "growth.ega",
+  "growth.ega_form",
+  "growth.applications",
   "admin.notifications",
   "admin.approvals",
   "admin.teams",
@@ -126,6 +130,10 @@ export const SALES_MODULES: SalesModule[] = [
 
   { key: "reports.reports", label: "Reports", group: "Reports", employeeRoutes: [], adminRoutes: ["/sales/admin/reports"] },
   { key: "reports.export", label: "Export Reports", group: "Reports", employeeRoutes: [], adminRoutes: [] },
+
+  { key: "growth.ega", label: "EGA Applications", group: "Growth", employeeRoutes: [], adminRoutes: ["/sales/admin/ega"] },
+  { key: "growth.ega_form", label: "EGA Form Builder", group: "Growth", employeeRoutes: [], adminRoutes: ["/sales/admin/ega/form"] },
+  { key: "growth.applications", label: "Job Applications", group: "Growth", employeeRoutes: [], adminRoutes: ["/sales/admin/applications"] },
 
   { key: "admin.notifications", label: "Notifications", group: "Administration", employeeRoutes: ["/sales/employee/notifications"] },
   { key: "admin.approvals", label: "Approval System", group: "Administration", employeeRoutes: ["/sales/employee/approvals"] },

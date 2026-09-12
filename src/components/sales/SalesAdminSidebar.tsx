@@ -68,22 +68,26 @@ const SECTIONS: NavSection[] = [
     ],
   },
   {
-    label: "Growth & EGA",
+    label: "Growth & Careers",
     items: [
       {
-        href: "/admin/ega",
+        href: "/sales/admin/ega",
         label: "EGA Applications",
         icon: Users,
         match: (p) =>
-          (p.startsWith("/admin/ega") && !p.startsWith("/admin/ega/form")) ||
-          p.startsWith("/admin-ega") ||
-          p.startsWith("/sales/admin/ega"),
+          p.startsWith("/sales/admin/ega") && !p.startsWith("/sales/admin/ega/form"),
       },
       {
-        href: "/admin/ega/form",
+        href: "/sales/admin/ega/form",
         label: "EGA Form Builder",
         icon: ListChecks,
-        match: (p) => p.startsWith("/admin/ega/form"),
+        match: (p) => p.startsWith("/sales/admin/ega/form"),
+      },
+      {
+        href: "/sales/admin/applications",
+        label: "Job Applications",
+        icon: ScrollText,
+        match: (p) => p.startsWith("/sales/admin/applications"),
       },
     ],
   },
@@ -102,15 +106,6 @@ const SECTIONS: NavSection[] = [
       { href: "/sales/admin/reports", label: "Reports", icon: FileBarChart, match: (p) => p.startsWith("/sales/admin/reports") },
       { href: "/sales/admin/territories", label: "Territories", icon: MapPin, match: (p) => p.startsWith("/sales/admin/territories") },
       { href: "/sales/admin/audit-logs", label: "Audit Logs", icon: ScrollText, match: (p) => p.startsWith("/sales/admin/audit-logs") },
-    ],
-  },
-  {
-    label: "Workspaces",
-    items: [
-      { href: "/admin/os", label: "Admin OS Hub", icon: LayoutDashboard, match: (p) => p.startsWith("/admin/os") && !p.startsWith("/admin/os/editco") },
-      { href: "/admin/os/editco", label: "Master Tracker", icon: ScrollText, match: (p) => p.startsWith("/admin/os/editco") },
-      { href: "/admin", label: "Super Admin", icon: Target, match: (p) => p === "/admin" || p.startsWith("/admin/rewards") || p.startsWith("/admin/jobs") || p.startsWith("/admin/applications") || p.startsWith("/admin/referrals") },
-      { href: "/track", label: "Client Tracker", icon: CheckCircle2, match: (p) => p.startsWith("/track") },
     ],
   },
 ];

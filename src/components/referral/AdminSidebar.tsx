@@ -247,6 +247,7 @@ function SidebarBody({
                 email={email}
                 roleLabel="Super Admin"
                 logoutAction={logoutAdmin}
+                showWorkspaces={true}
               />
             </div>
           </>
@@ -274,7 +275,7 @@ function SidebarBody({
                 <Store className="h-4 w-4" />
               </Link>
             ) : null}
-            <PortalProfileMenu email={email} roleLabel="Super Admin" logoutAction={logoutAdmin} />
+            <PortalProfileMenu email={email} roleLabel="Super Admin" logoutAction={logoutAdmin} showWorkspaces={true} />
           </div>
         )}
       </div>
@@ -442,7 +443,7 @@ export function AdminSidebar({
             <Store className="h-4 w-4" />
           </Link>
         ) : null}
-        <PortalProfileMenu email={email} roleLabel="Super Admin" logoutAction={logoutAdmin} />
+        <PortalProfileMenu email={email} roleLabel="Super Admin" logoutAction={logoutAdmin} showWorkspaces={true} />
       </header>
 
       {drawerOpen ? (

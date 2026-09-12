@@ -38,7 +38,7 @@ export async function requireOsPage(permission: string): Promise<StaffContext> {
   return staff!;
 }
 
-/** Guards legacy growth domains (Refer & Earn, Careers, EGA). */
+/** Guards legacy growth domains (Refer & Earn, Careers, EGA). Super Admin only. */
 export async function requireLegacyPage(): Promise<AdminSession> {
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
@@ -49,27 +49,12 @@ export async function requireLegacyPage(): Promise<AdminSession> {
     return session;
   }
 
-  // Sales admins have access to EGA & growth domains
-  const sales = await getSalesEmployeeContext(session.email);
-  if (sales?.isSalesAdmin) {
-    return session;
-  }
-
   // Dedicated EGA admins
   const { isEGAAdminEmail } = await import("@/lib/admin");
   if (isEGAAdminEmail(session.email)) {
     return session;
   }
 
-  const staff = await getStaffContext();
-  if (!staff) {
-    await bounceNonOsUser(session.email);
-  }
-  if (staff!.role === "sales" && !isSuperAdminEmail(staff!.email)) {
-    await bounceNonOsUser(staff!.email);
-  }
-  if (staff && !canAccessLegacyAdmin(staff.role)) {
-    redirect("/admin/os");
-  }
-  return session;
+  // Sales and other non-super-admin users must not enter Super Admin
+  return await bounceNonOsUser(session.email);
 }

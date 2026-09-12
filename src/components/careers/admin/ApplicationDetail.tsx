@@ -40,7 +40,13 @@ export type ApplicationDetailData = {
   }[];
 };
 
-export function ApplicationDetail({ app }: { app: ApplicationDetailData }) {
+export function ApplicationDetail({
+  app,
+  basePath = "/admin/applications",
+}: {
+  app: ApplicationDetailData;
+  basePath?: string;
+}) {
   const [status, setStatus] = useState(app.status);
   const [pendingStatus, startStatus] = useTransition();
   const [notesState, notesAction, notesPending] = useActionState<
@@ -89,7 +95,7 @@ export function ApplicationDetail({ app }: { app: ApplicationDetailData }) {
           )}
         </div>
         <Link
-          href="/admin/applications"
+          href={basePath}
           className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--dash-border)] px-4 font-archivo text-xs uppercase tracking-[0.08em] text-[var(--dash-text)] transition hover:bg-[var(--dash-hover)]"
         >
           All applications

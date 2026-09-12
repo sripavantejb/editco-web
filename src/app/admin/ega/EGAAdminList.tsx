@@ -19,6 +19,7 @@ import { Card } from "@/components/referral/ui/card";
 export function EGAAdminList({
   applications,
   stats,
+  basePath = "/admin/ega",
 }: {
   applications: EGAListItem[];
   stats: {
@@ -28,6 +29,7 @@ export function EGAAdminList({
     lookback: number;
     rejected: number;
   };
+  basePath?: string;
 }) {
   const [statusFilter, setStatusFilter] = useState<"all" | EGAStatus>("all");
   const [scoreMin, setScoreMin] = useState("");
@@ -69,17 +71,19 @@ export function EGAAdminList({
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Link
-            href="/admin/ega/form"
+            href={`${basePath}/form`}
             className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--dash-border)] bg-[var(--dash-surface)] px-4 font-archivo text-xs uppercase tracking-[0.08em] text-[var(--dash-text)] transition hover:border-[var(--dash-accent)] hover:text-[var(--dash-accent)]"
           >
             Form builder
           </Link>
-          <Link
-            href="/sales/admin"
-            className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--dash-border)] px-4 font-archivo text-xs uppercase tracking-[0.08em] text-[var(--dash-muted)] transition hover:text-[var(--dash-text)]"
-          >
-            Sales Admin ↗
-          </Link>
+          {basePath.startsWith("/sales") ? null : (
+            <Link
+              href="/sales/admin"
+              className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--dash-border)] px-4 font-archivo text-xs uppercase tracking-[0.08em] text-[var(--dash-muted)] transition hover:text-[var(--dash-text)]"
+            >
+              Sales CRM →
+            </Link>
+          )}
           <a
             href="/editco-growth-associate"
             target="_blank"
@@ -143,7 +147,7 @@ export function EGAAdminList({
           <option value="55">55+</option>
           <option value="70">70+</option>
           <option value="85">85+</option>
-        </select>
+      </select>
       </div>
 
       {filtered.length === 0 ? (
@@ -158,7 +162,7 @@ export function EGAAdminList({
             {filtered.map((app) => (
               <li key={app.id}>
                 <Card className="transition hover:border-[var(--dash-accent)]/40">
-                  <Link href={`/admin/ega/${app.id}`} className="block">
+                  <Link href={`${basePath}/${app.id}`} className="block">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
                         <h2 className="truncate font-archivo text-sm uppercase tracking-wide text-[var(--dash-text)]">
@@ -178,7 +182,7 @@ export function EGAAdminList({
                   <div className="mt-3 flex flex-wrap gap-2">
                     {app.status === "pending" ? (
                       <Link
-                        href={`/admin/ega/${app.id}`}
+                        href={`${basePath}/${app.id}`}
                         className="text-xs text-[var(--dash-accent)] hover:underline"
                       >
                         Review
@@ -211,7 +215,7 @@ export function EGAAdminList({
                   <tr
                     key={app.id}
                     className="cursor-pointer border-b border-[var(--dash-border)]/60 last:border-0 hover:bg-white/[0.03]"
-                    onClick={() => router.push(`/admin/ega/${app.id}`)}
+                    onClick={() => router.push(`${basePath}/${app.id}`)}
                   >
                     <td className="px-4 py-3">
                       <div className="font-medium text-[var(--dash-accent)] underline-offset-2 hover:underline">

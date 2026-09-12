@@ -106,7 +106,7 @@ export default async function SalesAdminDashboardPage() {
       subtitle="Team overview, lead load, EGA applications, and what needs your attention today."
       actions={
         <>
-          <OsGhostLink href="/admin/ega">
+          <OsGhostLink href="/sales/admin/ega">
             EGA Applications{pendingEgaCount ? ` (${pendingEgaCount})` : ""}
           </OsGhostLink>
           <OsGhostLink href="/sales/admin/approvals">
@@ -125,7 +125,7 @@ export default async function SalesAdminDashboardPage() {
 
       <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Link
-          href="/admin/ega"
+          href="/sales/admin/ega"
           className="block rounded-xl border border-[var(--dash-border)] bg-white p-4 transition-colors hover:border-[#111111]"
         >
           <div className="flex items-center justify-between">

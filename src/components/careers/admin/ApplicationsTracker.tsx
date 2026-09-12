@@ -23,6 +23,7 @@ export type ApplicationsTrackerItem = {
 export function ApplicationsTracker({
   applications,
   stats,
+  basePath = "/admin/applications",
 }: {
   applications: ApplicationsTrackerItem[];
   stats: {
@@ -31,6 +32,7 @@ export function ApplicationsTracker({
     reviewing: number;
     shortlisted: number;
   };
+  basePath?: string;
 }) {
   const [statusFilter, setStatusFilter] = useState<"all" | ApplicationStatus>(
     "all"
@@ -106,7 +108,7 @@ export function ApplicationsTracker({
           <ul className="space-y-3 md:hidden">
             {filtered.map((app) => (
               <li key={app.id}>
-                <Link href={`/admin/applications/${app.id}`}>
+                <Link href={`${basePath}/${app.id}`}>
                   <Card className="transition hover:border-[var(--dash-accent)]/40">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
@@ -155,12 +157,16 @@ export function ApplicationsTracker({
                       </div>
                     </td>
                     <td className="px-4 py-3 text-[var(--dash-muted)]">
-                      <Link
-                        href={`/admin/jobs/${app.jobId}`}
-                        className="hover:text-[var(--dash-accent)]"
-                      >
-                        {app.jobTitle}
-                      </Link>
+                      {basePath.startsWith("/sales") ? (
+                        <span>{app.jobTitle}</span>
+                      ) : (
+                        <Link
+                          href={`/admin/jobs/${app.jobId}`}
+                          className="hover:text-[var(--dash-accent)]"
+                        >
+                          {app.jobTitle}
+                        </Link>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <StatusBadge status={app.status} />
@@ -170,7 +176,7 @@ export function ApplicationsTracker({
                     </td>
                     <td className="px-4 py-3 text-right">
                       <Link
-                        href={`/admin/applications/${app.id}`}
+                        href={`${basePath}/${app.id}`}
                         className="text-xs text-gaude-orange hover:underline"
                       >
                         Open

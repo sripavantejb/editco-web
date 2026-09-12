@@ -24,6 +24,7 @@ type Props = {
   email: string;
   roleLabel?: string;
   logoutAction: () => Promise<void>;
+  showWorkspaces?: boolean;
 };
 
 const WORKSPACE_LINKS = [
@@ -70,7 +71,12 @@ const WORKSPACE_LINKS = [
   },
 ];
 
-export function PortalProfileMenu({ email, roleLabel, logoutAction }: Props) {
+export function PortalProfileMenu({
+  email,
+  roleLabel,
+  logoutAction,
+  showWorkspaces = false,
+}: Props) {
   const [open, setOpen] = useState(false);
   const [popoverPos, setPopoverPos] = useState<{ top: number; left: number } | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -170,43 +176,45 @@ export function PortalProfileMenu({ email, roleLabel, logoutAction }: Props) {
             </div>
 
             {/* Workspace Switcher */}
-            <div className="p-2">
-              <p className="px-2 pb-1.5 pt-1 font-archivo text-[10px] font-bold uppercase tracking-[0.12em] text-[#9ca3af]">
-                Workspaces & Portals
-              </p>
-              <div className="space-y-0.5">
-                {WORKSPACE_LINKS.map((ws) => {
-                  const Icon = ws.icon;
-                  const isCurrent = ws.match(pathname);
-                  return (
-                    <Link
-                      key={ws.href}
-                      href={ws.href}
-                      onClick={() => setOpen(false)}
-                      className={`flex items-center justify-between gap-2 rounded-xl px-2.5 py-2 font-inter text-[12px] transition-colors ${
-                        isCurrent
-                          ? "bg-[#111111] text-white font-semibold shadow-sm"
-                          : "text-[#374151] hover:bg-[#f3f4f6] hover:text-[#111111]"
-                      }`}
-                    >
-                      <span className="flex items-center gap-2">
-                        <Icon className={`h-4 w-4 shrink-0 ${isCurrent ? "text-[#c8f542]" : "text-[#6b7280]"}`} />
-                        <span>{ws.label}</span>
-                      </span>
-                      <span
-                        className={`text-[10px] font-medium ${
+            {showWorkspaces ? (
+              <div className="p-2">
+                <p className="px-2 pb-1.5 pt-1 font-archivo text-[10px] font-bold uppercase tracking-[0.12em] text-[#9ca3af]">
+                  Workspaces & Portals
+                </p>
+                <div className="space-y-0.5">
+                  {WORKSPACE_LINKS.map((ws) => {
+                    const Icon = ws.icon;
+                    const isCurrent = ws.match(pathname);
+                    return (
+                      <Link
+                        key={ws.href}
+                        href={ws.href}
+                        onClick={() => setOpen(false)}
+                        className={`flex items-center justify-between gap-2 rounded-xl px-2.5 py-2 font-inter text-[12px] transition-colors ${
                           isCurrent
-                            ? "text-[#c8f542]"
-                            : "text-[#9ca3af]"
+                            ? "bg-[#111111] text-white font-semibold shadow-sm"
+                            : "text-[#374151] hover:bg-[#f3f4f6] hover:text-[#111111]"
                         }`}
                       >
-                        {ws.badge}
-                      </span>
-                    </Link>
-                  );
-                })}
+                        <span className="flex items-center gap-2">
+                          <Icon className={`h-4 w-4 shrink-0 ${isCurrent ? "text-[#c8f542]" : "text-[#6b7280]"}`} />
+                          <span>{ws.label}</span>
+                        </span>
+                        <span
+                          className={`text-[10px] font-medium ${
+                            isCurrent
+                              ? "text-[#c8f542]"
+                              : "text-[#9ca3af]"
+                          }`}
+                        >
+                          {ws.badge}
+                        </span>
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            ) : null}
 
             {/* Quick Utility Links */}
             <div className="border-t border-[#f0f0f0] p-1.5">

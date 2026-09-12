@@ -35,17 +35,7 @@ function footerFor(portal: PortalKind) {
       </>
     );
   }
-  if (portal === "sales_admin") {
-    return (
-      <>
-        Super Admin?{" "}
-        <Link href="/admin/login" className="font-semibold text-[#111111] underline underline-offset-2">
-          Sign in here
-        </Link>
-      </>
-    );
-  }
-  // Employee portal — no admin links (admins use direct URLs).
+  // Sales Admin and Employee portals — no super admin links
   return null;
 }
 
