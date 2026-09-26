@@ -3,7 +3,14 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { requireOsPage } from "@/lib/os/page";
 import { Transaction } from "@/models/os/Transaction";
+import { Payment } from "@/models/os/Payment";
+import { Invoice } from "@/models/os/Invoice";
+import { Project } from "@/models/os/Project";
+import { Vendor } from "@/models/os/Vendor";
+import { ManualRevenue } from "@/models/os/ManualRevenue";
 import { StaffUser } from "@/models/os/StaffUser";
+import { SalesDeal } from "@/models/sales/SalesDeal";
+import { SalesEmployee } from "@/models/sales/SalesEmployee";
 import {
   archiveTransaction,
   createTransaction,
@@ -19,9 +26,9 @@ import { hasPermission } from "@/lib/os/permissions";
 import {
   TRANSACTION_PAYMENT_METHOD_LABELS,
   TRANSACTION_TYPE_LABELS,
-  type TransactionPaymentMethod,
   type TransactionType,
 } from "@/lib/os/transactions";
+import "@/models/sales/register";
 
 type HistoryEntry = {
   action: "created" | "updated" | "deleted";
@@ -30,7 +37,47 @@ type HistoryEntry = {
   at?: Date;
 };
 
+const SOURCES = {
+  ledger: "Ledger",
+  project: "Project payment",
+  invoice: "Invoice paid",
+  sales: "Sales deal",
+  manual: "Manual revenue",
+} as const;
+type SourceKey = keyof typeof SOURCES;
+
+type LedgerRow = {
+  key: string;
+  source: SourceKey;
+  direction: "in" | "out";
+  title: string;
+  detail: string;
+  account: string;
+  addedBy: string;
+  date: Date;
+  amount: number;
+  href?: string;
+  tx?: {
+    id: string;
+    type: TransactionType;
+    category: string;
+    party: string;
+    paymentMethod: string;
+    reference: string;
+    notes: string;
+    history: HistoryEntry[];
+    updatedAt: Date;
+  };
+};
+
 const ACTION_TONE = { created: "ok", updated: "accent", deleted: "bad" } as const;
+const SOURCE_TONE: Record<SourceKey, "neutral" | "ok" | "warn" | "bad" | "accent"> = {
+  ledger: "neutral",
+  project: "accent",
+  invoice: "accent",
+  sales: "ok",
+  manual: "warn",
+};
 
 function toDateInputValue(d: Date | string | undefined) {
   if (!d) return "";
@@ -44,40 +91,203 @@ function monthRange(month: string) {
   return { start: new Date(y, m - 1, 1), end: new Date(y, m, 1) };
 }
 
+function methodLabel(method?: string) {
+  if (!method) return "";
+  const known = TRANSACTION_PAYMENT_METHOD_LABELS[method as keyof typeof TRANSACTION_PAYMENT_METHOD_LABELS];
+  if (known) return known;
+  if (method === "bank") return "Bank transfer";
+  return method.charAt(0).toUpperCase() + method.slice(1).replace(/_/g, " ");
+}
+
+function accountOf(method?: string, reference?: string) {
+  return [methodLabel(method), reference].filter(Boolean).join(" · ");
+}
+
+function signed(n: number) {
+  return `${n < 0 ? "−" : ""}${formatCurrencyINR(Math.abs(n))}`;
+}
+
 export default async function TransactionsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ type?: string; month?: string }>;
+  searchParams: Promise<{ type?: string; month?: string; source?: string }>;
 }) {
   const staff = await requireOsPage("finance:read");
   const canWrite = hasPermission(staff.permissions, "payments:write");
   const sp = await searchParams;
   const typeFilter = sp.type === "income" || sp.type === "expense" ? sp.type : "";
+  const sourceFilter = (sp.source && sp.source in SOURCES ? sp.source : "") as SourceKey | "";
   const month = sp.month || "";
   const range = month ? monthRange(month) : null;
 
-  const query: Record<string, unknown> = { recordStatus: "active" };
-  if (typeFilter) query.type = typeFilter;
-  if (range) query.date = { $gte: range.start, $lt: range.end };
-
-  const [rows, recentlyTouched] = await Promise.all([
-    Transaction.find(query).sort({ date: -1, createdAt: -1 }).lean(),
+  const [transactions, recentlyTouched, invoices, payments, wonDeals, manualEntries] = await Promise.all([
+    Transaction.find({ recordStatus: "active" }).lean(),
     Transaction.find({}).sort({ updatedAt: -1 }).limit(40).select("title type amount history").lean(),
+    Invoice.find({ recordStatus: "active", amountPaid: { $gt: 0 } })
+      .select("invoiceNumber projectId vendorId billToName amountPaid paymentDate paymentReference updatedBy createdBy updatedAt")
+      .lean(),
+    Payment.find({ recordStatus: "active" }).lean(),
+    SalesDeal.find({ stage: "won", recordStatus: "active" })
+      .select("dealName value finalOffer closedAt updatedAt ownerEmployeeId source paymentStatus createdBy updatedBy")
+      .lean(),
+    ManualRevenue.find({ recordStatus: "active" }).lean(),
   ]);
 
+  const invoiceById = new Map(invoices.map((i) => [String(i._id), i]));
+  const projectIds = new Set<string>();
+  const vendorIds = new Set<string>();
+  for (const i of invoices) {
+    if (i.projectId) projectIds.add(String(i.projectId));
+    if (i.vendorId) vendorIds.add(String(i.vendorId));
+  }
+  for (const p of payments) {
+    if (p.projectId) projectIds.add(String(p.projectId));
+    if (p.vendorId) vendorIds.add(String(p.vendorId));
+  }
+  const ownerIds = [...new Set(wonDeals.map((d) => d.ownerEmployeeId).filter(Boolean).map(String))];
+
+  const [projects, vendors, owners] = await Promise.all([
+    projectIds.size ? Project.find({ _id: { $in: [...projectIds] } }).select("name").lean() : [],
+    vendorIds.size ? Vendor.find({ _id: { $in: [...vendorIds] } }).select("companyName").lean() : [],
+    ownerIds.length ? SalesEmployee.find({ _id: { $in: ownerIds } }).select("staffUserId").lean() : [],
+  ]);
+  const projectName = new Map(projects.map((p) => [String(p._id), p.name as string]));
+  const vendorName = new Map(vendors.map((v) => [String(v._id), v.companyName as string]));
+
+  const rows: LedgerRow[] = [];
+
+  for (const t of transactions) {
+    const type = t.type as TransactionType;
+    rows.push({
+      key: `tx-${t._id}`,
+      source: "ledger",
+      direction: type === "income" ? "in" : "out",
+      title: t.title,
+      detail: [t.category, t.party].filter(Boolean).join(" · "),
+      account: accountOf(t.paymentMethod, t.reference),
+      addedBy: t.createdBy || "",
+      date: t.date,
+      amount: t.amount,
+      tx: {
+        id: String(t._id),
+        type,
+        category: t.category || "",
+        party: t.party || "",
+        paymentMethod: t.paymentMethod || "upi",
+        reference: t.reference || "",
+        notes: t.notes || "",
+        history: (t.history || []) as HistoryEntry[],
+        updatedAt: t.updatedAt,
+      },
+    });
+  }
+
+  const paidViaPayments = new Map<string, number>();
+  for (const p of payments) {
+    const inv = invoiceById.get(String(p.invoiceId));
+    if (!inv) continue;
+    paidViaPayments.set(String(inv._id), (paidViaPayments.get(String(inv._id)) || 0) + (p.amount || 0));
+    const project = p.projectId ? projectName.get(String(p.projectId)) : "";
+    const client = (p.vendorId && vendorName.get(String(p.vendorId))) || inv.billToName;
+    rows.push({
+      key: `pay-${p._id}`,
+      source: "project",
+      direction: "in",
+      title: project || client || "Project payment",
+      detail: [client !== project ? client : "", inv.invoiceNumber, p.notes].filter(Boolean).join(" · "),
+      account: accountOf(p.method, p.reference),
+      addedBy: p.createdBy || "",
+      date: p.paidAt || p.createdAt,
+      amount: p.amount,
+      href: `/admin/os/invoices/${inv._id}`,
+    });
+  }
+
+  for (const inv of invoices) {
+    const remainder = (inv.amountPaid || 0) - (paidViaPayments.get(String(inv._id)) || 0);
+    if (remainder < 0.5) continue;
+    const project = inv.projectId ? projectName.get(String(inv.projectId)) : "";
+    const client = (inv.vendorId && vendorName.get(String(inv.vendorId))) || inv.billToName;
+    rows.push({
+      key: `inv-${inv._id}`,
+      source: "invoice",
+      direction: "in",
+      title: project || client || inv.invoiceNumber,
+      detail: [client !== project ? client : "", inv.invoiceNumber].filter(Boolean).join(" · "),
+      account: inv.paymentReference || "",
+      addedBy: inv.updatedBy || inv.createdBy || "",
+      date: inv.paymentDate || inv.updatedAt,
+      amount: remainder,
+      href: `/admin/os/invoices/${inv._id}`,
+    });
+  }
+
+  const ownerStaffIds = owners.map((o) => String(o.staffUserId));
+  const ownerStaff = ownerStaffIds.length
+    ? await StaffUser.find({ _id: { $in: ownerStaffIds } }).select("name email").lean()
+    : [];
+  const staffById = new Map(ownerStaff.map((u) => [String(u._id), u]));
+  const ownerEmailByEmployee = new Map(
+    owners.map((o) => [String(o._id), staffById.get(String(o.staffUserId))?.email || ""])
+  );
+
+  for (const d of wonDeals) {
+    const owner = d.ownerEmployeeId ? ownerEmailByEmployee.get(String(d.ownerEmployeeId)) : "";
+    rows.push({
+      key: `deal-${d._id}`,
+      source: "sales",
+      direction: "in",
+      title: d.dealName,
+      detail: [d.source, d.paymentStatus ? `Payment: ${d.paymentStatus}` : ""].filter(Boolean).join(" · "),
+      account: "",
+      addedBy: owner || d.updatedBy || d.createdBy || "",
+      date: d.closedAt || d.updatedAt,
+      amount: d.finalOffer || d.value || 0,
+    });
+  }
+
+  for (const m of manualEntries) {
+    rows.push({
+      key: `manual-${m._id}`,
+      source: "manual",
+      direction: "in",
+      title: m.source,
+      detail: [m.description, m.notes].filter(Boolean).join(" · "),
+      account: "",
+      addedBy: m.createdBy || "",
+      date: m.receivedAt || m.createdAt,
+      amount: m.amount,
+      href: "/admin/os/revenue",
+    });
+  }
+
+  const filtered = rows
+    .filter((r) => !typeFilter || (typeFilter === "income" ? r.direction === "in" : r.direction === "out"))
+    .filter((r) => !sourceFilter || r.source === sourceFilter)
+    .filter((r) => {
+      if (!range) return true;
+      const d = new Date(r.date);
+      return d >= range.start && d < range.end;
+    })
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
   const actorEmails = new Set<string>();
-  for (const r of [...rows, ...recentlyTouched]) {
-    for (const h of (r.history || []) as HistoryEntry[]) if (h.by) actorEmails.add(h.by.toLowerCase());
+  for (const r of rows) if (r.addedBy) actorEmails.add(r.addedBy.toLowerCase());
+  for (const t of recentlyTouched) {
+    for (const h of (t.history || []) as HistoryEntry[]) if (h.by) actorEmails.add(h.by.toLowerCase());
   }
   const staffUsers = actorEmails.size
     ? await StaffUser.find({ email: { $in: [...actorEmails] } }).select("name email").lean()
     : [];
   const nameByEmail = new Map(staffUsers.map((u) => [u.email.toLowerCase(), u.name || u.email]));
-  const who = (email?: string) => (email ? nameByEmail.get(email.toLowerCase()) || email : "Unknown");
+  const who = (email?: string) => (email ? nameByEmail.get(email.toLowerCase()) || email : "—");
 
-  const income = rows.filter((r) => r.type === "income").reduce((s, r) => s + r.amount, 0);
-  const spent = rows.filter((r) => r.type === "expense").reduce((s, r) => s + r.amount, 0);
-  const net = income - spent;
+  const income = filtered.filter((r) => r.direction === "in").reduce((s, r) => s + r.amount, 0);
+  const spent = filtered.filter((r) => r.direction === "out").reduce((s, r) => s + r.amount, 0);
+  const bySource = (Object.keys(SOURCES) as SourceKey[]).map((k) => ({
+    key: k,
+    total: filtered.filter((r) => r.source === k && r.direction === "in").reduce((s, r) => s + r.amount, 0),
+  }));
 
   const recentChanges = recentlyTouched
     .flatMap((r) =>
@@ -95,11 +305,12 @@ export default async function TransactionsPage({
   const periodLabel = range
     ? new Intl.DateTimeFormat("en-IN", { month: "long", year: "numeric" }).format(range.start)
     : "All time";
+  const hasFilters = Boolean(typeFilter || month || sourceFilter);
 
   return (
     <OsPage
       title="Transactions"
-      subtitle="Every rupee in and out of the company. Income and spends here flow straight into Revenue Overview. Each change is emailed to the founders."
+      subtitle="Every rupee in and out of the company — project payments, invoices, sales deals, manual revenue, and your own income and spends. Ledger changes are emailed to the founders."
       backHref="/admin/os"
       backLabel="Back to dashboard"
       actions={
@@ -119,20 +330,42 @@ export default async function TransactionsPage({
         ) : undefined
       }
     >
-      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <OsStat label={`Income · ${periodLabel}`} value={income} />
+      <div className="mb-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <OsStat label={`Money in · ${periodLabel}`} value={income} />
         <OsStat label={`Spent · ${periodLabel}`} value={spent} />
-        <OsStat label={`Net · ${periodLabel}`} value={`${net < 0 ? "−" : ""}${formatCurrencyINR(Math.abs(net))}`} />
-        <OsStat label="Entries" value={String(rows.length)} />
+        <OsStat label={`Net · ${periodLabel}`} value={signed(income - spent)} />
+        <OsStat label="Entries" value={String(filtered.length)} />
+      </div>
+      <div className="mb-6 flex flex-wrap gap-2 font-inter text-xs">
+        {bySource.map((s) => (
+          <Link
+            key={s.key}
+            href={`/admin/os/transactions?source=${s.key}${month ? `&month=${month}` : ""}`}
+            className="rounded-full border border-[var(--dash-border)] bg-white px-3 py-1.5 text-[var(--dash-muted)] hover:text-[var(--dash-text)]"
+          >
+            {SOURCES[s.key]} in: <span className="font-medium text-[var(--dash-text)]">{formatCurrencyINR(s.total)}</span>
+          </Link>
+        ))}
       </div>
 
       <form method="get" className="mb-4 flex flex-wrap items-end gap-3">
         <label className="block space-y-1.5">
           <span className="font-inter text-xs text-[var(--dash-muted)]">Type</span>
-          <select name="type" defaultValue={typeFilter} className={`${osSelectClass()} w-40`}>
+          <select name="type" defaultValue={typeFilter} className={`${osSelectClass()} w-36`}>
             <option value="">All</option>
-            <option value="income">Income</option>
+            <option value="income">Money in</option>
             <option value="expense">Spent</option>
+          </select>
+        </label>
+        <label className="block space-y-1.5">
+          <span className="font-inter text-xs text-[var(--dash-muted)]">Source</span>
+          <select name="source" defaultValue={sourceFilter} className={`${osSelectClass()} w-48`}>
+            <option value="">All sources</option>
+            {(Object.keys(SOURCES) as SourceKey[]).map((k) => (
+              <option key={k} value={k}>
+                {SOURCES[k]}
+              </option>
+            ))}
           </select>
         </label>
         <label className="block space-y-1.5">
@@ -145,7 +378,7 @@ export default async function TransactionsPage({
         >
           Filter
         </button>
-        {typeFilter || month ? (
+        {hasFilters ? (
           <Link href="/admin/os/transactions" className="h-11 content-center font-inter text-[13px] text-[var(--dash-muted)] hover:text-[var(--dash-text)]">
             Clear
           </Link>
@@ -156,67 +389,81 @@ export default async function TransactionsPage({
         <thead>
           <tr>
             <Th>Date</Th>
-            <Th>Type</Th>
+            <Th>Source</Th>
             <Th>Details</Th>
-            <Th>Method</Th>
+            <Th>Account / method</Th>
+            <Th>Added by</Th>
             <Th>Amount</Th>
             <Th>History</Th>
             <Th>Actions</Th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((r) => {
-            const history = ((r.history || []) as HistoryEntry[]).slice().reverse();
+          {filtered.map((r) => {
+            const isIn = r.direction === "in";
+            const history = r.tx ? r.tx.history.slice().reverse() : [];
             const last = history[0];
-            const isIncome = r.type === "income";
             return (
-              <tr key={String(r._id)}>
+              <tr key={r.key}>
                 <Td className="whitespace-nowrap">{formatDate(r.date)}</Td>
                 <Td>
-                  <OsBadge tone={isIncome ? "ok" : "bad"}>
-                    {TRANSACTION_TYPE_LABELS[r.type as TransactionType]}
-                  </OsBadge>
+                  <div className="flex flex-col items-start gap-1">
+                    <OsBadge tone={r.source === "ledger" ? (isIn ? "ok" : "bad") : SOURCE_TONE[r.source]}>
+                      {r.tx ? TRANSACTION_TYPE_LABELS[r.tx.type] : SOURCES[r.source]}
+                    </OsBadge>
+                  </div>
                 </Td>
                 <Td>
-                  <div className="font-medium">{r.title}</div>
-                  <div className="mt-0.5 text-xs text-[var(--dash-muted)]">
-                    {[r.category, r.party, r.reference].filter(Boolean).join(" · ") || "—"}
-                  </div>
-                  {r.notes ? <div className="mt-0.5 text-xs text-[var(--dash-faint)]">{r.notes}</div> : null}
+                  {r.href ? (
+                    <Link href={r.href} className="font-medium hover:underline">
+                      {r.title}
+                    </Link>
+                  ) : (
+                    <div className="font-medium">{r.title}</div>
+                  )}
+                  <div className="mt-0.5 text-xs text-[var(--dash-muted)]">{r.detail || "—"}</div>
+                  {r.tx?.notes ? <div className="mt-0.5 text-xs text-[var(--dash-faint)]">{r.tx.notes}</div> : null}
                 </Td>
-                <Td className="whitespace-nowrap">
-                  {TRANSACTION_PAYMENT_METHOD_LABELS[r.paymentMethod as TransactionPaymentMethod] || "—"}
-                </Td>
-                <Td className={`whitespace-nowrap font-medium ${isIncome ? "text-emerald-600" : "text-red-600"}`}>
-                  {isIncome ? "+" : "−"}
+                <Td className="text-xs">{r.account || "—"}</Td>
+                <Td className="whitespace-nowrap text-xs">{who(r.addedBy)}</Td>
+                <Td className={`whitespace-nowrap font-medium ${isIn ? "text-emerald-600" : "text-red-600"}`}>
+                  {isIn ? "+" : "−"}
                   {formatCurrencyINR(r.amount)}
                 </Td>
                 <Td>
-                  <details>
-                    <summary className="cursor-pointer text-xs text-[var(--dash-muted)]">
-                      {last ? `${last.action} · ${formatDate(last.at || r.updatedAt)}` : "—"}
-                      {history.length > 1 ? ` (${history.length})` : ""}
-                    </summary>
-                    <ul className="mt-2 w-64 space-y-2 text-xs">
-                      {history.map((h, i) => (
-                        <li key={i} className="rounded-lg border border-[var(--dash-border)] p-2">
-                          <div className="flex items-center justify-between gap-2">
-                            <OsBadge tone={ACTION_TONE[h.action]}>{h.action}</OsBadge>
-                            <span className="text-[var(--dash-faint)]">{h.at ? formatDateTime(h.at) : ""}</span>
-                          </div>
-                          <div className="mt-1 text-[var(--dash-muted)]">by {who(h.by)}</div>
-                          {h.changes?.map((c, j) => (
-                            <div key={j} className="mt-1">
-                              <span className="font-medium">{c.field}:</span> {c.from || "—"} → {c.to || "—"}
+                  {r.tx ? (
+                    <details>
+                      <summary className="cursor-pointer text-xs text-[var(--dash-muted)]">
+                        {last ? `${last.action} · ${formatDate(last.at || r.tx.updatedAt)}` : "—"}
+                        {history.length > 1 ? ` (${history.length})` : ""}
+                      </summary>
+                      <ul className="mt-2 w-64 space-y-2 text-xs">
+                        {history.map((h, i) => (
+                          <li key={i} className="rounded-lg border border-[var(--dash-border)] p-2">
+                            <div className="flex items-center justify-between gap-2">
+                              <OsBadge tone={ACTION_TONE[h.action]}>{h.action}</OsBadge>
+                              <span className="text-[var(--dash-faint)]">{h.at ? formatDateTime(h.at) : ""}</span>
                             </div>
-                          ))}
-                        </li>
-                      ))}
-                    </ul>
-                  </details>
+                            <div className="mt-1 text-[var(--dash-muted)]">by {who(h.by)}</div>
+                            {h.changes?.map((c, j) => (
+                              <div key={j} className="mt-1">
+                                <span className="font-medium">{c.field}:</span> {c.from || "—"} → {c.to || "—"}
+                              </div>
+                            ))}
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  ) : r.href ? (
+                    <Link href={r.href} className="text-xs text-[var(--dash-muted)] hover:text-[var(--dash-text)]">
+                      View →
+                    </Link>
+                  ) : (
+                    <span className="text-xs text-[var(--dash-muted)]">—</span>
+                  )}
                 </Td>
                 <Td>
-                  {canWrite ? (
+                  {r.tx && canWrite ? (
                     <div className="flex items-center gap-1">
                       <SalesModal
                         triggerLabel="Edit"
@@ -225,25 +472,25 @@ export default async function TransactionsPage({
                         triggerClassName="inline-flex h-8 items-center rounded-lg border border-[var(--dash-border)] px-2.5 font-inter text-xs text-[var(--dash-muted)] hover:text-[var(--dash-text)]"
                       >
                         <OsActionForm action={updateTransaction} submitLabel="Save changes" className="grid gap-3">
-                          <input type="hidden" name="id" value={String(r._id)} />
+                          <input type="hidden" name="id" value={r.tx.id} />
                           <TransactionFields
                             initial={{
-                              type: r.type as TransactionType,
+                              type: r.tx.type,
                               title: r.title,
-                              category: r.category || "",
+                              category: r.tx.category,
                               amount: r.amount,
                               date: toDateInputValue(r.date),
-                              party: r.party || "",
-                              paymentMethod: r.paymentMethod || "upi",
-                              reference: r.reference || "",
-                              notes: r.notes || "",
+                              party: r.tx.party,
+                              paymentMethod: r.tx.paymentMethod,
+                              reference: r.tx.reference,
+                              notes: r.tx.notes,
                             }}
                           />
                         </OsActionForm>
                       </SalesModal>
                       <RowDeleteButton
                         action={archiveTransaction}
-                        id={String(r._id)}
+                        id={r.tx.id}
                         confirmMessage={`Delete "${r.title}" (${formatCurrencyINR(r.amount)})?`}
                       />
                     </div>
@@ -256,15 +503,15 @@ export default async function TransactionsPage({
           })}
         </tbody>
       </OsTable>
-      {rows.length === 0 ? (
+      {filtered.length === 0 ? (
         <p className="mt-6 font-inter text-sm text-[var(--dash-muted)]">
-          No transactions {typeFilter || month ? "match these filters" : "yet — add your first income or spend"}.
+          No transactions {hasFilters ? "match these filters" : "yet — add your first income or spend"}.
         </p>
       ) : null}
 
       <section className="mt-8 rounded-xl border border-[var(--dash-border)] bg-white p-5">
         <h2 className="mb-4 font-inter text-[15px] font-semibold tracking-[-0.01em] text-[#111111]">
-          Recent changes
+          Recent ledger changes
         </h2>
         {recentChanges.length === 0 ? (
           <p className="font-inter text-sm text-[var(--dash-muted)]">Nothing yet.</p>
