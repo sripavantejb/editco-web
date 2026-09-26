@@ -5,11 +5,10 @@ import { connectDB } from "@/lib/db";
 import { requireStaff } from "@/lib/os/guard";
 import { logActivity } from "@/lib/os/activity";
 import { optDate, num, str } from "@/lib/os/form";
-import { sendNotificationEmail } from "@/lib/mail";
+import { sendFinanceAlert } from "@/lib/os/finance-alerts";
 import { formatCurrencyINR, formatDate } from "@/lib/utils";
 import { Transaction } from "@/models/os/Transaction";
 import {
-  TRANSACTION_ALERT_EMAILS,
   TRANSACTION_PAYMENT_METHODS,
   TRANSACTION_PAYMENT_METHOD_LABELS,
   TRANSACTION_TYPES,
@@ -102,14 +101,6 @@ function diffFields(before: TxFields, after: TxFields): TxChange[] {
   return changes;
 }
 
-function escapeHtml(s: string) {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
 function summaryLines(tx: TxFields) {
   return [
     ["Type", displayValue("type", tx.type)],
@@ -129,32 +120,14 @@ async function emailTransactionAlert(input: {
   actor: string;
   changes?: TxChange[];
 }) {
-  const lines = summaryLines(input.tx)
-    .map(([k, v]) => `<strong style="color:#f5f5f5;">${escapeHtml(k)}:</strong> ${escapeHtml(v)}`)
-    .join("<br/>");
-  const changeLines = input.changes?.length
-    ? `<br/><br/><strong style="color:#f5f5f5;">Changes</strong><br/>` +
-      input.changes
-        .map(
-          (c) =>
-            `${escapeHtml(c.field)}: ${escapeHtml(c.from || "—")} → ${escapeHtml(c.to || "—")}`
-        )
-        .join("<br/>")
-    : "";
-  const body = `${lines}${changeLines}<br/><br/>By ${escapeHtml(input.actor)}`;
-
-  await Promise.all(
-    TRANSACTION_ALERT_EMAILS.map((to) =>
-      sendNotificationEmail({
-        to,
-        title: input.title,
-        body,
-        eyebrow: "Transactions",
-        href: "/admin/os/transactions",
-        ctaLabel: "Open transactions →",
-      })
-    )
-  );
+  await sendFinanceAlert({
+    title: input.title,
+    lines: summaryLines(input.tx),
+    actor: input.actor,
+    changes: input.changes,
+    eyebrow: "Transactions",
+    href: "/admin/os/transactions",
+  });
 }
 
 function toFields(row: TxFields): TxFields {

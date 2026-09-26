@@ -49,7 +49,7 @@ export function SalesModal({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="admin-theme fixed inset-0 z-[200] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+              className="admin-theme os-overlay fixed inset-0 z-[200] flex items-center justify-center p-4"
               onClick={() => setOpen(false)}
             >
               <motion.div

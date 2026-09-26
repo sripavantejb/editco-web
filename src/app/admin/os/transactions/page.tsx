@@ -140,7 +140,7 @@ export default async function TransactionsPage({
     if (i.projectId) projectIds.add(String(i.projectId));
     if (i.vendorId) vendorIds.add(String(i.vendorId));
   }
-  for (const p of payments) {
+  for (const p of [...payments, ...manualEntries]) {
     if (p.projectId) projectIds.add(String(p.projectId));
     if (p.vendorId) vendorIds.add(String(p.vendorId));
   }
@@ -247,17 +247,19 @@ export default async function TransactionsPage({
   }
 
   for (const m of manualEntries) {
+    const project = m.projectId ? projectName.get(String(m.projectId)) : "";
+    const client = m.vendorId ? vendorName.get(String(m.vendorId)) : "";
     rows.push({
       key: `manual-${m._id}`,
       source: "manual",
       direction: "in",
-      title: m.source,
-      detail: [m.description, m.notes].filter(Boolean).join(" · "),
-      account: "",
+      title: project ? `${m.source} · ${project}` : m.source,
+      detail: [client, m.description, m.notes].filter(Boolean).join(" · "),
+      account: accountOf(m.paymentMethod, m.reference),
       addedBy: m.createdBy || "",
       date: m.receivedAt || m.createdAt,
       amount: m.amount,
-      href: "/admin/os/revenue",
+      href: m.projectId ? `/admin/os/projects/${m.projectId}` : "/admin/os/revenue",
     });
   }
 

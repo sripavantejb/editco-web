@@ -64,7 +64,7 @@ export function OsSlideOver({
           {open ? (
             <div
               key="form-popup"
-              className="admin-theme fixed inset-0 z-[200] flex items-start justify-center overflow-y-auto px-4 py-[8vh]"
+              className="admin-theme os-overlay fixed inset-0 z-[200] flex items-start justify-center overflow-y-auto px-4 py-[8vh]"
             >
               <motion.button
                 type="button"
@@ -73,7 +73,7 @@ export function OsSlideOver({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.15 }}
-                className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+                className="absolute inset-0"
                 onClick={close}
               />
               <motion.div

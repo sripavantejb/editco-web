@@ -467,6 +467,13 @@ iframe {
   color: var(--dash-text);
 }
 
+/* Popup backdrops also carry .admin-theme (for tokens), so override its solid page background. */
+.admin-theme.os-overlay {
+  background-color: rgba(17, 17, 17, 0.28);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
 .admin-theme .dash-pill-active {
   background-color: var(--dash-surface-strong);
   color: var(--dash-text);

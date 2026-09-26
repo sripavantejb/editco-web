@@ -269,11 +269,11 @@ function CropModal({
   const dh = natural.current.h * s;
 
   return (
-    <div className="admin-theme fixed inset-0 z-[300] flex items-center justify-center px-4">
+    <div className="admin-theme os-overlay fixed inset-0 z-[300] flex items-center justify-center px-4">
       <button
         type="button"
         aria-label="Close"
-        className="absolute inset-0 bg-black/70"
+        className="absolute inset-0"
         onClick={onClose}
       />
       <div
