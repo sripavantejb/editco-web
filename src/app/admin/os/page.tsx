@@ -31,6 +31,7 @@ import { EmailAlertsButton, TeamWorkloadCard } from "@/components/os/TeamWorkloa
 import { DashboardListCard } from "@/components/os/DashboardListCard";
 import { FollowUp } from "@/models/os/FollowUp";
 import { EditcoTrackerRow } from "@/models/os/EditcoTrackerRow";
+import { Transaction } from "@/models/os/Transaction";
 import {
   EDITCO_TEAM_EMAILS,
   EDITCO_TEAM_NAMES,
@@ -106,6 +107,7 @@ export default async function OsDashboardPage() {
     referrerCount,
     dueFollowUps,
     trackerRows,
+    transactions,
   ] = await Promise.all([
     Lead.find({ recordStatus: "active" }).select("status estimatedValue").lean(),
     Conversion.find({ recordStatus: "active" }).select("_id").lean(),
@@ -183,6 +185,7 @@ export default async function OsDashboardPage() {
       .sort({ date: -1, createdAt: -1 })
       .select("poc dependency status projectName taskName date")
       .lean(),
+    Transaction.find({ recordStatus: "active" }).select("type amount date").lean(),
   ]);
 
   const actorNames = await resolveActorNames(activity);
@@ -220,6 +223,17 @@ export default async function OsDashboardPage() {
   const quarterPaid = invoices.filter(
     (i) => i.paymentDate && new Date(i.paymentDate) >= quarterStart
   );
+
+  const otherIncome = transactions
+    .filter((t) => t.type === "income")
+    .reduce((s, t) => s + (t.amount || 0), 0);
+  const totalSpent = transactions
+    .filter((t) => t.type === "expense")
+    .reduce((s, t) => s + (t.amount || 0), 0);
+  const monthSpent = transactions
+    .filter((t) => t.type === "expense" && new Date(t.date) >= monthStart)
+    .reduce((s, t) => s + (t.amount || 0), 0);
+  const netCash = received + otherIncome - totalSpent;
 
   const salesCounts = Object.fromEntries(
     LEAD_PIPELINE.map((st) => [st, leads.filter((l) => l.status === st).length])
@@ -496,6 +510,27 @@ export default async function OsDashboardPage() {
               This quarter{" "}
               <span className="font-medium text-[#111111]">
                 {formatCurrencyINR(quarterPaid.reduce((s, i) => s + (i.amountPaid || 0), 0))}
+              </span>
+            </li>
+            <li className="flex justify-between border-t border-[#f3f4f6] pt-2.5">
+              <Link href="/admin/os/transactions" className="hover:text-[#111111]">
+                Other income
+              </Link>
+              <span className="font-medium text-[#111111]">{formatCurrencyINR(otherIncome)}</span>
+            </li>
+            <li className="flex justify-between">
+              <Link href="/admin/os/transactions?type=expense" className="hover:text-[#111111]">
+                Spent total (this month)
+              </Link>
+              <span className="font-medium text-red-600">
+                {formatCurrencyINR(totalSpent)} ({formatCurrencyINR(monthSpent)})
+              </span>
+            </li>
+            <li className="flex justify-between font-medium text-[#111111]">
+              Net (collected + income − spent)
+              <span className={netCash < 0 ? "text-red-600" : undefined}>
+                {netCash < 0 ? "−" : ""}
+                {formatCurrencyINR(Math.abs(netCash))}
               </span>
             </li>
           </ul>

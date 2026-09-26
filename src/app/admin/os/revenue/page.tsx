@@ -4,8 +4,11 @@ import { requireOsPage } from "@/lib/os/page";
 import { Invoice } from "@/models/os/Invoice";
 import { SalesDeal } from "@/models/sales/SalesDeal";
 import { ManualRevenue } from "@/models/os/ManualRevenue";
+import { Transaction } from "@/models/os/Transaction";
 import { createManualRevenue, archiveManualRevenue } from "@/actions/os/revenue";
 import { archiveInvoice } from "@/actions/os/invoices";
+import { archiveTransaction } from "@/actions/os/transactions";
+import Link from "next/link";
 import { OsActionForm } from "@/components/os/OsActionForm";
 import { RowDeleteButton } from "@/components/os/RowDeleteButton";
 import { Field, OsBadge, OsPage, OsStat, OsTable, Td, Th, osInputClass, osTextareaClass } from "@/components/os/ui";
@@ -19,18 +22,19 @@ export default async function RevenuePage() {
   const canDeleteManual = hasPermission(staff.permissions, "payments:write");
   const canDeleteInvoice = hasPermission(staff.permissions, "invoices:write");
 
-  const [invoices, wonDeals, manualEntries] = await Promise.all([
+  const [invoices, wonDeals, manualEntries, transactions] = await Promise.all([
     Invoice.find({ recordStatus: "active" }).select("amountPaid paymentDate billToName createdAt").lean(),
     SalesDeal.find({ stage: "won", recordStatus: "active" })
       .select("dealName value finalOffer closedAt updatedAt")
       .lean(),
     ManualRevenue.find({ recordStatus: "active" }).sort({ receivedAt: -1 }).lean(),
+    Transaction.find({ recordStatus: "active" }).select("type title amount date").lean(),
   ]);
 
   type RevenueRow = {
     id: string;
     label: string;
-    source: "Sales CRM" | "Editco OS" | "Manual";
+    source: "Sales CRM" | "Editco OS" | "Manual" | "Income" | "Spent";
     amount: number;
     date: Date;
   };
@@ -61,19 +65,30 @@ export default async function RevenuePage() {
     date: m.receivedAt,
   }));
 
-  const rows = [...osRows, ...salesRows, ...manualRows].sort(
+  const txRows: RevenueRow[] = transactions.map((t) => ({
+    id: String(t._id),
+    label: t.title,
+    source: t.type === "income" ? ("Income" as const) : ("Spent" as const),
+    amount: t.amount,
+    date: t.date,
+  }));
+
+  const rows = [...osRows, ...salesRows, ...manualRows, ...txRows].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
   const salesTotal = salesRows.reduce((s, r) => s + r.amount, 0);
   const osTotal = osRows.reduce((s, r) => s + r.amount, 0);
   const manualTotal = manualRows.reduce((s, r) => s + r.amount, 0);
-  const grandTotal = salesTotal + osTotal + manualTotal;
+  const incomeTotal = txRows.filter((r) => r.source === "Income").reduce((s, r) => s + r.amount, 0);
+  const spentTotal = txRows.filter((r) => r.source === "Spent").reduce((s, r) => s + r.amount, 0);
+  const grandTotal = salesTotal + osTotal + manualTotal + incomeTotal;
+  const netProfit = grandTotal - spentTotal;
 
   return (
     <OsPage
       title="Revenue Overview"
-      subtitle="Every rupee collected, combined — Sales CRM won deals, Editco OS payments, and manual entries."
+      subtitle="Every rupee collected, combined — Sales CRM won deals, Editco OS payments, manual entries, and Transactions. Spends are subtracted for net profit."
       backHref="/admin/os"
       backLabel="Back to dashboard"
       actions={
@@ -100,12 +115,27 @@ export default async function RevenuePage() {
         </SalesModal>
       }
     >
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mb-4 grid gap-4 sm:grid-cols-3">
         <OsStat label="Total revenue" value={formatCurrencyINR(grandTotal)} />
+        <OsStat label="Total spent" value={formatCurrencyINR(spentTotal)} />
+        <OsStat
+          label="Net profit"
+          value={`${netProfit < 0 ? "−" : ""}${formatCurrencyINR(Math.abs(netProfit))}`}
+        />
+      </div>
+      <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <OsStat label="Sales CRM (won deals)" value={formatCurrencyINR(salesTotal)} />
         <OsStat label="Editco OS (payments)" value={formatCurrencyINR(osTotal)} />
         <OsStat label="Manual entries" value={formatCurrencyINR(manualTotal)} />
+        <OsStat label="Transactions income" value={formatCurrencyINR(incomeTotal)} />
       </div>
+      <p className="mb-4 font-inter text-xs text-[var(--dash-muted)]">
+        Add or edit income and spends in{" "}
+        <Link href="/admin/os/transactions" className="underline hover:text-[var(--dash-text)]">
+          Transactions
+        </Link>
+        .
+      </p>
 
       <OsTable>
         <thead>
@@ -121,12 +151,25 @@ export default async function RevenuePage() {
           {rows.map((r) => (
             <tr key={`${r.source}-${r.id}`}>
               <Td>
-                <OsBadge tone={r.source === "Editco OS" ? "accent" : r.source === "Sales CRM" ? "ok" : "warn"}>
+                <OsBadge
+                  tone={
+                    r.source === "Spent"
+                      ? "bad"
+                      : r.source === "Editco OS"
+                        ? "accent"
+                        : r.source === "Sales CRM" || r.source === "Income"
+                          ? "ok"
+                          : "warn"
+                  }
+                >
                   {r.source}
                 </OsBadge>
               </Td>
               <Td>{r.label}</Td>
-              <Td>{formatCurrencyINR(r.amount)}</Td>
+              <Td className={r.source === "Spent" ? "text-red-600" : undefined}>
+                {r.source === "Spent" ? "−" : ""}
+                {formatCurrencyINR(r.amount)}
+              </Td>
               <Td className="whitespace-nowrap">{formatDate(r.date)}</Td>
               <Td>
                 {r.source === "Manual" && canDeleteManual ? (
@@ -134,6 +177,12 @@ export default async function RevenuePage() {
                     action={archiveManualRevenue}
                     id={r.id}
                     confirmMessage={`Delete manual revenue "${r.label}"?`}
+                  />
+                ) : (r.source === "Income" || r.source === "Spent") && canDeleteManual ? (
+                  <RowDeleteButton
+                    action={archiveTransaction}
+                    id={r.id}
+                    confirmMessage={`Delete transaction "${r.label}"?`}
                   />
                 ) : r.source === "Editco OS" && canDeleteInvoice ? (
                   <RowDeleteButton

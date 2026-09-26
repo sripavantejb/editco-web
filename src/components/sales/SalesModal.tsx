@@ -13,11 +13,13 @@ export function SalesModal({
   title,
   subtitle,
   children,
+  triggerClassName,
 }: {
   triggerLabel: string;
   title: string;
   subtitle?: string;
   children: ReactNode;
+  triggerClassName?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -91,7 +93,10 @@ export function SalesModal({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex min-h-11 items-center rounded-full bg-[var(--dash-accent)] px-5 font-archivo text-xs uppercase tracking-[0.08em] text-[var(--dash-on-accent)]"
+        className={
+          triggerClassName ||
+          "inline-flex min-h-11 items-center rounded-full bg-[var(--dash-accent)] px-5 font-archivo text-xs uppercase tracking-[0.08em] text-[var(--dash-on-accent)]"
+        }
       >
         {triggerLabel}
       </button>

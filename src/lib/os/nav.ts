@@ -22,6 +22,7 @@ import {
   RefreshCw,
   KeyRound,
   ImageIcon,
+  ArrowLeftRight,
 } from "lucide-react";
 
 export type OsNavItem = {
@@ -182,6 +183,13 @@ export const osNavSections: OsNavSection[] = [
         icon: TrendingUp,
         permission: "finance:read",
         match: (p) => p.startsWith("/admin/os/revenue"),
+      },
+      {
+        href: "/admin/os/transactions",
+        label: "Transactions",
+        icon: ArrowLeftRight,
+        permission: "finance:read",
+        match: (p) => p.startsWith("/admin/os/transactions"),
       },
       {
         href: "/admin/os/invoices",
