@@ -3,17 +3,26 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
+  CalendarClock,
   Clock,
   History,
+  Repeat,
   Trash2,
   ChevronDown,
   X,
 } from "lucide-react";
 import {
   EDITCO_TEAM_NAMES,
+  EDITCO_TRACKER_PRIORITIES,
+  EDITCO_TRACKER_PRIORITY_CLASSES,
+  EDITCO_TRACKER_PRIORITY_LABELS,
+  EDITCO_TRACKER_PRIORITY_RANK,
   EDITCO_TRACKER_STATUSES,
   EDITCO_TRACKER_STATUS_LABELS,
   EDITCO_TRACKER_STATUS_CLASSES,
+  isEditcoTrackerDone,
+  type EditcoTrackerKind,
+  type EditcoTrackerPriority,
   type EditcoTrackerStatus,
 } from "@/lib/os/editco-tracker";
 import {
@@ -31,6 +40,11 @@ export type TrackerRowView = {
   poc: string;
   status: EditcoTrackerStatus;
   remarks: string;
+  priority: EditcoTrackerPriority;
+  kind: EditcoTrackerKind;
+  deadline: string | null;
+  completedAt: string | null;
+  createdAt: string;
   history: Array<{
     at: string;
     byEmail: string;
@@ -79,6 +93,37 @@ function SelectChip({
   );
 }
 
+/** Open work first (by priority, then newest added); finished rows sink to the bottom. */
+function sortRows(rows: TrackerRowView[]) {
+  return rows.slice().sort((a, b) => {
+    const aDone = isEditcoTrackerDone(a.status);
+    const bDone = isEditcoTrackerDone(b.status);
+    if (aDone !== bDone) return aDone ? 1 : -1;
+    if (!aDone) {
+      const p = EDITCO_TRACKER_PRIORITY_RANK[a.priority] - EDITCO_TRACKER_PRIORITY_RANK[b.priority];
+      if (p !== 0) return p;
+    }
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+}
+
+function toLocalInput(iso: string | null) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function deadlineBadge(deadline: string | null, done: boolean) {
+  if (!deadline || done) return null;
+  const ms = new Date(deadline).getTime() - Date.now();
+  if (ms < 0) return { label: "Overdue", className: "bg-red-100 text-red-700" };
+  const hours = ms / 3600000;
+  if (hours < 24) return { label: `Due in ${Math.max(1, Math.round(hours))}h`, className: "bg-amber-100 text-amber-800" };
+  const days = Math.round(hours / 24);
+  return { label: `In ${days}d`, className: "bg-slate-100 text-slate-600" };
+}
+
 export function EditcoTrackerClient({
   rows: initialRows,
   myCheckInAt,
@@ -93,6 +138,15 @@ export function EditcoTrackerClient({
   const [historyFor, setHistoryFor] = useState<TrackerRowView | null>(null);
   const [clockOpen, setClockOpen] = useState(false);
   const [depOpenId, setDepOpenId] = useState<string | null>(null);
+
+  const deadlineRows = useMemo(
+    () => sortRows(initialRows.filter((r) => r.kind !== "daily")),
+    [initialRows]
+  );
+  const dailyRows = useMemo(
+    () => sortRows(initialRows.filter((r) => r.kind === "daily")),
+    [initialRows]
+  );
 
   const checkInLabel = useMemo(() => {
     const done = todayCheckIns.filter((c) => c.checkedInAt).length;
@@ -124,8 +178,251 @@ export function EditcoTrackerClient({
     });
   };
 
+  const textInputClass = (done: boolean) =>
+    cn(
+      "w-full min-w-[120px] rounded-md border border-transparent bg-transparent px-1.5 py-1 font-inter text-[13px] outline-none hover:border-[#e5e7eb] focus:border-[#111111]",
+      done ? "text-[#9ca3af] line-through decoration-[#9ca3af]" : "text-[#111111]"
+    );
+
+  function renderRow(r: TrackerRowView, section: EditcoTrackerKind) {
+    const done = isEditcoTrackerDone(r.status);
+    const badge = deadlineBadge(r.deadline, done);
+    return (
+      <tr
+        key={r.id}
+        className={cn(
+          "border-b border-[#f3f4f6] last:border-0 transition-colors",
+          done && "bg-[#f3f4f6]"
+        )}
+      >
+        <td
+          className={cn(
+            "whitespace-nowrap px-3 py-2.5 font-inter text-[13px]",
+            done ? "text-[#9ca3af] line-through" : "text-[#111111]"
+          )}
+        >
+          {formatDate(r.date)}
+        </td>
+        <td className="px-3 py-2.5">
+          <input
+            defaultValue={r.projectName}
+            onBlur={(e) => {
+              if (e.target.value.trim() && e.target.value !== r.projectName) {
+                saveField(r.id, "projectName", e.target.value.trim());
+              }
+            }}
+            className={textInputClass(done)}
+          />
+        </td>
+        <td className="px-3 py-2.5">
+          <input
+            defaultValue={r.taskName}
+            onBlur={(e) => {
+              if (e.target.value.trim() && e.target.value !== r.taskName) {
+                saveField(r.id, "taskName", e.target.value.trim());
+              }
+            }}
+            className={textInputClass(done)}
+          />
+        </td>
+        <td className={cn("px-3 py-2.5", done && "opacity-50")}>
+          <SelectChip
+            value={r.priority}
+            className={EDITCO_TRACKER_PRIORITY_CLASSES[r.priority]}
+            options={EDITCO_TRACKER_PRIORITIES.map((p) => ({
+              value: p,
+              label: EDITCO_TRACKER_PRIORITY_LABELS[p],
+            }))}
+            onChange={(v) => saveField(r.id, "priority", v)}
+          />
+        </td>
+        <td className={cn("px-3 py-2.5", done && "opacity-50")}>
+          {section === "deadline" ? (
+            <div className="flex flex-col items-start gap-1">
+              <input
+                type="datetime-local"
+                defaultValue={toLocalInput(r.deadline)}
+                onBlur={(e) => {
+                  const next = e.target.value ? new Date(e.target.value).toISOString() : "";
+                  const prev = r.deadline ? new Date(r.deadline).toISOString() : "";
+                  if (next !== prev) saveField(r.id, "deadline", next);
+                }}
+                className={cn(
+                  "rounded-md border border-[#e5e7eb] bg-white px-1.5 py-1 font-inter text-[12px] outline-none focus:border-[#111111]",
+                  done ? "text-[#9ca3af] line-through" : "text-[#111111]"
+                )}
+              />
+              {badge ? (
+                <span
+                  suppressHydrationWarning
+                  className={cn("rounded-full px-2 py-0.5 font-inter text-[10px] font-semibold", badge.className)}
+                >
+                  {badge.label}
+                </span>
+              ) : null}
+            </div>
+          ) : (
+            <span className="font-inter text-[12px] text-[#6b7280]">
+              {done && r.completedAt ? `Done ${formatTime(r.completedAt)}` : "Every day"}
+            </span>
+          )}
+        </td>
+        <td className={cn("relative px-3 py-2.5", done && "opacity-50")}>
+          <button
+            type="button"
+            onClick={() => setDepOpenId(depOpenId === r.id ? null : r.id)}
+            className="inline-flex max-w-[160px] items-center gap-1 rounded-lg border border-[#e5e7eb] bg-white px-2 py-1.5 font-inter text-[12px] text-[#111111]"
+          >
+            <span className="truncate">{r.dependency.length ? r.dependency.join(", ") : "Select"}</span>
+            <ChevronDown className="h-3.5 w-3.5 shrink-0 text-[#6b7280]" />
+          </button>
+          {depOpenId === r.id ? (
+            <div className="absolute left-3 top-[calc(100%-4px)] z-20 w-44 rounded-xl border border-[#e5e7eb] bg-white p-2 shadow-lg">
+              {EDITCO_TEAM_NAMES.map((n) => {
+                const checked = r.dependency.includes(n);
+                return (
+                  <label
+                    key={n}
+                    className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 font-inter text-[12px] text-[#111111] hover:bg-[#f5f5f5]"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => {
+                        const next = checked ? r.dependency.filter((d) => d !== n) : [...r.dependency, n];
+                        saveField(r.id, "dependency", undefined, next);
+                      }}
+                      className="h-3.5 w-3.5"
+                    />
+                    {n}
+                  </label>
+                );
+              })}
+              <button
+                type="button"
+                onClick={() => setDepOpenId(null)}
+                className="mt-1 w-full rounded-lg px-2 py-1.5 font-inter text-[11px] text-[#6b7280] hover:bg-[#f5f5f5]"
+              >
+                Done
+              </button>
+            </div>
+          ) : null}
+        </td>
+        <td className={cn("px-3 py-2.5", done && "opacity-50")}>
+          <SelectChip
+            value={r.poc || ""}
+            options={[{ value: "", label: "—" }, ...EDITCO_TEAM_NAMES.map((n) => ({ value: n, label: n }))]}
+            onChange={(v) => saveField(r.id, "poc", v)}
+          />
+        </td>
+        <td className="px-3 py-2.5">
+          <SelectChip
+            value={r.status}
+            className={cn(EDITCO_TRACKER_STATUS_CLASSES[r.status], done && "opacity-70")}
+            options={EDITCO_TRACKER_STATUSES.map((s) => ({
+              value: s,
+              label: EDITCO_TRACKER_STATUS_LABELS[s],
+            }))}
+            onChange={(v) => saveField(r.id, "status", v)}
+          />
+        </td>
+        <td className="px-3 py-2.5">
+          <input
+            defaultValue={r.remarks}
+            onBlur={(e) => {
+              if (e.target.value !== r.remarks) saveField(r.id, "remarks", e.target.value);
+            }}
+            placeholder="—"
+            className={cn(textInputClass(done), "min-w-[100px] placeholder:text-[#898989]")}
+          />
+        </td>
+        <td className="px-3 py-2.5">
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              aria-label={section === "daily" ? "Move to deadline tasks" : "Move to daily tasks"}
+              title={section === "daily" ? "Move to deadline tasks" : "Move to daily tasks"}
+              onClick={() => saveField(r.id, "kind", section === "daily" ? "deadline" : "daily")}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#6b7280] hover:bg-[#f5f5f5] hover:text-[#111111]"
+            >
+              {section === "daily" ? <CalendarClock className="h-4 w-4" /> : <Repeat className="h-4 w-4" />}
+            </button>
+            <button
+              type="button"
+              aria-label="History"
+              onClick={() => setHistoryFor(r)}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#6b7280] hover:bg-[#f5f5f5] hover:text-[#111111]"
+            >
+              <History className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              aria-label="Delete"
+              onClick={() => removeRow(r.id)}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#6b7280] hover:bg-red-50 hover:text-red-600"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </td>
+      </tr>
+    );
+  }
+
+  function renderSection(title: string, subtitle: string, rows: TrackerRowView[], section: EditcoTrackerKind) {
+    const open = rows.filter((r) => !isEditcoTrackerDone(r.status)).length;
+    const headers = [
+      "Date",
+      "Project",
+      "Task",
+      "Priority",
+      section === "deadline" ? "Deadline" : "Repeats",
+      "Dependency",
+      "POC",
+      "Status",
+      "Remarks",
+      "",
+    ];
+    return (
+      <section className="space-y-2">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <div>
+            <h2 className="font-inter text-[15px] font-semibold text-[#111111]">
+              {title} <span className="font-normal text-[#6b7280]">· {open} open / {rows.length}</span>
+            </h2>
+            <p className="font-inter text-xs text-[#6b7280]">{subtitle}</p>
+          </div>
+        </div>
+        <div className="overflow-hidden rounded-xl border border-[#e5e7eb] bg-white">
+          <div className="max-h-[calc(100vh-260px)] overflow-auto">
+            <table className="w-full min-w-[1180px] border-collapse text-left">
+              <thead className="sticky top-0 z-10 bg-[#f8f9fa]">
+                <tr className="border-b border-[#e5e7eb]">
+                  {headers.map((h) => (
+                    <th
+                      key={h || "actions"}
+                      className="px-3 py-2.5 font-inter text-[11px] font-semibold uppercase tracking-[0.08em] text-[#4b5563]"
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>{rows.map((r) => renderRow(r, section))}</tbody>
+            </table>
+            {rows.length === 0 ? (
+              <p className="px-4 py-8 font-inter text-sm text-[#6b7280]">
+                {section === "daily" ? "No daily tasks yet." : "No deadline tasks yet. Add the first one."}
+              </p>
+            ) : null}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <div className={cn("space-y-4", pending && "opacity-80")}>
+    <div className={cn("space-y-6", pending && "opacity-80")}>
       <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
@@ -137,160 +434,27 @@ export function EditcoTrackerClient({
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-[#e5e7eb] bg-white">
-        <div className="max-h-[calc(100vh-220px)] overflow-auto">
-          <table className="w-full min-w-[980px] border-collapse text-left">
-            <thead className="sticky top-0 z-10 bg-[#f8f9fa]">
-              <tr className="border-b border-[#e5e7eb]">
-                {["Date", "Project", "Task", "Dependency", "POC", "Status", "Remarks", ""].map((h) => (
-                  <th
-                    key={h || "actions"}
-                    className="px-3 py-2.5 font-inter text-[11px] font-semibold uppercase tracking-[0.08em] text-[#4b5563]"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {initialRows.map((r) => (
-                <tr key={r.id} className="border-b border-[#f3f4f6] last:border-0">
-                  <td className="whitespace-nowrap px-3 py-2.5 font-inter text-[13px] text-[#111111]">
-                    {formatDate(r.date)}
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <input
-                      defaultValue={r.projectName}
-                      onBlur={(e) => {
-                        if (e.target.value.trim() && e.target.value !== r.projectName) {
-                          saveField(r.id, "projectName", e.target.value.trim());
-                        }
-                      }}
-                      className="w-full min-w-[120px] rounded-md border border-transparent bg-transparent px-1.5 py-1 font-inter text-[13px] text-[#111111] outline-none hover:border-[#e5e7eb] focus:border-[#111111]"
-                    />
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <input
-                      defaultValue={r.taskName}
-                      onBlur={(e) => {
-                        if (e.target.value.trim() && e.target.value !== r.taskName) {
-                          saveField(r.id, "taskName", e.target.value.trim());
-                        }
-                      }}
-                      className="w-full min-w-[120px] rounded-md border border-transparent bg-transparent px-1.5 py-1 font-inter text-[13px] text-[#111111] outline-none hover:border-[#e5e7eb] focus:border-[#111111]"
-                    />
-                  </td>
-                  <td className="relative px-3 py-2.5">
-                    <button
-                      type="button"
-                      onClick={() => setDepOpenId(depOpenId === r.id ? null : r.id)}
-                      className="inline-flex max-w-[160px] items-center gap-1 rounded-lg border border-[#e5e7eb] bg-white px-2 py-1.5 font-inter text-[12px] text-[#111111]"
-                    >
-                      <span className="truncate">
-                        {r.dependency.length ? r.dependency.join(", ") : "Select"}
-                      </span>
-                      <ChevronDown className="h-3.5 w-3.5 shrink-0 text-[#6b7280]" />
-                    </button>
-                    {depOpenId === r.id ? (
-                      <div className="absolute left-3 top-[calc(100%-4px)] z-20 w-44 rounded-xl border border-[#e5e7eb] bg-white p-2 shadow-lg">
-                        {EDITCO_TEAM_NAMES.map((n) => {
-                          const checked = r.dependency.includes(n);
-                          return (
-                            <label
-                              key={n}
-                              className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 font-inter text-[12px] text-[#111111] hover:bg-[#f5f5f5]"
-                            >
-                              <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={() => {
-                                  const next = checked
-                                    ? r.dependency.filter((d) => d !== n)
-                                    : [...r.dependency, n];
-                                  saveField(r.id, "dependency", undefined, next);
-                                }}
-                                className="h-3.5 w-3.5"
-                              />
-                              {n}
-                            </label>
-                          );
-                        })}
-                        <button
-                          type="button"
-                          onClick={() => setDepOpenId(null)}
-                          className="mt-1 w-full rounded-lg px-2 py-1.5 font-inter text-[11px] text-[#6b7280] hover:bg-[#f5f5f5]"
-                        >
-                          Done
-                        </button>
-                      </div>
-                    ) : null}
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <SelectChip
-                      value={r.poc || ""}
-                      options={[
-                        { value: "", label: "—" },
-                        ...EDITCO_TEAM_NAMES.map((n) => ({ value: n, label: n })),
-                      ]}
-                      onChange={(v) => saveField(r.id, "poc", v)}
-                    />
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <SelectChip
-                      value={r.status}
-                      className={EDITCO_TRACKER_STATUS_CLASSES[r.status]}
-                      options={EDITCO_TRACKER_STATUSES.map((s) => ({
-                        value: s,
-                        label: EDITCO_TRACKER_STATUS_LABELS[s],
-                      }))}
-                      onChange={(v) => saveField(r.id, "status", v)}
-                    />
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <input
-                      defaultValue={r.remarks}
-                      onBlur={(e) => {
-                        if (e.target.value !== r.remarks) {
-                          saveField(r.id, "remarks", e.target.value);
-                        }
-                      }}
-                      placeholder="—"
-                      className="w-full min-w-[100px] rounded-md border border-transparent bg-transparent px-1.5 py-1 font-inter text-[13px] text-[#111111] outline-none placeholder:text-[#898989] hover:border-[#e5e7eb] focus:border-[#111111]"
-                    />
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        aria-label="History"
-                        onClick={() => setHistoryFor(r)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#6b7280] hover:bg-[#f5f5f5] hover:text-[#111111]"
-                      >
-                        <History className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        aria-label="Delete"
-                        onClick={() => removeRow(r.id)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#6b7280] hover:bg-red-50 hover:text-red-600"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {initialRows.length === 0 ? (
-            <p className="px-4 py-8 font-inter text-sm text-[#6b7280]">No rows yet. Add the first one.</p>
-          ) : null}
-        </div>
-      </div>
+      {renderSection(
+        "Deadline tasks",
+        "One-off work with a due date & time — sorted by priority, then newest.",
+        deadlineRows,
+        "deadline"
+      )}
+      {renderSection(
+        "Daily tasks",
+        "Recurring work — completed items reopen automatically each morning (IST).",
+        dailyRows,
+        "daily"
+      )}
 
       {historyFor ? (
         <div className="fixed inset-0 z-[80] flex items-start justify-center px-4 pt-[10vh]">
-          <button type="button" className="absolute inset-0 bg-black/40" onClick={() => setHistoryFor(null)} aria-label="Close" />
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/25 backdrop-blur-md"
+            onClick={() => setHistoryFor(null)}
+            aria-label="Close"
+          />
           <div className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-[#e5e7eb] bg-white shadow-xl">
             <div className="flex items-center justify-between border-b border-[#e5e7eb] px-4 py-3">
               <div>
@@ -328,14 +492,17 @@ export function EditcoTrackerClient({
 
       {clockOpen ? (
         <div className="fixed inset-0 z-[80] flex items-start justify-center px-4 pt-[12vh]">
-          <button type="button" className="absolute inset-0 bg-black/40" onClick={() => setClockOpen(false)} aria-label="Close" />
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/25 backdrop-blur-md"
+            onClick={() => setClockOpen(false)}
+            aria-label="Close"
+          />
           <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-[#e5e7eb] bg-white shadow-xl">
             <div className="flex items-center justify-between border-b border-[#e5e7eb] px-4 py-3">
               <div>
                 <p className="font-inter text-sm font-semibold text-[#111111]">Team clock-ins · today</p>
-                <p className="font-inter text-xs text-[#6b7280]">
-                  Everyone&apos;s entry time for this day
-                </p>
+                <p className="font-inter text-xs text-[#6b7280]">Everyone&apos;s entry time for this day</p>
               </div>
               <button type="button" onClick={() => setClockOpen(false)} className="rounded-lg p-1.5 text-[#6b7280] hover:bg-[#f5f5f5]">
                 <X className="h-4 w-4" />
@@ -346,9 +513,7 @@ export function EditcoTrackerClient({
                 <li key={c.email} className="flex items-center justify-between rounded-xl border border-[#e5e7eb] px-3 py-2.5">
                   <span className="font-inter text-[13px] font-medium text-[#111111]">{c.name || c.email}</span>
                   {c.checkedInAt ? (
-                    <span className="font-inter text-xs font-medium text-[#111111]">
-                      {formatTime(c.checkedInAt)}
-                    </span>
+                    <span className="font-inter text-xs font-medium text-[#111111]">{formatTime(c.checkedInAt)}</span>
                   ) : (
                     <span className="font-inter text-xs text-[#898989]">Not yet</span>
                   )}

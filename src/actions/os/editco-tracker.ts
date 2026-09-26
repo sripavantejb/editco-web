@@ -8,16 +8,48 @@ import {
   EditcoTrackerCheckIn,
 } from "@/models/os/EditcoTrackerRow";
 import {
+  EDITCO_TRACKER_KINDS,
+  EDITCO_TRACKER_KIND_LABELS,
+  EDITCO_TRACKER_PRIORITIES,
+  EDITCO_TRACKER_PRIORITY_LABELS,
   EDITCO_TRACKER_STATUSES,
   EDITCO_TRACKER_STATUS_LABELS,
   EDITCO_TEAM_EMAILS,
   EDITCO_TEAM_NAMES,
-  type EditcoTeamName,
+  type EditcoTrackerKind,
+  type EditcoTrackerPriority,
   type EditcoTrackerStatus,
 } from "@/lib/os/editco-tracker";
 import { requireStaff } from "@/lib/os/guard";
-import { notifyStaff } from "@/lib/os/activity";
+import {
+  notifyTrackerPeople,
+  parseIstDateTime,
+  trackerEmailFor,
+} from "@/lib/os/editco-tracker-server";
 import type { ActionState } from "@/actions/auth";
+
+function formatIst(d: Date) {
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "numeric",
+    month: "short",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: "Asia/Kolkata",
+  }).format(d);
+}
+
+/** POC, dependencies, and whoever created the row — everyone who should hear about changes. */
+function involvedEmails(row: { poc?: string | null; dependency?: string[] | null; createdBy?: string | null }) {
+  return [
+    trackerEmailFor(row.poc || ""),
+    ...((row.dependency as string[]) || []).map(trackerEmailFor),
+    row.createdBy || "",
+  ];
+}
+
+function rowLabel(row: { projectName: string; taskName: string }) {
+  return `${row.projectName} · ${row.taskName}`;
+}
 
 function dayKey(d = new Date()) {
   return d.toISOString().slice(0, 10);
@@ -62,6 +94,9 @@ const createSchema = z.object({
   poc: z.string().optional(),
   status: z.enum(EDITCO_TRACKER_STATUSES).optional(),
   remarks: z.string().optional(),
+  priority: z.enum(EDITCO_TRACKER_PRIORITIES).optional(),
+  kind: z.enum(EDITCO_TRACKER_KINDS).optional(),
+  deadline: z.string().optional(),
 });
 
 export async function createEditcoTrackerRow(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -76,6 +111,9 @@ export async function createEditcoTrackerRow(_prev: ActionState, formData: FormD
     poc: formData.get("poc") || undefined,
     status: formData.get("status") || undefined,
     remarks: formData.get("remarks") || undefined,
+    priority: formData.get("priority") || undefined,
+    kind: formData.get("kind") || undefined,
+    deadline: formData.get("deadline") || undefined,
   });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message || "Invalid input" };
 
@@ -83,6 +121,9 @@ export async function createEditcoTrackerRow(_prev: ActionState, formData: FormD
   const dependency = parsed.data.dependency ?? [];
   const poc = parsed.data.poc || "";
   const status = parsed.data.status || "not_yet_started";
+  const kind = parsed.data.kind || "deadline";
+  const priority = parsed.data.priority || "medium";
+  const deadline = kind === "deadline" ? parseIstDateTime(parsed.data.deadline) : undefined;
   await EditcoTrackerRow.create({
     date: new Date(parsed.data.date),
     projectName: parsed.data.projectName,
@@ -91,6 +132,10 @@ export async function createEditcoTrackerRow(_prev: ActionState, formData: FormD
     poc,
     status,
     remarks: parsed.data.remarks || "",
+    priority,
+    kind,
+    deadline,
+    completedAt: status === "completed" ? new Date() : undefined,
     createdBy: gate.staff.email,
     updatedBy: gate.staff.email,
     history: [
@@ -105,69 +150,50 @@ export async function createEditcoTrackerRow(_prev: ActionState, formData: FormD
     ],
   });
 
-  const notifyNames = new Set<string>();
-  if (poc) notifyNames.add(poc);
-  for (const name of dependency) notifyNames.add(name);
-  await Promise.all(
-    [...notifyNames].map((name) => {
-      const email = EDITCO_TEAM_EMAILS[name as EditcoTeamName];
-      if (!email) return Promise.resolve();
-      const isPoc = name === poc;
-      return notifyStaff({
-        type: "editco_tracker",
-        title: isPoc
-          ? `You're the POC on "${parsed.data.projectName}"`
-          : `You're a dependency on "${parsed.data.projectName}"`,
-        body: parsed.data.taskName,
-        href: "/admin/os/editco",
-        recipientEmail: email,
-      });
-    })
-  );
+  const details = [
+    EDITCO_TRACKER_KIND_LABELS[kind],
+    `Priority: ${EDITCO_TRACKER_PRIORITY_LABELS[priority]}`,
+    deadline ? `Due ${formatIst(deadline)}` : "",
+    `Added by ${gate.staff.name || gate.staff.email}`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const label = rowLabel(parsed.data);
+  if (poc) {
+    await notifyTrackerPeople({
+      emails: [trackerEmailFor(poc)],
+      actorEmail: gate.staff.email,
+      title: `Assigned to you: ${label}`,
+      body: details,
+    });
+  }
+  const depOnly = dependency.filter((n) => n !== poc);
+  if (depOnly.length) {
+    await notifyTrackerPeople({
+      emails: depOnly.map(trackerEmailFor),
+      actorEmail: gate.staff.email,
+      title: `You're a dependency on: ${label}`,
+      body: details,
+    });
+  }
 
   revalidateEditcoTracker();
   return { success: "Row added." };
 }
 
-const statusSchema = z.object({
-  rowId: z.string().min(1),
-  status: z.enum(EDITCO_TRACKER_STATUSES),
-});
-
-export async function updateEditcoTrackerRowStatus(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  const gate = await requireStaff("*");
-  if (!gate.ok) return { error: gate.error };
-
-  const parsed = statusSchema.safeParse({
-    rowId: formData.get("rowId"),
-    status: formData.get("status"),
-  });
-  if (!parsed.success) return { error: "Invalid input" };
-
-  await connectDB();
-  const row = await EditcoTrackerRow.findById(parsed.data.rowId);
-  if (!row) return { error: "Row not found" };
-
-  const from = EDITCO_TRACKER_STATUS_LABELS[row.status as EditcoTrackerStatus] || row.status;
-  const to = EDITCO_TRACKER_STATUS_LABELS[parsed.data.status];
-  pushHistory(row, {
-    byEmail: gate.staff.email,
-    byName: gate.staff.name,
-    field: "status",
-    from,
-    to,
-  });
-  row.status = parsed.data.status;
-  row.updatedBy = gate.staff.email;
-  await row.save();
-
-  revalidateEditcoTracker();
-  return { success: "Status updated." };
-}
-
 const fieldSchema = z.object({
   rowId: z.string().min(1),
-  field: z.enum(["status", "poc", "dependency", "remarks", "projectName", "taskName"]),
+  field: z.enum([
+    "status",
+    "poc",
+    "dependency",
+    "remarks",
+    "projectName",
+    "taskName",
+    "priority",
+    "kind",
+    "deadline",
+  ]),
   value: z.string().optional(),
   values: z.array(z.string()).optional(),
 });
@@ -191,6 +217,8 @@ export async function updateEditcoTrackerField(_prev: ActionState, formData: For
   const { field } = parsed.data;
   let from = "";
   let to = "";
+  const actor = gate.staff.name || gate.staff.email;
+  const notices: { emails: string[]; title: string; body: string }[] = [];
 
   if (field === "status") {
     const next = parsed.data.value as EditcoTrackerStatus;
@@ -198,6 +226,17 @@ export async function updateEditcoTrackerField(_prev: ActionState, formData: For
     from = EDITCO_TRACKER_STATUS_LABELS[row.status as EditcoTrackerStatus] || row.status;
     to = EDITCO_TRACKER_STATUS_LABELS[next];
     row.status = next;
+    row.completedAt = next === "completed" ? new Date() : undefined;
+    if (from !== to) {
+      notices.push({
+        emails: involvedEmails(row),
+        title:
+          next === "completed"
+            ? `Completed: ${rowLabel(row)}`
+            : `Status ${to}: ${rowLabel(row)}`,
+        body: `${actor} changed status ${from} → ${to}`,
+      });
+    }
   } else if (field === "poc") {
     const next = parsed.data.value || "";
     if (next && !(EDITCO_TEAM_NAMES as readonly string[]).includes(next)) {
@@ -205,14 +244,71 @@ export async function updateEditcoTrackerField(_prev: ActionState, formData: For
     }
     from = row.poc || "—";
     to = next || "—";
+    const prevPoc = row.poc || "";
     row.poc = next;
+    if (next && next !== prevPoc) {
+      notices.push({
+        emails: [trackerEmailFor(next)],
+        title: `Assigned to you: ${rowLabel(row)}`,
+        body: `${actor} made you the POC${row.deadline ? ` · due ${formatIst(row.deadline)}` : ""}`,
+      });
+    }
+    if (prevPoc && prevPoc !== next) {
+      notices.push({
+        emails: [trackerEmailFor(prevPoc)],
+        title: `Reassigned: ${rowLabel(row)}`,
+        body: `${actor} moved POC from ${prevPoc} to ${next || "nobody"}`,
+      });
+    }
   } else if (field === "dependency") {
     const next = (parsed.data.values || []).filter((n) =>
       (EDITCO_TEAM_NAMES as readonly string[]).includes(n)
     );
-    from = (row.dependency as string[]).join(", ") || "—";
+    const prev = (row.dependency as string[]) || [];
+    from = prev.join(", ") || "—";
     to = next.join(", ") || "—";
     row.dependency = next;
+    const added = next.filter((n) => !prev.includes(n));
+    if (added.length) {
+      notices.push({
+        emails: added.map(trackerEmailFor),
+        title: `You're a dependency on: ${rowLabel(row)}`,
+        body: `Added by ${actor}`,
+      });
+    }
+  } else if (field === "priority") {
+    const next = parsed.data.value as EditcoTrackerPriority;
+    if (!EDITCO_TRACKER_PRIORITIES.includes(next)) return { error: "Invalid priority" };
+    const prev = (row.priority || "medium") as EditcoTrackerPriority;
+    from = EDITCO_TRACKER_PRIORITY_LABELS[prev];
+    to = EDITCO_TRACKER_PRIORITY_LABELS[next];
+    row.priority = next;
+    if (from !== to && (next === "urgent" || next === "high")) {
+      notices.push({
+        emails: involvedEmails(row),
+        title: `Priority ${to}: ${rowLabel(row)}`,
+        body: `${actor} changed priority ${from} → ${to}`,
+      });
+    }
+  } else if (field === "kind") {
+    const next = parsed.data.value as EditcoTrackerKind;
+    if (!EDITCO_TRACKER_KINDS.includes(next)) return { error: "Invalid type" };
+    from = EDITCO_TRACKER_KIND_LABELS[(row.kind || "deadline") as EditcoTrackerKind];
+    to = EDITCO_TRACKER_KIND_LABELS[next];
+    row.kind = next;
+    if (next === "daily") row.deadline = undefined;
+  } else if (field === "deadline") {
+    const next = parseIstDateTime(parsed.data.value);
+    from = row.deadline ? formatIst(row.deadline) : "—";
+    to = next ? formatIst(next) : "—";
+    row.deadline = next;
+    if (from !== to && next) {
+      notices.push({
+        emails: involvedEmails(row),
+        title: `Deadline set: ${rowLabel(row)}`,
+        body: `${actor} set the deadline to ${to} (was ${from})`,
+      });
+    }
   } else if (field === "remarks") {
     from = row.remarks || "—";
     to = parsed.data.value || "—";
@@ -243,6 +339,10 @@ export async function updateEditcoTrackerField(_prev: ActionState, formData: For
   row.updatedBy = gate.staff.email;
   await row.save();
 
+  for (const n of notices) {
+    await notifyTrackerPeople({ ...n, actorEmail: gate.staff.email });
+  }
+
   revalidateEditcoTracker();
   return { success: "Updated." };
 }
@@ -255,7 +355,15 @@ export async function deleteEditcoTrackerRow(_prev: ActionState, formData: FormD
   if (!rowId) return { error: "Invalid row" };
 
   await connectDB();
-  await EditcoTrackerRow.findByIdAndDelete(rowId);
+  const row = await EditcoTrackerRow.findByIdAndDelete(rowId);
+  if (row) {
+    await notifyTrackerPeople({
+      emails: involvedEmails(row),
+      actorEmail: gate.staff.email,
+      title: `Deleted: ${rowLabel(row)}`,
+      body: `Removed from Master Tracker by ${gate.staff.name || gate.staff.email}`,
+    });
+  }
 
   revalidateEditcoTracker();
   return { success: "Row deleted." };

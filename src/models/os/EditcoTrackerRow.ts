@@ -1,5 +1,7 @@
 import { Schema, models, model, type InferSchemaType, Types } from "mongoose";
 import {
+  EDITCO_TRACKER_KINDS,
+  EDITCO_TRACKER_PRIORITIES,
   EDITCO_TRACKER_STATUSES,
   type EditcoTrackerStatus,
 } from "@/lib/os/editco-tracker";
@@ -35,6 +37,10 @@ const editcoTrackerRowSchema = new Schema(
     poc: { type: String, trim: true, default: "" },
     status: { type: String, enum: EDITCO_TRACKER_STATUSES, default: "not_yet_started", index: true },
     remarks: { type: String, default: "" },
+    priority: { type: String, enum: EDITCO_TRACKER_PRIORITIES, default: "medium" },
+    kind: { type: String, enum: EDITCO_TRACKER_KINDS, default: "deadline", index: true },
+    deadline: { type: Date },
+    completedAt: { type: Date },
     createdBy: { type: String, default: "" },
     updatedBy: { type: String, default: "" },
     history: { type: [historyEntrySchema], default: [] },

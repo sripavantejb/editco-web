@@ -12,14 +12,23 @@ import { SalesModal } from "@/components/sales/SalesModal";
 import { Field, OsPage, osInputClass, osTextareaClass } from "@/components/os/ui";
 import { OsSelect } from "@/components/os/OsSelect";
 import { EditcoTrackerClient, type TrackerRowView } from "@/components/os/EditcoTrackerClient";
+import { OsDateInput } from "@/components/os/OsDateInput";
 import {
   EDITCO_TEAM_NAMES,
+  EDITCO_TRACKER_KINDS,
+  EDITCO_TRACKER_KIND_LABELS,
+  EDITCO_TRACKER_PRIORITIES,
+  EDITCO_TRACKER_PRIORITY_LABELS,
   EDITCO_TRACKER_STATUSES,
   EDITCO_TRACKER_STATUS_LABELS,
+  type EditcoTrackerKind,
+  type EditcoTrackerPriority,
 } from "@/lib/os/editco-tracker";
+import { reopenStaleDailyTrackerRows } from "@/lib/os/editco-tracker-server";
 
 export default async function EditcoTrackerPage() {
   await requireOsPage("*");
+  await reopenStaleDailyTrackerRows();
   const [rows, checkIn, todayCheckIns] = await Promise.all([
     EditcoTrackerRow.find({}).sort({ date: -1, createdAt: -1 }).limit(300).lean(),
     ensureEditcoTrackerCheckIn(),
@@ -35,6 +44,11 @@ export default async function EditcoTrackerPage() {
     poc: r.poc || "",
     status: r.status,
     remarks: r.remarks || "",
+    priority: (r.priority || "medium") as EditcoTrackerPriority,
+    kind: (r.kind || "deadline") as EditcoTrackerKind,
+    deadline: r.deadline ? new Date(r.deadline).toISOString() : null,
+    completedAt: r.completedAt ? new Date(r.completedAt).toISOString() : null,
+    createdAt: new Date(r.createdAt).toISOString(),
     history: ((r.history as Array<{
       at: Date;
       byEmail: string;
@@ -79,6 +93,31 @@ export default async function EditcoTrackerPage() {
             </Field>
             <Field label="Task name">
               <input name="taskName" required className={osInputClass()} />
+            </Field>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Type">
+                <OsSelect
+                  name="kind"
+                  defaultValue="deadline"
+                  options={EDITCO_TRACKER_KINDS.map((k) => ({
+                    value: k,
+                    label: EDITCO_TRACKER_KIND_LABELS[k],
+                  }))}
+                />
+              </Field>
+              <Field label="Priority">
+                <OsSelect
+                  name="priority"
+                  defaultValue="medium"
+                  options={EDITCO_TRACKER_PRIORITIES.map((p) => ({
+                    value: p,
+                    label: EDITCO_TRACKER_PRIORITY_LABELS[p],
+                  }))}
+                />
+              </Field>
+            </div>
+            <Field label="Deadline (date & time, IST — deadline tasks only)">
+              <OsDateInput name="deadline" type="datetime-local" />
             </Field>
             <Field label="Dependency">
               <div className="flex flex-wrap gap-4 pt-1">
