@@ -6,7 +6,8 @@ import { Lead } from "@/models/os/Lead";
 import { LeadProjectPitch } from "@/models/os/LeadProjectPitch";
 import { VaultProject } from "@/models/os/VaultProject";
 import { LEAD_STATUS_LABELS, type LeadStatus } from "@/lib/os/constants";
-import { formatCurrencyINR, formatDate } from "@/lib/utils";
+import { cn, formatCurrencyINR, formatDate } from "@/lib/utils";
+import { Plus, Upload } from "lucide-react";
 import {
   OsBadge,
   OsPage,
@@ -14,7 +15,9 @@ import {
   Td,
   Th,
   leadTone,
+  osButtonClass,
 } from "@/components/os/ui";
+import { SalesModal } from "@/components/sales/SalesModal";
 import { hasPermission } from "@/lib/os/permissions";
 import { LeadStageMoveForm } from "@/components/os/LeadStageMoveForm";
 import { LeadsFilterForm } from "@/components/os/LeadsFilterForm";
@@ -117,16 +120,12 @@ export default async function LeadsPage({
       actions={
         canWrite ? (
           <>
-            <Link
-              href="/admin/os/leads/import"
-              className="inline-flex min-h-11 items-center rounded-full border border-[var(--dash-border)] px-5 font-archivo text-xs uppercase tracking-[0.08em] text-[var(--dash-text)] hover:border-[var(--dash-accent)] hover:text-[var(--dash-accent)]"
-            >
+            <Link href="/admin/os/leads/import" className={osButtonClass("secondary")}>
+              <Upload className="h-4 w-4" />
               Import CSV
             </Link>
-            <Link
-              href="/admin/os/leads/new"
-              className="inline-flex min-h-11 items-center rounded-full bg-[var(--dash-accent)] px-5 font-archivo text-xs uppercase tracking-[0.08em] text-[var(--dash-on-accent)]"
-            >
+            <Link href="/admin/os/leads/new" className={osButtonClass("primary")}>
+              <Plus className="h-4 w-4" />
               Add lead
             </Link>
           </>
@@ -148,74 +147,74 @@ export default async function LeadsPage({
         <thead>
           <tr>
             <Th>Lead</Th>
-            <Th>Company</Th>
             <Th>Status</Th>
-            <Th>Value</Th>
+            <Th align="right">Value</Th>
             <Th>Owner</Th>
             <Th>Source</Th>
             <Th>Created</Th>
-            <Th>Open</Th>
-            <Th>Delete</Th>
+            <Th align="right">Actions</Th>
           </tr>
         </thead>
         <tbody>
           {leads.map((lead) => {
             const leadHref = `/admin/os/leads/${String(lead._id)}`;
+            const canEditRow = canWrite && lead.status !== "converted";
             return (
-              <tr key={String(lead._id)} className="group">
+              <tr key={String(lead._id)}>
                 <Td>
-                  <Link
-                    href={leadHref}
-                    className="font-medium text-[var(--dash-accent)] hover:underline"
-                  >
-                    {lead.name}
-                  </Link>
-                </Td>
-                <Td>
-                  <Link href={leadHref} className="hover:text-[var(--dash-accent)]">
-                    {lead.company || "—"}
+                  <Link href={leadHref} className="group flex items-center gap-3">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#f3f4f6] font-inter text-[12px] font-semibold text-[#374151]">
+                      {(lead.name || "?").charAt(0).toUpperCase()}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate font-medium text-[#111111] group-hover:underline">
+                        {lead.name}
+                      </span>
+                      <span className="block truncate text-xs text-[#6b7280]">{lead.company || "—"}</span>
+                    </span>
                   </Link>
                 </Td>
                 <Td>
                   <OsBadge tone={leadTone(lead.status)}>
                     {LEAD_STATUS_LABELS[lead.status as LeadStatus]}
                   </OsBadge>
-                  {canWrite && lead.status !== "converted" ? (
-                    <details className="mt-2">
-                      <summary className="cursor-pointer font-inter text-xs text-[var(--dash-muted)]">
-                        Move
-                      </summary>
-                      <div className="mt-2">
+                </Td>
+                <Td align="right" className="whitespace-nowrap tabular-nums">
+                  {formatCurrencyINR(lead.estimatedValue || 0)}
+                </Td>
+                <Td className="whitespace-nowrap">{lead.assignedOwner || "—"}</Td>
+                <Td className="whitespace-nowrap capitalize">{lead.source || "—"}</Td>
+                <Td className="whitespace-nowrap text-[#4b5563]">{formatDate(lead.createdAt)}</Td>
+                <Td align="right">
+                  <div className="flex items-center justify-end gap-1.5">
+                    <Link href={leadHref} className={osButtonClass("secondary", "sm")}>
+                      Open
+                    </Link>
+                    {canEditRow ? (
+                      <SalesModal
+                        triggerLabel="Move stage"
+                        title={`Move ${lead.name}`}
+                        subtitle="Stage changes are logged to the lead's history."
+                        triggerClassName={osButtonClass("secondary", "sm")}
+                      >
                         <LeadStageMoveForm
                           leadId={String(lead._id)}
                           currentEstimatedValue={lead.estimatedValue || 0}
                           compact
                           defaultToStatus={lead.status as LeadStatus}
                         />
-                      </div>
-                    </details>
-                  ) : null}
-                </Td>
-                <Td>{formatCurrencyINR(lead.estimatedValue || 0)}</Td>
-                <Td>{lead.assignedOwner || "—"}</Td>
-                <Td>{lead.source || "—"}</Td>
-                <Td>{formatDate(lead.createdAt)}</Td>
-                <Td>
-                  <Link
-                    href={leadHref}
-                    className="inline-flex min-h-9 items-center rounded-full border border-[var(--dash-border)] px-3 font-archivo text-[10px] uppercase tracking-[0.08em] text-[var(--dash-text)] hover:border-[var(--dash-accent)] hover:text-[var(--dash-accent)]"
-                  >
-                    Open
-                  </Link>
-                </Td>
-                <Td>
-                  {canWrite && lead.status !== "converted" ? (
-                    <RowDeleteButton
-                      action={archiveLead}
-                      id={String(lead._id)}
-                      confirmMessage={`Delete lead "${lead.name}"?`}
-                    />
-                  ) : null}
+                      </SalesModal>
+                    ) : null}
+                    {canEditRow ? (
+                      <RowDeleteButton
+                        action={archiveLead}
+                        id={String(lead._id)}
+                        confirmMessage={`Delete lead "${lead.name}"?`}
+                      />
+                    ) : (
+                      <span className="inline-block w-8" />
+                    )}
+                  </div>
                 </Td>
               </tr>
             );
@@ -224,36 +223,42 @@ export default async function LeadsPage({
       </OsTable>
 
       {leads.length === 0 ? (
-        <p className="mt-6 font-inter text-sm text-[var(--dash-muted)]">No leads yet.</p>
+        <div className="mt-4 rounded-xl border border-dashed border-[var(--dash-border)] bg-white px-6 py-10 text-center">
+          <p className="font-inter text-sm font-medium text-[#111111]">No leads found</p>
+          <p className="mt-1 font-inter text-xs text-[#6b7280]">
+            {trimmedQ || (status && status !== "all") ? "Try clearing the filters." : "Add your first lead to start the pipeline."}
+          </p>
+        </div>
       ) : null}
 
-      {totalPages > 1 ? (
-        <div className="mt-6 flex items-center justify-between">
-      <Link
-            href={buildHref(Math.max(1, pageNum - 1))}
-            className={`inline-flex min-h-11 items-center rounded-xl border px-4 font-archivo text-xs uppercase tracking-[0.08em] ${
-              pageNum <= 1
-                ? "pointer-events-none border-[var(--dash-border)] text-[var(--dash-muted)]"
-                : "border-[var(--dash-border)] text-[var(--dash-text)] hover:bg-[var(--dash-hover)]"
-            }`}
-          >
-            Prev
-          </Link>
-      <p className="font-inter text-sm text-[var(--dash-muted)]">
-            Page {pageNum} of {totalPages}
-          </p>
-      <Link
-            href={buildHref(Math.min(totalPages, pageNum + 1))}
-            className={`inline-flex min-h-11 items-center rounded-xl border px-4 font-archivo text-xs uppercase tracking-[0.08em] ${
-              pageNum >= totalPages
-                ? "pointer-events-none border-[var(--dash-border)] text-[var(--dash-muted)]"
-                : "border-[var(--dash-border)] text-[var(--dash-text)] hover:bg-[var(--dash-hover)]"
-            }`}
-          >
-            Next
-          </Link>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <p className="font-inter text-xs text-[#6b7280]">
+          {total === 0
+            ? "0 leads"
+            : `Showing ${skip + 1}–${Math.min(skip + leads.length, total)} of ${total} leads`}
+        </p>
+        {totalPages > 1 ? (
+          <div className="flex items-center gap-2">
+            <Link
+              href={buildHref(Math.max(1, pageNum - 1))}
+              aria-disabled={pageNum <= 1}
+              className={cn(osButtonClass("secondary", "sm"), pageNum <= 1 && "pointer-events-none opacity-40")}
+            >
+              Previous
+            </Link>
+            <span className="font-inter text-xs text-[#6b7280]">
+              Page {pageNum} of {totalPages}
+            </span>
+            <Link
+              href={buildHref(Math.min(totalPages, pageNum + 1))}
+              aria-disabled={pageNum >= totalPages}
+              className={cn(osButtonClass("secondary", "sm"), pageNum >= totalPages && "pointer-events-none opacity-40")}
+            >
+              Next
+            </Link>
+          </div>
+        ) : null}
       </div>
-      ) : null}
     </OsPage>
   );
 }

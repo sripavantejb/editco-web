@@ -4,6 +4,7 @@ import { createContext, useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
+import { osButtonClass } from "@/components/os/ui";
 
 /** Lets a form rendered inside a SalesModal close it on submit success — see OsActionForm. */
 export const SalesModalContext = createContext<{ close: () => void } | null>(null);
@@ -93,10 +94,7 @@ export function SalesModal({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={
-          triggerClassName ||
-          "inline-flex min-h-11 items-center rounded-full bg-[var(--dash-accent)] px-5 font-archivo text-xs uppercase tracking-[0.08em] text-[var(--dash-on-accent)]"
-        }
+        className={triggerClassName || osButtonClass("primary")}
       >
         {triggerLabel}
       </button>

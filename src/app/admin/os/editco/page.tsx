@@ -10,7 +10,7 @@ import {
 } from "@/actions/os/editco-tracker";
 import { OsActionForm } from "@/components/os/OsActionForm";
 import { SalesModal } from "@/components/sales/SalesModal";
-import { Field, OsPage, osInputClass, osTextareaClass } from "@/components/os/ui";
+import { Field, OsPage, osButtonClass, osInputClass, osTextareaClass } from "@/components/os/ui";
 import { OsSelect } from "@/components/os/OsSelect";
 import { EditcoTrackerClient, type TrackerRowView } from "@/components/os/EditcoTrackerClient";
 import { OsDateInput } from "@/components/os/OsDateInput";
@@ -79,7 +79,7 @@ export default async function EditcoTrackerPage() {
           triggerLabel="Reminders"
           title="Email reminders"
           subtitle="Sent automatically every day at 9:00 AM and 6:00 PM IST. Use these to send one right now."
-          triggerClassName="inline-flex h-10 items-center rounded-full border border-[var(--dash-border)] bg-white px-4 font-archivo text-xs uppercase tracking-[0.08em] text-[var(--dash-text)] hover:bg-[#f5f5f5]"
+          triggerClassName={osButtonClass("secondary")}
         >
           <div className="grid gap-3">
             <OsActionForm action={sendTrackerRemindersNow} submitLabel="Send morning plan now" className="m-0">

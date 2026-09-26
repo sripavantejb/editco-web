@@ -38,6 +38,13 @@ export async function connectDB() {
     });
   }
 
-  cached.conn = await cached.promise;
+  try {
+    cached.conn = await cached.promise;
+  } catch (err) {
+    // A rejected promise would otherwise be reused forever, pinning this instance to a dead connection.
+    cached.promise = null;
+    cached.conn = null;
+    throw err;
+  }
   return cached.conn;
 }

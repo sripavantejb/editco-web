@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
   CalendarClock,
@@ -135,8 +135,14 @@ export function EditcoTrackerClient({
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [historyFor, setHistoryFor] = useState<TrackerRowView | null>(null);
+  const [detailId, setDetailId] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
   const [clockOpen, setClockOpen] = useState(false);
+  const detail = detailId ? initialRows.find((r) => r.id === detailId) || null : null;
+  const openDetail = (id: string) => {
+    setDetailId(id);
+    setEditing(false);
+  };
   const [depOpenId, setDepOpenId] = useState<string | null>(null);
 
   const deadlineRows = useMemo(
@@ -178,9 +184,9 @@ export function EditcoTrackerClient({
     });
   };
 
-  const textInputClass = (done: boolean) =>
+  const cellTextClass = (done: boolean) =>
     cn(
-      "w-full min-w-[120px] rounded-md border border-transparent bg-transparent px-1.5 py-1 font-inter text-[13px] outline-none hover:border-[#e5e7eb] focus:border-[#111111]",
+      "block max-w-[220px] truncate text-left font-inter text-[13px]",
       done ? "text-[#9ca3af] line-through decoration-[#9ca3af]" : "text-[#111111]"
     );
 
@@ -192,7 +198,8 @@ export function EditcoTrackerClient({
         key={r.id}
         className={cn(
           "border-b border-[#f3f4f6] last:border-0 transition-colors",
-          done && "bg-[#f3f4f6]"
+          done ? "bg-[#f3f4f6]" : "hover:bg-[#fafafa]",
+          detailId === r.id && "bg-[#f0f7ff]"
         )}
       >
         <td
@@ -203,27 +210,15 @@ export function EditcoTrackerClient({
         >
           {formatDate(r.date)}
         </td>
-        <td className="px-3 py-2.5">
-          <input
-            defaultValue={r.projectName}
-            onBlur={(e) => {
-              if (e.target.value.trim() && e.target.value !== r.projectName) {
-                saveField(r.id, "projectName", e.target.value.trim());
-              }
-            }}
-            className={textInputClass(done)}
-          />
+        <td className="cursor-pointer px-3 py-2.5" onClick={() => openDetail(r.id)}>
+          <span className={cn(cellTextClass(done), "font-medium")} title={r.projectName}>
+            {r.projectName}
+          </span>
         </td>
-        <td className="px-3 py-2.5">
-          <input
-            defaultValue={r.taskName}
-            onBlur={(e) => {
-              if (e.target.value.trim() && e.target.value !== r.taskName) {
-                saveField(r.id, "taskName", e.target.value.trim());
-              }
-            }}
-            className={textInputClass(done)}
-          />
+        <td className="cursor-pointer px-3 py-2.5" onClick={() => openDetail(r.id)}>
+          <span className={cellTextClass(done)} title={r.taskName}>
+            {r.taskName}
+          </span>
         </td>
         <td className={cn("px-3 py-2.5", done && "opacity-50")}>
           <SelectChip
@@ -326,15 +321,10 @@ export function EditcoTrackerClient({
             onChange={(v) => saveField(r.id, "status", v)}
           />
         </td>
-        <td className="px-3 py-2.5">
-          <input
-            defaultValue={r.remarks}
-            onBlur={(e) => {
-              if (e.target.value !== r.remarks) saveField(r.id, "remarks", e.target.value);
-            }}
-            placeholder="—"
-            className={cn(textInputClass(done), "min-w-[100px] placeholder:text-[#898989]")}
-          />
+        <td className="cursor-pointer px-3 py-2.5" onClick={() => openDetail(r.id)}>
+          <span className={cn(cellTextClass(done), "max-w-[160px]", !r.remarks && "text-[#9ca3af]")} title={r.remarks}>
+            {r.remarks || "—"}
+          </span>
         </td>
         <td className="px-3 py-2.5">
           <div className="flex items-center gap-1">
@@ -349,8 +339,9 @@ export function EditcoTrackerClient({
             </button>
             <button
               type="button"
-              aria-label="History"
-              onClick={() => setHistoryFor(r)}
+              aria-label="Details & history"
+              title="Details & history"
+              onClick={() => openDetail(r.id)}
               className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#6b7280] hover:bg-[#f5f5f5] hover:text-[#111111]"
             >
               <History className="h-4 w-4" />
@@ -447,47 +438,18 @@ export function EditcoTrackerClient({
         "daily"
       )}
 
-      {historyFor ? (
-        <div className="fixed inset-0 z-[80] flex items-start justify-center px-4 pt-[10vh]">
-          <button
-            type="button"
-            className="absolute inset-0 bg-black/25 backdrop-blur-md"
-            onClick={() => setHistoryFor(null)}
-            aria-label="Close"
-          />
-          <div className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-[#e5e7eb] bg-white shadow-xl">
-            <div className="flex items-center justify-between border-b border-[#e5e7eb] px-4 py-3">
-              <div>
-                <p className="font-inter text-sm font-semibold text-[#111111]">Change history</p>
-                <p className="font-inter text-xs text-[#6b7280]">
-                  {historyFor.projectName} · {historyFor.taskName}
-                </p>
-              </div>
-              <button type="button" onClick={() => setHistoryFor(null)} className="rounded-lg p-1.5 text-[#6b7280] hover:bg-[#f5f5f5]">
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="max-h-[50vh] overflow-y-auto p-3">
-              {historyFor.history.length === 0 ? (
-                <p className="px-2 py-4 font-inter text-sm text-[#6b7280]">No changes recorded yet.</p>
-              ) : (
-                <ul className="space-y-2">
-                  {historyFor.history.map((h, i) => (
-                    <li key={`${h.at}-${i}`} className="rounded-xl border border-[#e5e7eb] px-3 py-2.5">
-                      <p className="font-inter text-[13px] font-medium text-[#111111]">
-                        {h.byName || h.byEmail} · <span className="capitalize">{h.field}</span>
-                      </p>
-                      <p className="mt-0.5 font-inter text-xs text-[#6b7280]">
-                        {h.from ? `${h.from} → ${h.to}` : h.to}
-                      </p>
-                      <p className="mt-1 font-inter text-[11px] text-[#898989]">{formatDateTime(h.at)}</p>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
-        </div>
+      {detail ? (
+        <TrackerDetailPanel
+          row={detail}
+          editing={editing}
+          onEdit={() => setEditing(true)}
+          onCancelEdit={() => setEditing(false)}
+          onClose={() => setDetailId(null)}
+          onSave={(changes) => {
+            for (const [field, value] of Object.entries(changes)) saveField(detail.id, field, value);
+            setEditing(false);
+          }}
+        />
       ) : null}
 
       {clockOpen ? (
@@ -526,6 +488,164 @@ export function EditcoTrackerClient({
           </div>
         </div>
       ) : null}
+    </div>
+  );
+}
+
+function DetailField({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="grid grid-cols-[112px_1fr] items-start gap-3 py-2">
+      <dt className="pt-0.5 font-inter text-[12px] text-[#6b7280]">{label}</dt>
+      <dd className="min-w-0 font-inter text-[13px] text-[#111111]">{children}</dd>
+    </div>
+  );
+}
+
+function TrackerDetailPanel({
+  row,
+  editing,
+  onEdit,
+  onCancelEdit,
+  onClose,
+  onSave,
+}: {
+  row: TrackerRowView;
+  editing: boolean;
+  onEdit: () => void;
+  onCancelEdit: () => void;
+  onClose: () => void;
+  onSave: (changes: Record<string, string>) => void;
+}) {
+  const done = isEditcoTrackerDone(row.status);
+  const [projectName, setProjectName] = useState(row.projectName);
+  const [taskName, setTaskName] = useState(row.taskName);
+  const [remarks, setRemarks] = useState(row.remarks);
+  const inputClass =
+    "w-full rounded-lg border border-[#e5e7eb] bg-white px-3 py-2 font-inter text-[13px] text-[#111111] outline-none focus:border-[#111111]";
+
+  const startEdit = () => {
+    setProjectName(row.projectName);
+    setTaskName(row.taskName);
+    setRemarks(row.remarks);
+    onEdit();
+  };
+
+  const save = () => {
+    const changes: Record<string, string> = {};
+    if (projectName.trim() && projectName.trim() !== row.projectName) changes.projectName = projectName.trim();
+    if (taskName.trim() && taskName.trim() !== row.taskName) changes.taskName = taskName.trim();
+    if (remarks !== row.remarks) changes.remarks = remarks;
+    onSave(changes);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[80] flex justify-end">
+      <button
+        type="button"
+        aria-label="Close"
+        className="absolute inset-0 bg-black/20 backdrop-blur-[6px]"
+        onClick={onClose}
+      />
+      <aside className="relative flex h-full w-full max-w-[460px] flex-col border-l border-[#e5e7eb] bg-white shadow-[-12px_0_40px_rgba(0,0,0,0.08)]">
+        <header className="flex items-start justify-between gap-3 border-b border-[#e5e7eb] px-5 py-4">
+          <div className="min-w-0">
+            <p className="font-inter text-[11px] font-semibold uppercase tracking-[0.1em] text-[#6b7280]">
+              {row.kind === "daily" ? "Daily task" : "Deadline task"}
+            </p>
+            <h2 className={cn("mt-1 font-inter text-[17px] font-semibold text-[#111111]", done && "text-[#9ca3af] line-through")}>
+              {row.taskName}
+            </h2>
+            <p className="mt-0.5 truncate font-inter text-[13px] text-[#6b7280]">{row.projectName}</p>
+          </div>
+          <button type="button" onClick={onClose} className="rounded-lg p-1.5 text-[#6b7280] hover:bg-[#f5f5f5]">
+            <X className="h-4 w-4" />
+          </button>
+        </header>
+
+        <div className="flex-1 overflow-y-auto px-5 py-4">
+          {editing ? (
+            <div className="space-y-3">
+              <label className="block space-y-1.5">
+                <span className="font-inter text-xs text-[#6b7280]">Project</span>
+                <input value={projectName} onChange={(e) => setProjectName(e.target.value)} className={inputClass} />
+              </label>
+              <label className="block space-y-1.5">
+                <span className="font-inter text-xs text-[#6b7280]">Task</span>
+                <input value={taskName} onChange={(e) => setTaskName(e.target.value)} className={inputClass} />
+              </label>
+              <label className="block space-y-1.5">
+                <span className="font-inter text-xs text-[#6b7280]">Remarks</span>
+                <textarea rows={4} value={remarks} onChange={(e) => setRemarks(e.target.value)} className={inputClass} />
+              </label>
+              <div className="flex justify-end gap-2 pt-1">
+                <button type="button" onClick={onCancelEdit} className="h-9 rounded-lg border border-[#e5e7eb] px-3 font-inter text-[13px] text-[#111111] hover:bg-[#f5f5f5]">
+                  Cancel
+                </button>
+                <button type="button" onClick={save} className="h-9 rounded-lg bg-[#111111] px-4 font-inter text-[13px] font-medium text-white hover:bg-[#262626]">
+                  Save changes
+                </button>
+              </div>
+            </div>
+          ) : (
+            <dl className="divide-y divide-[#f3f4f6]">
+              <DetailField label="Status">
+                <span className={cn("inline-flex rounded-md px-2 py-0.5 text-[12px] font-medium", EDITCO_TRACKER_STATUS_CLASSES[row.status])}>
+                  {EDITCO_TRACKER_STATUS_LABELS[row.status]}
+                </span>
+              </DetailField>
+              <DetailField label="Priority">
+                <span className={cn("inline-flex rounded-md px-2 py-0.5 text-[12px] font-medium", EDITCO_TRACKER_PRIORITY_CLASSES[row.priority])}>
+                  {EDITCO_TRACKER_PRIORITY_LABELS[row.priority]}
+                </span>
+              </DetailField>
+              <DetailField label={row.kind === "daily" ? "Repeats" : "Deadline"}>
+                {row.kind === "daily" ? "Every day" : row.deadline ? formatDateTime(row.deadline) : "Not set"}
+              </DetailField>
+              <DetailField label="POC">{row.poc || "—"}</DetailField>
+              <DetailField label="Dependency">{row.dependency.length ? row.dependency.join(", ") : "—"}</DetailField>
+              <DetailField label="Date">{formatDate(row.date)}</DetailField>
+              {row.completedAt ? <DetailField label="Completed">{formatDateTime(row.completedAt)}</DetailField> : null}
+              <DetailField label="Added">{formatDateTime(row.createdAt)}</DetailField>
+              <DetailField label="Remarks">
+                <span className="whitespace-pre-wrap">{row.remarks || "—"}</span>
+              </DetailField>
+            </dl>
+          )}
+
+          <h3 className="mb-2 mt-6 font-inter text-[12px] font-semibold uppercase tracking-[0.08em] text-[#6b7280]">
+            History
+          </h3>
+          {row.history.length === 0 ? (
+            <p className="font-inter text-sm text-[#6b7280]">No changes recorded yet.</p>
+          ) : (
+            <ol className="relative space-y-3 border-l border-[#e5e7eb] pl-4">
+              {row.history.map((h, i) => (
+                <li key={`${h.at}-${i}`} className="relative">
+                  <span className="absolute -left-[21px] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-[#9ca3af]" />
+                  <p className="font-inter text-[13px] text-[#111111]">
+                    <span className="font-medium">{h.byName || h.byEmail}</span>{" "}
+                    <span className="text-[#6b7280]">changed</span> <span className="capitalize">{h.field}</span>
+                  </p>
+                  <p className="mt-0.5 font-inter text-xs text-[#4b5563]">{h.from ? `${h.from} → ${h.to}` : h.to}</p>
+                  <p className="mt-0.5 font-inter text-[11px] text-[#9ca3af]">{formatDateTime(h.at)}</p>
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+
+        {!editing ? (
+          <footer className="flex justify-end border-t border-[#e5e7eb] px-5 py-3">
+            <button
+              type="button"
+              onClick={startEdit}
+              className="h-9 rounded-lg border border-[#e5e7eb] px-3 font-inter text-[13px] font-medium text-[#111111] hover:bg-[#f5f5f5]"
+            >
+              Edit details
+            </button>
+          </footer>
+        ) : null}
+      </aside>
     </div>
   );
 }

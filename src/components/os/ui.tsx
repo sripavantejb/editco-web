@@ -50,18 +50,20 @@ export function OsPage({
           <OsBackLink href={backHref} label={backLabel} />
         </div>
       ) : null}
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-4">
+        <div className="min-w-0 flex-1">
           <h1 className="font-archivo text-2xl uppercase tracking-wide text-[var(--dash-text)]">
             {title}
           </h1>
           {subtitle ? (
-            <p className="mt-1 max-w-2xl font-inter text-sm text-[var(--dash-muted)]">
+            <p className="mt-1.5 max-w-2xl font-inter text-sm leading-relaxed text-[var(--dash-muted)]">
               {subtitle}
             </p>
           ) : null}
         </div>
-        {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
+        {actions ? (
+          <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>
+        ) : null}
       </div>
       {children}
     </main>
@@ -76,16 +78,16 @@ export function OsBadge({
   tone?: "neutral" | "ok" | "warn" | "bad" | "accent";
 }) {
   const map = {
-    neutral: "bg-white/10 text-[var(--dash-muted)]",
-    ok: "bg-emerald-500/15 text-emerald-300",
-    warn: "bg-amber-500/15 text-amber-300",
-    bad: "bg-red-500/15 text-red-300",
-    accent: "bg-[var(--dash-accent-soft)] text-[var(--dash-accent)]",
+    neutral: "bg-[#f3f4f6] text-[#4b5563] ring-[#e5e7eb]",
+    ok: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+    warn: "bg-amber-50 text-amber-800 ring-amber-200",
+    bad: "bg-red-50 text-red-700 ring-red-200",
+    accent: "bg-sky-50 text-sky-800 ring-sky-200",
   };
   return (
     <span
       className={cn(
-        "inline-flex rounded-full px-2.5 py-0.5 font-inter text-[11px] font-medium uppercase tracking-wide",
+        "inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 font-inter text-[11px] font-medium uppercase leading-5 tracking-wide ring-1 ring-inset",
         map[tone]
       )}
     >
@@ -176,17 +178,38 @@ export function OsGhostLink({
 
 export function OsTable({ children }: { children: ReactNode }) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-[var(--dash-border)] bg-white">
-      <table className="w-full min-w-[640px] text-left font-inter text-sm">
+    <div className="overflow-x-auto rounded-xl border border-[var(--dash-border)] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+      <table className="w-full min-w-[640px] border-collapse text-left font-inter text-sm [&_tbody_tr:last-child>td]:border-b-0 [&_tbody_tr]:transition-colors [&_tbody_tr:hover]:bg-[#fafafa]">
         {children}
       </table>
     </div>
   );
 }
 
-export function Th({ children }: { children: ReactNode }) {
+type CellAlign = "left" | "center" | "right";
+const ALIGN_CLASS: Record<CellAlign, string> = {
+  left: "text-left",
+  center: "text-center",
+  right: "text-right",
+};
+
+export function Th({
+  children,
+  align = "left",
+  className,
+}: {
+  children?: ReactNode;
+  align?: CellAlign;
+  className?: string;
+}) {
   return (
-    <th className="border-b border-[var(--dash-border)] px-4 py-3 font-archivo text-[11px] uppercase tracking-wider text-[var(--dash-faint)]">
+    <th
+      className={cn(
+        "whitespace-nowrap border-b border-[var(--dash-border)] bg-[#f8f9fa] px-4 py-3 align-middle font-inter text-[11px] font-semibold uppercase tracking-[0.08em] text-[#6b7280]",
+        ALIGN_CLASS[align],
+        className
+      )}
+    >
       {children}
     </th>
   );
@@ -195,14 +218,33 @@ export function Th({ children }: { children: ReactNode }) {
 export function Td({
   children,
   className,
+  align = "left",
 }: {
-  children: ReactNode;
+  children?: ReactNode;
   className?: string;
+  align?: CellAlign;
 }) {
   return (
-    <td className={cn("border-b border-[var(--dash-border)] px-4 py-3 text-[var(--dash-text)]", className)}>
+    <td
+      className={cn(
+        "border-b border-[var(--dash-border)] px-4 py-3.5 align-middle text-[var(--dash-text)]",
+        ALIGN_CLASS[align],
+        className
+      )}
+    >
       {children}
     </td>
+  );
+}
+
+/** Shared button looks so page actions line up across sections. */
+export function osButtonClass(variant: "primary" | "secondary" | "ghost" = "primary", size: "md" | "sm" = "md") {
+  return cn(
+    "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg font-inter font-medium transition-colors disabled:pointer-events-none disabled:opacity-50",
+    size === "md" ? "h-10 px-4 text-[13px]" : "h-8 px-3 text-[12px]",
+    variant === "primary" && "bg-[#111111] text-white hover:bg-[#262626]",
+    variant === "secondary" && "border border-[#e5e7eb] bg-white text-[#111111] hover:bg-[#f5f5f5]",
+    variant === "ghost" && "text-[#4b5563] hover:bg-[#f5f5f5] hover:text-[#111111]"
   );
 }
 
