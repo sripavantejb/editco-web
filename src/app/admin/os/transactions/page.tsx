@@ -11,13 +11,9 @@ import { ManualRevenue } from "@/models/os/ManualRevenue";
 import { StaffUser } from "@/models/os/StaffUser";
 import { SalesDeal } from "@/models/sales/SalesDeal";
 import { SalesEmployee } from "@/models/sales/SalesEmployee";
-import {
-  archiveTransaction,
-  createTransaction,
-  updateTransaction,
-} from "@/actions/os/transactions";
+import { Lock } from "lucide-react";
+import { createTransaction } from "@/actions/os/transactions";
 import { OsActionForm } from "@/components/os/OsActionForm";
-import { RowDeleteButton } from "@/components/os/RowDeleteButton";
 import { TransactionFields } from "@/components/os/TransactionFields";
 import { SalesModal } from "@/components/sales/SalesModal";
 import { OsBadge, OsPage, OsStat, OsTable, Td, Th, osInputClass, osSelectClass } from "@/components/os/ui";
@@ -78,12 +74,6 @@ const SOURCE_TONE: Record<SourceKey, "neutral" | "ok" | "warn" | "bad" | "accent
   sales: "ok",
   manual: "warn",
 };
-
-function toDateInputValue(d: Date | string | undefined) {
-  if (!d) return "";
-  const date = new Date(d);
-  return Number.isNaN(date.getTime()) ? "" : date.toISOString().slice(0, 10);
-}
 
 function monthRange(month: string) {
   const [y, m] = month.split("-").map(Number);
@@ -465,37 +455,14 @@ export default async function TransactionsPage({
                   )}
                 </Td>
                 <Td>
-                  {r.tx && canWrite ? (
-                    <div className="flex items-center gap-1">
-                      <SalesModal
-                        triggerLabel="Edit"
-                        title="Edit transaction"
-                        subtitle="Changes are saved to the history and emailed."
-                        triggerClassName="inline-flex h-8 items-center rounded-lg border border-[var(--dash-border)] px-2.5 font-inter text-xs text-[var(--dash-muted)] hover:text-[var(--dash-text)]"
-                      >
-                        <OsActionForm action={updateTransaction} submitLabel="Save changes" className="grid gap-3">
-                          <input type="hidden" name="id" value={r.tx.id} />
-                          <TransactionFields
-                            initial={{
-                              type: r.tx.type,
-                              title: r.title,
-                              category: r.tx.category,
-                              amount: r.amount,
-                              date: toDateInputValue(r.date),
-                              party: r.tx.party,
-                              paymentMethod: r.tx.paymentMethod,
-                              reference: r.tx.reference,
-                              notes: r.tx.notes,
-                            }}
-                          />
-                        </OsActionForm>
-                      </SalesModal>
-                      <RowDeleteButton
-                        action={archiveTransaction}
-                        id={r.tx.id}
-                        confirmMessage={`Delete "${r.title}" (${formatCurrencyINR(r.amount)})?`}
-                      />
-                    </div>
+                  {r.tx ? (
+                    <span
+                      title="Transactions are locked once added"
+                      className="inline-flex items-center gap-1 text-xs text-[var(--dash-muted)]"
+                    >
+                      <Lock className="h-3.5 w-3.5" aria-hidden />
+                      Locked
+                    </span>
                   ) : (
                     <span className="text-xs text-[var(--dash-muted)]">—</span>
                   )}

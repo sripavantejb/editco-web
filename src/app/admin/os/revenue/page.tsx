@@ -10,7 +10,6 @@ import { Vendor } from "@/models/os/Vendor";
 import { StaffUser } from "@/models/os/StaffUser";
 import { createManualRevenue, archiveManualRevenue, updateManualRevenue } from "@/actions/os/revenue";
 import { archiveInvoice } from "@/actions/os/invoices";
-import { archiveTransaction } from "@/actions/os/transactions";
 import Link from "next/link";
 import { OsActionForm } from "@/components/os/OsActionForm";
 import { RowDeleteButton } from "@/components/os/RowDeleteButton";
@@ -382,12 +381,10 @@ export default async function RevenuePage() {
                         confirmMessage={`Delete manual revenue "${r.label}"?`}
                       />
                     </div>
-                  ) : (r.source === "Income" || r.source === "Spent") && canDeleteManual ? (
-                    <RowDeleteButton
-                      action={archiveTransaction}
-                      id={r.id}
-                      confirmMessage={`Delete transaction "${r.label}"?`}
-                    />
+                  ) : r.source === "Income" || r.source === "Spent" ? (
+                    <span className="text-xs text-[var(--dash-muted)]" title="Transactions are locked once added">
+                      Locked
+                    </span>
                   ) : r.source === "Editco OS" && canDeleteInvoice ? (
                     <RowDeleteButton
                       action={archiveInvoice}

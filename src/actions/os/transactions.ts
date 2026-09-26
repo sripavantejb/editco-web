@@ -30,20 +30,6 @@ type TxFields = {
   notes: string;
 };
 
-type TxChange = { field: string; from: string; to: string };
-
-const FIELD_LABELS: Record<keyof TxFields, string> = {
-  type: "Type",
-  title: "Title",
-  category: "Category",
-  amount: "Amount",
-  date: "Date",
-  party: "Paid to / received from",
-  paymentMethod: "Payment method",
-  reference: "Reference",
-  notes: "Notes",
-};
-
 function revalidateFinance() {
   revalidatePath("/admin/os", "layout");
   revalidatePath("/admin/os/transactions");
@@ -91,16 +77,6 @@ function displayValue(field: keyof TxFields, value: unknown): string {
   return String(value);
 }
 
-function diffFields(before: TxFields, after: TxFields): TxChange[] {
-  const changes: TxChange[] = [];
-  for (const field of Object.keys(FIELD_LABELS) as (keyof TxFields)[]) {
-    const from = displayValue(field, before[field]);
-    const to = displayValue(field, after[field]);
-    if (from !== to) changes.push({ field: FIELD_LABELS[field], from, to });
-  }
-  return changes;
-}
-
 function summaryLines(tx: TxFields) {
   return [
     ["Type", displayValue("type", tx.type)],
@@ -118,30 +94,14 @@ async function emailTransactionAlert(input: {
   title: string;
   tx: TxFields;
   actor: string;
-  changes?: TxChange[];
 }) {
   await sendFinanceAlert({
     title: input.title,
     lines: summaryLines(input.tx),
     actor: input.actor,
-    changes: input.changes,
     eyebrow: "Transactions",
     href: "/admin/os/transactions",
   });
-}
-
-function toFields(row: TxFields): TxFields {
-  return {
-    type: row.type,
-    title: row.title,
-    category: row.category || "",
-    amount: row.amount,
-    date: row.date,
-    party: row.party || "",
-    paymentMethod: row.paymentMethod,
-    reference: row.reference || "",
-    notes: row.notes || "",
-  };
 }
 
 export async function createTransaction(
@@ -177,75 +137,4 @@ export async function createTransaction(
 
   revalidateFinance();
   return { success: `${label} entry added` };
-}
-
-export async function updateTransaction(
-  _prev: ActionState,
-  formData: FormData
-): Promise<ActionState> {
-  const gate = await requireStaff("payments:write");
-  if (!gate.ok) return { error: gate.error };
-  await connectDB();
-
-  const row = await Transaction.findById(str(formData, "id"));
-  if (!row || row.recordStatus !== "active") return { error: "Transaction not found" };
-
-  const parsed = parseFields(formData);
-  if (!parsed.data) return { error: parsed.error };
-  const next = parsed.data;
-
-  const before = toFields(row);
-  const changes = diffFields(before, next);
-  if (changes.length === 0) return { success: "No changes to save" };
-
-  Object.assign(row, next);
-  row.updatedBy = gate.staff.email;
-  row.history.push({ action: "updated", changes, by: gate.staff.email, at: new Date() });
-  await row.save();
-
-  const title = `Transaction edited: ${next.title}`;
-  await logActivity({
-    title,
-    detail: changes.map((c) => `${c.field}: ${c.from || "—"} → ${c.to || "—"}`).join(" · "),
-    createdBy: gate.staff.email,
-    actorUserId: gate.staff.userId,
-    entityType: "transaction",
-    entityId: String(row._id),
-  });
-  await emailTransactionAlert({ title, tx: next, actor: gate.staff.email, changes });
-
-  revalidateFinance();
-  return { success: "Transaction updated" };
-}
-
-export async function archiveTransaction(
-  _prev: ActionState,
-  formData: FormData
-): Promise<ActionState> {
-  const gate = await requireStaff("payments:write");
-  if (!gate.ok) return { error: gate.error };
-  await connectDB();
-
-  const row = await Transaction.findById(str(formData, "id"));
-  if (!row || row.recordStatus !== "active") return { error: "Transaction not found" };
-
-  row.recordStatus = "archived";
-  row.updatedBy = gate.staff.email;
-  row.history.push({ action: "deleted", changes: [], by: gate.staff.email, at: new Date() });
-  await row.save();
-
-  const tx = toFields(row);
-  const title = `Transaction deleted: ${tx.title} · ${formatCurrencyINR(tx.amount)}`;
-  await logActivity({
-    title,
-    detail: `${TRANSACTION_TYPE_LABELS[tx.type]} · ${formatDate(tx.date)}`,
-    createdBy: gate.staff.email,
-    actorUserId: gate.staff.userId,
-    entityType: "transaction",
-    entityId: String(row._id),
-  });
-  await emailTransactionAlert({ title, tx, actor: gate.staff.email });
-
-  revalidateFinance();
-  return { success: "Transaction deleted" };
 }
