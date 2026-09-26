@@ -369,6 +369,19 @@ export async function deleteEditcoTrackerRow(_prev: ActionState, formData: FormD
   return { success: "Row deleted." };
 }
 
+export async function sendTrackerRemindersNow(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const gate = await requireStaff("*");
+  if (!gate.ok) return { error: gate.error };
+  const slot = formData.get("slot") === "evening" ? "evening" : "morning";
+  const { runDailyReminders } = await import("@/lib/os/reminders");
+  const result = await runDailyReminders(slot, { force: true });
+  return {
+    success: result.sent
+      ? `Sent ${slot} reminders to ${result.sent} ${result.sent === 1 ? "person" : "people"}`
+      : "Nothing due — no reminders needed",
+  };
+}
+
 /** Idempotent daily clock-in when opening Master Tracker. */
 export async function ensureEditcoTrackerCheckIn(): Promise<{
   checkedInAt: string;

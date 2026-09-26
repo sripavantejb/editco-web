@@ -6,6 +6,7 @@ import {
   createEditcoTrackerRow,
   ensureEditcoTrackerCheckIn,
   getTodayEditcoCheckIns,
+  sendTrackerRemindersNow,
 } from "@/actions/os/editco-tracker";
 import { OsActionForm } from "@/components/os/OsActionForm";
 import { SalesModal } from "@/components/sales/SalesModal";
@@ -73,6 +74,22 @@ export default async function EditcoTrackerPage() {
       backHref="/admin/os"
       backLabel="Back to dashboard"
       actions={
+        <div className="flex flex-wrap items-center gap-2">
+        <SalesModal
+          triggerLabel="Reminders"
+          title="Email reminders"
+          subtitle="Sent automatically every day at 9:00 AM and 6:00 PM IST. Use these to send one right now."
+          triggerClassName="inline-flex h-10 items-center rounded-full border border-[var(--dash-border)] bg-white px-4 font-archivo text-xs uppercase tracking-[0.08em] text-[var(--dash-text)] hover:bg-[#f5f5f5]"
+        >
+          <div className="grid gap-3">
+            <OsActionForm action={sendTrackerRemindersNow} submitLabel="Send morning plan now" className="m-0">
+              <input type="hidden" name="slot" value="morning" />
+            </OsActionForm>
+            <OsActionForm action={sendTrackerRemindersNow} submitLabel="Send 6 PM check-in now" className="m-0">
+              <input type="hidden" name="slot" value="evening" />
+            </OsActionForm>
+          </div>
+        </SalesModal>
         <SalesModal triggerLabel="Add row" title="Add row">
           <OsActionForm action={createEditcoTrackerRow} submitLabel="Add row" className="grid gap-3">
             <div className="grid grid-cols-2 gap-3">
@@ -149,6 +166,7 @@ export default async function EditcoTrackerPage() {
             </Field>
           </OsActionForm>
         </SalesModal>
+        </div>
       }
     >
       <EditcoTrackerClient
