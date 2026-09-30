@@ -27,7 +27,7 @@ import { resolveActorNames, actorKey } from "@/lib/os/activity";
 import { staffCanManageAllProjects } from "@/lib/os/project-access";
 import { migrateTaskStatuses } from "@/actions/os/tasks";
 import { DashboardActivityButton } from "@/components/os/DashboardActivityButton";
-import { EmailAlertsButton, TeamWorkloadCard } from "@/components/os/TeamWorkloadCard";
+import { DeadlineRemindersButton, EmailAlertsButton, TeamWorkloadCard } from "@/components/os/TeamWorkloadCard";
 import { DashboardListCard } from "@/components/os/DashboardListCard";
 import { FollowUp } from "@/models/os/FollowUp";
 import { EditcoTrackerRow } from "@/models/os/EditcoTrackerRow";
@@ -362,6 +362,7 @@ export default async function OsDashboardPage() {
           />
           <OsLink href="/admin/os/leads/new">Add lead</OsLink>
           <OsLink href="/admin/os/notifications">Inbox ({unread})</OsLink>
+          {canSeeAll ? <DeadlineRemindersButton /> : null}
           {canSeeAll ? (
             <EmailAlertsButton
               overdueInvoices={overdueInvoices.length}

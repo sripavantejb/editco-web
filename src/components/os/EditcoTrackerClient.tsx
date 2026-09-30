@@ -2,7 +2,9 @@
 
 import { useMemo, useState, useTransition, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
+  BellRing,
   CalendarClock,
   Clock,
   History,
@@ -28,7 +30,9 @@ import {
 import {
   updateEditcoTrackerField,
   deleteEditcoTrackerRow,
+  remindEditcoTrackerRow,
 } from "@/actions/os/editco-tracker";
+import { ProjectNameField } from "@/components/os/ProjectNameField";
 import { cn, formatDate, formatDateTime, formatTime } from "@/lib/utils";
 
 export type TrackerRowView = {
@@ -126,10 +130,12 @@ function deadlineBadge(deadline: string | null, done: boolean) {
 
 export function EditcoTrackerClient({
   rows: initialRows,
+  projectNames,
   myCheckInAt,
   todayCheckIns,
 }: {
   rows: TrackerRowView[];
+  projectNames: string[];
   myCheckInAt: string | null;
   todayCheckIns: CheckIn[];
 }) {
@@ -181,6 +187,20 @@ export function EditcoTrackerClient({
       fd.set("rowId", rowId);
       await deleteEditcoTrackerRow({}, fd);
       router.refresh();
+    });
+  };
+
+  const remindRow = (r: TrackerRowView) => {
+    if (!r.poc) {
+      toast.error("Set a POC first");
+      return;
+    }
+    startTransition(async () => {
+      const fd = new FormData();
+      fd.set("rowId", r.id);
+      const res = await remindEditcoTrackerRow({}, fd);
+      if (res.error) toast.error(res.error);
+      else if (res.success) toast.success(res.success);
     });
   };
 
@@ -328,6 +348,18 @@ export function EditcoTrackerClient({
         </td>
         <td className="px-3 py-2.5">
           <div className="flex items-center gap-1">
+            {!done ? (
+              <button
+                type="button"
+                aria-label="Remind POC by email"
+                title={r.poc ? `Email ${r.poc} a reminder now` : "Set a POC to send reminders"}
+                disabled={pending}
+                onClick={() => remindRow(r)}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#6b7280] hover:bg-amber-50 hover:text-amber-700 disabled:opacity-40"
+              >
+                <BellRing className="h-4 w-4" />
+              </button>
+            ) : null}
             <button
               type="button"
               aria-label={section === "daily" ? "Move to deadline tasks" : "Move to daily tasks"}
@@ -441,6 +473,8 @@ export function EditcoTrackerClient({
       {detail ? (
         <TrackerDetailPanel
           row={detail}
+          projectNames={projectNames}
+          onRemind={() => remindRow(detail)}
           editing={editing}
           onEdit={() => setEditing(true)}
           onCancelEdit={() => setEditing(false)}
@@ -503,6 +537,8 @@ function DetailField({ label, children }: { label: string; children: ReactNode }
 
 function TrackerDetailPanel({
   row,
+  projectNames,
+  onRemind,
   editing,
   onEdit,
   onCancelEdit,
@@ -510,6 +546,8 @@ function TrackerDetailPanel({
   onSave,
 }: {
   row: TrackerRowView;
+  projectNames: string[];
+  onRemind: () => void;
   editing: boolean;
   onEdit: () => void;
   onCancelEdit: () => void;
@@ -567,7 +605,12 @@ function TrackerDetailPanel({
             <div className="space-y-3">
               <label className="block space-y-1.5">
                 <span className="font-inter text-xs text-[#6b7280]">Project</span>
-                <input value={projectName} onChange={(e) => setProjectName(e.target.value)} className={inputClass} />
+                <ProjectNameField
+                  projects={projectNames}
+                  defaultValue={row.projectName}
+                  onChange={setProjectName}
+                  inputClassName={inputClass}
+                />
               </label>
               <label className="block space-y-1.5">
                 <span className="font-inter text-xs text-[#6b7280]">Task</span>
@@ -635,7 +678,17 @@ function TrackerDetailPanel({
         </div>
 
         {!editing ? (
-          <footer className="flex justify-end border-t border-[#e5e7eb] px-5 py-3">
+          <footer className="flex justify-end gap-2 border-t border-[#e5e7eb] px-5 py-3">
+            {!done ? (
+              <button
+                type="button"
+                onClick={onRemind}
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-[#e5e7eb] px-3 font-inter text-[13px] font-medium text-[#111111] hover:bg-[#f5f5f5]"
+              >
+                <BellRing className="h-3.5 w-3.5" />
+                Remind POC
+              </button>
+            ) : null}
             <button
               type="button"
               onClick={startEdit}

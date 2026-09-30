@@ -6,8 +6,11 @@ import {
   createEditcoTrackerRow,
   ensureEditcoTrackerCheckIn,
   getTodayEditcoCheckIns,
+  sendDeadlineRemindersNow,
   sendTrackerRemindersNow,
 } from "@/actions/os/editco-tracker";
+import { Project } from "@/models/os/Project";
+import { ProjectNameField } from "@/components/os/ProjectNameField";
 import { OsActionForm } from "@/components/os/OsActionForm";
 import { SalesModal } from "@/components/sales/SalesModal";
 import { Field, OsPage, osButtonClass, osInputClass, osTextareaClass } from "@/components/os/ui";
@@ -30,11 +33,20 @@ import { reopenStaleDailyTrackerRows } from "@/lib/os/editco-tracker-server";
 export default async function EditcoTrackerPage() {
   await requireOsPage("*");
   await reopenStaleDailyTrackerRows();
-  const [rows, checkIn, todayCheckIns] = await Promise.all([
+  const [rows, checkIn, todayCheckIns, osProjects, trackerProjectNames] = await Promise.all([
     EditcoTrackerRow.find({}).sort({ date: -1, createdAt: -1 }).limit(300).lean(),
     ensureEditcoTrackerCheckIn(),
     getTodayEditcoCheckIns(),
+    Project.find({ recordStatus: "active" }).select("name").lean(),
+    EditcoTrackerRow.distinct("projectName") as Promise<string[]>,
   ]);
+  const projectNames = [
+    ...new Set(
+      [...osProjects.map((p) => String(p.name || "")), ...trackerProjectNames]
+        .map((n) => n.trim())
+        .filter(Boolean)
+    ),
+  ].sort((a, b) => a.localeCompare(b));
 
   const viewRows: TrackerRowView[] = rows.map((r) => ({
     id: String(r._id),
@@ -78,10 +90,13 @@ export default async function EditcoTrackerPage() {
         <SalesModal
           triggerLabel="Reminders"
           title="Email reminders"
-          subtitle="Sent automatically every day at 9:00 AM and 6:00 PM IST. Use these to send one right now."
+          subtitle="Daily digests go out at 9:00 AM and 6:00 PM IST; per-task deadline reminders at 6 AM, 12 PM, 6 PM and 10 PM IST. Use these to send one right now."
           triggerClassName={osButtonClass("secondary")}
         >
           <div className="grid gap-3">
+            <OsActionForm action={sendDeadlineRemindersNow} submitLabel="Send deadline reminders to POCs now" className="m-0">
+              {null}
+            </OsActionForm>
             <OsActionForm action={sendTrackerRemindersNow} submitLabel="Send morning plan now" className="m-0">
               <input type="hidden" name="slot" value="morning" />
             </OsActionForm>
@@ -106,7 +121,7 @@ export default async function EditcoTrackerPage() {
               </Field>
             </div>
             <Field label="Project name">
-              <input name="projectName" required className={osInputClass()} />
+              <ProjectNameField name="projectName" projects={projectNames} />
             </Field>
             <Field label="Task name">
               <input name="taskName" required className={osInputClass()} />
@@ -171,6 +186,7 @@ export default async function EditcoTrackerPage() {
     >
       <EditcoTrackerClient
         rows={viewRows}
+        projectNames={projectNames}
         myCheckInAt={checkIn?.checkedInAt ?? null}
         todayCheckIns={todayCheckIns.map((c) => ({
           email: c.email,

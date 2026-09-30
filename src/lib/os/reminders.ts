@@ -276,11 +276,81 @@ type DeadlineItem = {
   href: string;
 };
 
+type TrackerRowLean = {
+  _id: unknown;
+  poc?: string | null;
+  projectName: string;
+  taskName: string;
+  priority?: string | null;
+  deadline?: Date | null;
+};
+
+function trackerDeadlineItem(r: TrackerRowLean): DeadlineItem | null {
+  const email = EDITCO_TEAM_EMAILS[r.poc as keyof typeof EDITCO_TEAM_EMAILS];
+  if (!email || !r.deadline || !r.poc) return null;
+  const pr = (r.priority || "medium") as EditcoTrackerPriority;
+  return {
+    key: `tracker:${r._id}`,
+    email,
+    name: r.poc,
+    project: r.projectName,
+    task: r.taskName,
+    priority: EDITCO_TRACKER_PRIORITY_LABELS[pr],
+    deadline: new Date(r.deadline),
+    href: "/admin/os/editco",
+  };
+}
+
+async function sendDeadlineEmail(it: DeadlineItem, now: Date, sentBy?: string) {
+  const msLeft = it.deadline.getTime() - now.getTime();
+  const timeLeft = formatTimeLeft(msLeft);
+  const overdue = msLeft < 0;
+  const first = it.name.split(" ")[0] || "there";
+  const taskLabel = it.project ? `${it.project} — ${it.task}` : it.task;
+  const deadlineText = `${istDate(it.deadline)}, ${istTime(it.deadline)} IST`;
+  const subject = overdue
+    ? `Overdue: ${taskLabel} (${timeLeft.toLowerCase()})`
+    : `Reminder: ${taskLabel} — ${timeLeft}`;
+  const lines = [
+    `Hi ${first},`,
+    sentBy
+      ? `${sentBy} sent you a reminder for a task you're the POC on.`
+      : "This is a reminder for a task you're the POC on.",
+    `Task: ${taskLabel}`,
+    ...(it.priority ? [`Priority: ${it.priority}`] : []),
+    `Deadline: ${deadlineText}`,
+    `Time remaining: ${timeLeft}`,
+    overdue
+      ? "The deadline has passed. Please complete it or update its status in Editco right away."
+      : "Please make sure it's completed before the deadline, and mark it done in Editco once finished.",
+  ];
+
+  await sendMail({
+    to: it.email,
+    subject,
+    text: lines.join("\n"),
+    html: buildNotificationEmail({
+      title: `${timeLeft} — ${taskLabel}`,
+      body: lines
+        .map((l) => {
+          const [label, ...rest] = l.split(": ");
+          return rest.length && ["Task", "Priority", "Deadline", "Time remaining"].includes(label)
+            ? `<strong style="color:#f5f5f5;">${escapeHtml(label)}:</strong> ${escapeHtml(rest.join(": "))}`
+            : escapeHtml(l);
+        })
+        .join("<br/>"),
+      eyebrow: overdue ? "Overdue task" : "Deadline reminder",
+      href: it.href,
+      ctaLabel: "Open task →",
+    }),
+  });
+}
+
 /**
  * 6 AM, 12 PM, 6 PM and 10 PM IST: one email per open task with a deadline, sent to its POC (tracker)
  * or assignee (OS task), showing the deadline and hours remaining until it's completed.
  */
-export async function runDeadlineReminders(opts: { force?: boolean } = {}) {
+export async function runDeadlineReminders(opts: { force?: boolean; sentBy?: string } = {}) {
   await connectDB();
 
   const now = new Date();
@@ -292,20 +362,9 @@ export async function runDeadlineReminders(opts: { force?: boolean } = {}) {
     deadline: { $exists: true, $ne: null },
   }).lean();
   for (const r of rows) {
-    if (isEditcoTrackerDone(String(r.status)) || !r.deadline) continue;
-    const email = EDITCO_TEAM_EMAILS[r.poc as keyof typeof EDITCO_TEAM_EMAILS];
-    if (!email) continue;
-    const pr = (r.priority || "medium") as EditcoTrackerPriority;
-    items.push({
-      key: `tracker:${r._id}`,
-      email,
-      name: r.poc,
-      project: r.projectName,
-      task: r.taskName,
-      priority: EDITCO_TRACKER_PRIORITY_LABELS[pr],
-      deadline: new Date(r.deadline),
-      href: "/admin/os/editco",
-    });
+    if (isEditcoTrackerDone(String(r.status))) continue;
+    const item = trackerDeadlineItem(r);
+    if (item) items.push(item);
   }
 
   const tasks = await OsTask.find({
@@ -344,47 +403,7 @@ export async function runDeadlineReminders(opts: { force?: boolean } = {}) {
       skipped++;
       continue;
     }
-
-    const msLeft = it.deadline.getTime() - now.getTime();
-    const timeLeft = formatTimeLeft(msLeft);
-    const overdue = msLeft < 0;
-    const first = it.name.split(" ")[0] || "there";
-    const taskLabel = it.project ? `${it.project} — ${it.task}` : it.task;
-    const deadlineText = `${istDate(it.deadline)}, ${istTime(it.deadline)} IST`;
-    const subject = overdue
-      ? `Overdue: ${taskLabel} (${timeLeft.toLowerCase()})`
-      : `Reminder: ${taskLabel} — ${timeLeft}`;
-    const lines = [
-      `Hi ${first},`,
-      "This is a reminder for a task you're the POC on.",
-      `Task: ${taskLabel}`,
-      ...(it.priority ? [`Priority: ${it.priority}`] : []),
-      `Deadline: ${deadlineText}`,
-      `Time remaining: ${timeLeft}`,
-      overdue
-        ? "The deadline has passed. Please complete it or update its status in Editco right away."
-        : "Please make sure it's completed before the deadline, and mark it done in Editco once finished.",
-    ];
-
-    await sendMail({
-      to: it.email,
-      subject,
-      text: lines.join("\n"),
-      html: buildNotificationEmail({
-        title: `${timeLeft} — ${taskLabel}`,
-        body: lines
-          .map((l) => {
-            const [label, ...rest] = l.split(": ");
-            return rest.length && ["Task", "Priority", "Deadline", "Time remaining"].includes(label)
-              ? `<strong style="color:#f5f5f5;">${escapeHtml(label)}:</strong> ${escapeHtml(rest.join(": "))}`
-              : escapeHtml(l);
-          })
-          .join("<br/>"),
-        eyebrow: overdue ? "Overdue task" : "Deadline reminder",
-        href: it.href,
-        ctaLabel: "Open task →",
-      }),
-    });
+    await sendDeadlineEmail(it, now, opts.sentBy);
     await ReminderLog.updateOne(
       { key: logKey },
       { $setOnInsert: { key: logKey, email: it.email, slot: "deadline", dayKey: windowKey } },
@@ -395,3 +414,43 @@ export async function runDeadlineReminders(opts: { force?: boolean } = {}) {
 
   return { slot: "deadline", windowKey, sent, skipped, tasks: items.length };
 }
+
+/** Manual "Remind" on one tracker row: emails its POC right away. */
+export async function sendTrackerRowReminder(rowId: string, sentBy?: string) {
+  await connectDB();
+  const row = await EditcoTrackerRow.findById(rowId).lean<TrackerRowLean & { status: string; kind?: string }>();
+  if (!row) return { error: "Row not found" };
+  if (isEditcoTrackerDone(String(row.status))) return { error: "This task is already done" };
+  if (!row.poc) return { error: "Set a POC first" };
+  const email = EDITCO_TEAM_EMAILS[row.poc as keyof typeof EDITCO_TEAM_EMAILS];
+  if (!email) return { error: "POC has no email configured" };
+
+  if (row.kind === "daily" || !row.deadline) {
+    const label = `${row.projectName} — ${row.taskName}`;
+    const lines = [
+      `Hi ${row.poc},`,
+      `${sentBy || "Editco"} sent you a reminder for a task you're the POC on.`,
+      `Task: ${label}`,
+      row.kind === "daily" ? "Please complete today's run of this daily task." : "Please complete it and mark it done in Editco.",
+    ];
+    await sendMail({
+      to: email,
+      subject: `Reminder: ${label}`,
+      text: lines.join("\n"),
+      html: buildNotificationEmail({
+        title: `Reminder — ${label}`,
+        body: lines.map(escapeHtml).join("<br/>"),
+        eyebrow: "Task reminder",
+        href: "/admin/os/editco",
+        ctaLabel: "Open task →",
+      }),
+    });
+    return { success: `Reminder sent to ${row.poc}` };
+  }
+
+  const item = trackerDeadlineItem(row);
+  if (!item) return { error: "Could not build reminder" };
+  await sendDeadlineEmail(item, new Date(), sentBy);
+  return { success: `Reminder sent to ${row.poc}` };
+}
+

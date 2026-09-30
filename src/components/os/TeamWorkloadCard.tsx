@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Mail, Bell } from "lucide-react";
+import { Mail, Bell, BellRing } from "lucide-react";
 import {
   nudgeStaffWorkload,
   sendOsDashboardAlerts,
 } from "@/actions/os/dashboard-alerts";
+import { sendDeadlineRemindersNow } from "@/actions/os/editco-tracker";
 import { cn } from "@/lib/utils";
 
 export type WorkloadPerson = {
@@ -140,6 +141,33 @@ export function TeamWorkloadCard({ people }: { people: WorkloadPerson[] }) {
       </ul>
       {msg ? <p className="mt-3 font-inter text-xs text-[#6b7280]">{msg}</p> : null}
     </section>
+  );
+}
+
+export function DeadlineRemindersButton() {
+  const [pending, startTransition] = useTransition();
+  const [msg, setMsg] = useState<string | null>(null);
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <button
+        type="button"
+        disabled={pending}
+        title="Email every POC about their open tasks, deadlines and hours left"
+        onClick={() => {
+          if (!confirm("Send deadline reminders to every POC with open tasks now?")) return;
+          startTransition(async () => {
+            const res = await sendDeadlineRemindersNow({});
+            setMsg(res.success || res.error || null);
+          });
+        }}
+        className="inline-flex h-9 items-center gap-2 rounded-lg border border-[#e5e7eb] bg-white px-3 font-inter text-[13px] font-medium text-[#111111] transition hover:bg-[#f5f5f5] disabled:opacity-50"
+      >
+        <BellRing className="h-3.5 w-3.5" />
+        {pending ? "Sending…" : "Remind POCs"}
+      </button>
+      {msg ? <span className="font-inter text-xs text-[#6b7280]">{msg}</span> : null}
+    </div>
   );
 }
 

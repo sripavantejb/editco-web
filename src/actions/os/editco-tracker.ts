@@ -382,6 +382,27 @@ export async function sendTrackerRemindersNow(_prev: ActionState, formData: Form
   };
 }
 
+export async function sendDeadlineRemindersNow(_prev: ActionState, _formData?: FormData): Promise<ActionState> {
+  const gate = await requireStaff("*");
+  if (!gate.ok) return { error: gate.error };
+  const { runDeadlineReminders } = await import("@/lib/os/reminders");
+  const result = await runDeadlineReminders({ force: true, sentBy: gate.staff.name || gate.staff.email });
+  return {
+    success: result.sent
+      ? `Sent ${result.sent} deadline ${result.sent === 1 ? "reminder" : "reminders"}`
+      : "No open tasks with deadlines — nothing to send",
+  };
+}
+
+export async function remindEditcoTrackerRow(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const gate = await requireStaff("*");
+  if (!gate.ok) return { error: gate.error };
+  const rowId = String(formData.get("rowId") || "");
+  if (!rowId) return { error: "Invalid row" };
+  const { sendTrackerRowReminder } = await import("@/lib/os/reminders");
+  return sendTrackerRowReminder(rowId, gate.staff.name || gate.staff.email);
+}
+
 /** Idempotent daily clock-in when opening Master Tracker. */
 export async function ensureEditcoTrackerCheckIn(): Promise<{
   checkedInAt: string;
