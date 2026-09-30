@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { runDailyReminders, type ReminderSlot } from "@/lib/os/reminders";
+import { runDailyReminders, runDeadlineReminders, type ReminderSlot } from "@/lib/os/reminders";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -15,7 +15,7 @@ export async function GET(req: Request) {
   const slot: ReminderSlot = slotParam === "evening" ? "evening" : "morning";
 
   try {
-    const result = await runDailyReminders(slot);
+    const result = slotParam === "deadline" ? await runDeadlineReminders() : await runDailyReminders(slot);
     return NextResponse.json({ ok: true, ...result });
   } catch (err) {
     console.error("[cron/reminders] failed:", err);

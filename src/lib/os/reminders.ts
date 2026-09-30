@@ -251,3 +251,147 @@ export async function runDailyReminders(slot: ReminderSlot, opts: { force?: bool
 
   return { slot, dayKey, sent, skipped, recipients: digests.size };
 }
+
+const HOUR_MS = 3600000;
+
+function formatTimeLeft(ms: number) {
+  const totalHours = Math.floor(Math.abs(ms) / HOUR_MS);
+  const days = Math.floor(totalHours / 24);
+  const hours = totalHours % 24;
+  const parts: string[] = [];
+  if (days) parts.push(`${days} day${days === 1 ? "" : "s"}`);
+  if (hours || !days) parts.push(`${hours} hour${hours === 1 ? "" : "s"}`);
+  const span = totalHours === 0 ? "less than 1 hour" : parts.join(" ");
+  return ms < 0 ? `Overdue by ${span}` : `${span} left`;
+}
+
+type DeadlineItem = {
+  key: string;
+  email: string;
+  name: string;
+  project?: string;
+  task: string;
+  priority?: string;
+  deadline: Date;
+  href: string;
+};
+
+/**
+ * 6 AM, 12 PM, 6 PM and 10 PM IST: one email per open task with a deadline, sent to its POC (tracker)
+ * or assignee (OS task), showing the deadline and hours remaining until it's completed.
+ */
+export async function runDeadlineReminders(opts: { force?: boolean } = {}) {
+  await connectDB();
+
+  const now = new Date();
+  const windowKey = now.toISOString().slice(0, 13);
+  const items: DeadlineItem[] = [];
+
+  const rows = await EditcoTrackerRow.find({
+    kind: { $ne: "daily" },
+    deadline: { $exists: true, $ne: null },
+  }).lean();
+  for (const r of rows) {
+    if (isEditcoTrackerDone(String(r.status)) || !r.deadline) continue;
+    const email = EDITCO_TEAM_EMAILS[r.poc as keyof typeof EDITCO_TEAM_EMAILS];
+    if (!email) continue;
+    const pr = (r.priority || "medium") as EditcoTrackerPriority;
+    items.push({
+      key: `tracker:${r._id}`,
+      email,
+      name: r.poc,
+      project: r.projectName,
+      task: r.taskName,
+      priority: EDITCO_TRACKER_PRIORITY_LABELS[pr],
+      deadline: new Date(r.deadline),
+      href: "/admin/os/editco",
+    });
+  }
+
+  const tasks = await OsTask.find({
+    recordStatus: "active",
+    status: { $nin: ["completed", "cancelled"] },
+    assignedToId: { $exists: true, $ne: null },
+    dueDate: { $exists: true, $ne: null },
+  })
+    .select("title dueDate assignedToId")
+    .lean();
+  const assigneeIds = [...new Set(tasks.map((t) => String(t.assignedToId)))];
+  const assignees = assigneeIds.length
+    ? await StaffUser.find({ _id: { $in: assigneeIds }, isActive: true }).select("name email").lean()
+    : [];
+  const userById = new Map(assignees.map((u) => [String(u._id), u]));
+  for (const t of tasks) {
+    const u = userById.get(String(t.assignedToId));
+    if (!u?.email || !t.dueDate) continue;
+    items.push({
+      key: `task:${t._id}`,
+      email: u.email,
+      name: u.name || u.email,
+      task: t.title,
+      deadline: new Date(t.dueDate),
+      href: `/admin/os/tasks/${t._id}`,
+    });
+  }
+
+  items.sort((a, b) => a.deadline.getTime() - b.deadline.getTime());
+
+  let sent = 0;
+  let skipped = 0;
+  for (const it of items) {
+    const logKey = `${windowKey}:deadline:${it.key}`;
+    if (!opts.force && (await ReminderLog.findOne({ key: logKey }).lean())) {
+      skipped++;
+      continue;
+    }
+
+    const msLeft = it.deadline.getTime() - now.getTime();
+    const timeLeft = formatTimeLeft(msLeft);
+    const overdue = msLeft < 0;
+    const first = it.name.split(" ")[0] || "there";
+    const taskLabel = it.project ? `${it.project} — ${it.task}` : it.task;
+    const deadlineText = `${istDate(it.deadline)}, ${istTime(it.deadline)} IST`;
+    const subject = overdue
+      ? `Overdue: ${taskLabel} (${timeLeft.toLowerCase()})`
+      : `Reminder: ${taskLabel} — ${timeLeft}`;
+    const lines = [
+      `Hi ${first},`,
+      "This is a reminder for a task you're the POC on.",
+      `Task: ${taskLabel}`,
+      ...(it.priority ? [`Priority: ${it.priority}`] : []),
+      `Deadline: ${deadlineText}`,
+      `Time remaining: ${timeLeft}`,
+      overdue
+        ? "The deadline has passed. Please complete it or update its status in Editco right away."
+        : "Please make sure it's completed before the deadline, and mark it done in Editco once finished.",
+    ];
+
+    await sendMail({
+      to: it.email,
+      subject,
+      text: lines.join("\n"),
+      html: buildNotificationEmail({
+        title: `${timeLeft} — ${taskLabel}`,
+        body: lines
+          .map((l) => {
+            const [label, ...rest] = l.split(": ");
+            return rest.length && ["Task", "Priority", "Deadline", "Time remaining"].includes(label)
+              ? `<strong style="color:#f5f5f5;">${escapeHtml(label)}:</strong> ${escapeHtml(rest.join(": "))}`
+              : escapeHtml(l);
+          })
+          .join("<br/>"),
+        eyebrow: overdue ? "Overdue task" : "Deadline reminder",
+        href: it.href,
+        ctaLabel: "Open task →",
+      }),
+    });
+    await ReminderLog.updateOne(
+      { key: logKey },
+      { $setOnInsert: { key: logKey, email: it.email, slot: "deadline", dayKey: windowKey } },
+      { upsert: true }
+    );
+    sent++;
+  }
+
+  return { slot: "deadline", windowKey, sent, skipped, tasks: items.length };
+}
